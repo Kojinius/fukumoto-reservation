@@ -1,0 +1,823 @@
+/* ===========================
+   福元鍼灸整骨院 予約システム
+   カラー: 茶 #735763 / オレンジ #F79321 / ベージュ #FCF0DE
+   =========================== */
+
+:root {
+    --brown:         #735763;
+    --brown-dark:    #5A3F4E;
+    --orange:        #F79321;
+    --orange-soft:   #FEF3E2;
+    --orange-mid:    #F7B85A;
+    --beige:         #FCF0DE;
+    --beige-mid:     #EDE3D8;
+    --beige-dark:    #D9C9B8;
+    --text-primary:  #3D2B1F;
+    --text-secondary:#735763;
+    --text-muted:    #8B7355;
+    --white:         #FFFFFF;
+    --red:           #E05252;
+    --green:         #4CAF50;
+    --blue:          #5B8AD5;
+
+    --radius-card:   14px;
+    --radius-btn:    10px;
+    --radius-input:  8px;
+    --shadow-card:   0 2px 16px rgba(115,87,99,.07);
+    --transition:    all .2s cubic-bezier(.4,0,.2,1);
+    --font-main:     'Noto Sans JP','Hiragino Kaku Gothic ProN',sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: var(--font-main);
+    background: var(--beige);
+    color: var(--text-primary);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ── 共通ボタン ── */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 20px;
+    height: 44px;
+    border: none;
+    border-radius: var(--radius-btn);
+    cursor: pointer;
+    font-family: var(--font-main);
+    font-size: .9rem;
+    font-weight: 700;
+    transition: var(--transition);
+}
+.btn-primary {
+    background: var(--orange);
+    color: var(--white);
+    box-shadow: 0 4px 12px rgba(247,147,33,.35);
+    width: 100%;
+    height: 52px;
+    font-size: 1rem;
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(247,147,33,.45); }
+.btn-outline {
+    background: transparent;
+    border: 1.5px solid var(--beige-mid);
+    color: var(--text-secondary);
+}
+.btn-outline:hover { border-color: var(--orange); color: var(--orange); }
+.btn-sm { height: 34px; padding: 0 14px; font-size: .82rem; border-radius: 7px; }
+
+/* ── ヘッダー（患者側） ── */
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    padding: 0 40px;
+    background: var(--white);
+    box-shadow: 0 2px 16px rgba(115,87,99,.08);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-icon {
+    width: 38px; height: 38px;
+    border-radius: 9px;
+    background: var(--orange);
+    color: var(--white);
+    font-size: 16px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+}
+.logo-text h1 { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.logo-text span { font-size: 10px; color: var(--text-muted); letter-spacing: .05em; }
+.header-right { display: flex; align-items: center; gap: 16px; }
+.header-phone { font-size: 13px; font-weight: 700; color: var(--brown); }
+.btn-check-booking {
+    background: var(--orange-soft);
+    color: var(--orange);
+    border: 1px solid var(--orange-mid);
+    border-radius: 8px;
+    padding: 0 16px;
+    height: 36px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.btn-check-booking:hover { background: var(--orange); color: var(--white); }
+
+/* ── ステップインジケーター ── */
+.step-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 56px;
+    background: var(--white);
+    border-bottom: 1px solid var(--beige-mid);
+    gap: 0;
+}
+.step-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 20px;
+    height: 56px;
+    cursor: default;
+}
+.step-num {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--beige-mid);
+    color: var(--text-muted);
+    font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.step-num.active { background: var(--orange); color: var(--white); }
+.step-num.done { background: var(--green); color: var(--white); }
+.step-label { font-size: 13px; color: var(--text-muted); white-space: nowrap; }
+.step-label.active { color: var(--orange); font-weight: 700; }
+.step-label.done { color: var(--green); }
+.step-sep { width: 48px; height: 2px; background: var(--beige-mid); flex-shrink: 0; }
+.step-sep.done { background: var(--green); }
+
+/* ── メインコンテンツ ── */
+.main { padding: 24px 28px; min-height: calc(100vh - 120px); }
+
+/* ── ステップパネル ── */
+.step-panel { display: none; }
+.step-panel.active { display: block; }
+
+/* ── カレンダーレイアウト ── */
+.booking-layout {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* ── カード共通 ── */
+.card {
+    background: var(--white);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+}
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--beige-mid);
+}
+.card-header h2 { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.card-body { padding: 16px; }
+
+/* ── カレンダー ── */
+.cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+}
+.cal-nav-btn {
+    width: 34px; height: 34px;
+    border: none;
+    background: var(--orange-soft);
+    color: var(--orange);
+    border-radius: 8px;
+    font-size: 18px; font-weight: 700;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: var(--transition);
+}
+.cal-nav-btn:hover { background: var(--orange); color: var(--white); }
+.cal-month { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+.cal-grid { padding: 0 12px 12px; }
+.cal-days-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    margin-bottom: 4px;
+}
+.cal-days-header span {
+    font-size: 11px; font-weight: 700;
+    color: var(--text-muted);
+    padding: 6px 0;
+}
+.cal-days-header span.sun { color: var(--red); }
+.cal-days-header span.sat { color: var(--blue); }
+.cal-cells {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+}
+.cal-cell {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: var(--transition);
+    color: var(--text-primary);
+    position: relative;
+}
+.cal-cell:hover:not(.disabled):not(.empty) { background: var(--orange-soft); color: var(--orange); }
+.cal-cell.today { font-weight: 700; }
+.cal-cell.today::after {
+    content: '';
+    position: absolute;
+    bottom: 3px;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--orange);
+}
+.cal-cell.selected { background: var(--orange); color: var(--white); font-weight: 700; }
+.cal-cell.selected::after { background: var(--white); }
+.cal-cell.disabled { color: var(--beige-dark); cursor: not-allowed; background: #f9f4ef; }
+.cal-cell.empty { cursor: default; }
+.cal-cell.sun { color: var(--red); }
+.cal-cell.sat { color: var(--blue); }
+.cal-cell.sun.disabled, .cal-cell.sat.disabled { color: var(--beige-dark); }
+
+/* ── 休診凡例 ── */
+.cal-legend {
+    display: flex; gap: 12px;
+    padding: 0 20px 14px;
+    flex-wrap: wrap;
+}
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-muted); }
+.legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* ── 時間スロット ── */
+.time-section { margin-bottom: 16px; }
+.time-section-label {
+    font-size: 11px; font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+.time-slots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.time-slot {
+    width: 88px;
+    height: 38px;
+    border-radius: 8px;
+    border: 1.5px solid var(--orange);
+    background: var(--orange-soft);
+    color: var(--orange);
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-main);
+}
+.time-slot:hover { background: var(--orange); color: var(--white); }
+.time-slot.selected { background: var(--orange); color: var(--white); box-shadow: 0 3px 10px rgba(247,147,33,.4); }
+.time-slot.booked { background: var(--beige-mid); border-color: var(--beige-mid); color: var(--text-muted); cursor: not-allowed; }
+
+/* ── 選択表示・次へボタン ── */
+.selected-datetime-box {
+    margin-top: 16px;
+    padding: 14px 16px;
+    background: var(--orange-soft);
+    border: 1.5px solid var(--orange);
+    border-radius: 10px;
+    font-size: 13px; font-weight: 700;
+    color: var(--brown);
+    display: none;
+}
+.selected-datetime-box.visible { display: block; }
+.next-btn-wrap { margin-top: 16px; }
+
+/* ── フォーム ── */
+.form-container { max-width: 700px; margin: 0 auto; }
+.form-section {
+    background: var(--white);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    padding: 24px;
+    margin-bottom: 16px;
+}
+.form-section-title {
+    font-size: 14px; font-weight: 700;
+    color: var(--brown);
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--orange-soft);
+    display: flex; align-items: center; gap: 8px;
+}
+.form-row { display: flex; gap: 12px; margin-bottom: 14px; }
+.form-group { flex: 1; margin-bottom: 14px; }
+.form-group:last-child { margin-bottom: 0; }
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 12px; font-weight: 700;
+    color: var(--text-secondary);
+}
+.form-group label .required {
+    color: var(--red);
+    margin-left: 3px;
+    font-size: 10px;
+}
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid var(--beige-mid);
+    border-radius: var(--radius-input);
+    font-family: var(--font-main);
+    font-size: .9rem;
+    color: var(--text-primary);
+    background: var(--beige);
+    transition: var(--transition);
+}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--orange);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(247,147,33,.12);
+}
+.form-group textarea { resize: vertical; min-height: 80px; }
+.age-display {
+    display: inline-block;
+    padding: 10px 12px;
+    background: var(--beige);
+    border: 1.5px solid var(--beige-mid);
+    border-radius: var(--radius-input);
+    font-size: .9rem;
+    color: var(--text-muted);
+    min-width: 80px;
+}
+.radio-group { display: flex; gap: 12px; flex-wrap: wrap; }
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-primary);
+    padding: 8px 14px;
+    border: 1.5px solid var(--beige-mid);
+    border-radius: 8px;
+    transition: var(--transition);
+}
+.radio-label input[type="radio"] { display: none; }
+.radio-label.checked {
+    border-color: var(--orange);
+    background: var(--orange-soft);
+    color: var(--orange);
+    font-weight: 700;
+}
+
+/* ── 確認画面 ── */
+.confirm-container { max-width: 700px; margin: 0 auto; }
+.confirm-card {
+    background: var(--white);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+.confirm-card-header {
+    background: var(--brown);
+    color: var(--white);
+    padding: 12px 20px;
+    font-size: 13px; font-weight: 700;
+}
+.confirm-table { width: 100%; border-collapse: collapse; }
+.confirm-table tr:not(:last-child) td { border-bottom: 1px solid var(--beige-mid); }
+.confirm-table td {
+    padding: 12px 20px;
+    font-size: 13px;
+}
+.confirm-table td:first-child {
+    width: 140px;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 11px;
+    background: #faf8f5;
+}
+.confirm-datetime {
+    background: var(--orange-soft);
+    border: 1.5px solid var(--orange);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    font-size: 15px; font-weight: 700;
+    color: var(--brown);
+    text-align: center;
+}
+.confirm-actions { display: flex; gap: 12px; max-width: 700px; margin: 0 auto; }
+.confirm-actions .btn-primary { flex: 2; }
+.confirm-actions .btn-outline { flex: 1; height: 52px; }
+
+/* ── 完了画面 ── */
+.complete-container {
+    max-width: 600px;
+    margin: 40px auto;
+    text-align: center;
+}
+.complete-icon {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--orange) 0%, #E8620A 100%);
+    color: var(--white);
+    font-size: 36px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+    box-shadow: 0 8px 24px rgba(247,147,33,.35);
+}
+.complete-card {
+    background: var(--white);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    padding: 32px;
+    margin-bottom: 20px;
+}
+.complete-card h2 {
+    font-size: 22px; font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+.complete-card p {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.8;
+    margin-bottom: 20px;
+}
+.booking-number {
+    background: var(--orange-soft);
+    border: 1.5px solid var(--orange);
+    border-radius: 10px;
+    padding: 16px;
+    font-size: 13px;
+    color: var(--brown);
+    text-align: left;
+    margin-bottom: 20px;
+}
+.booking-number strong { font-size: 18px; display: block; margin-bottom: 4px; }
+.complete-actions { display: flex; gap: 12px; justify-content: center; }
+.complete-actions .btn { min-width: 180px; }
+.btn-pdf {
+    background: var(--brown);
+    color: var(--white);
+    border-radius: var(--radius-btn);
+    box-shadow: 0 4px 12px rgba(115,87,99,.3);
+}
+.btn-pdf:hover { background: var(--brown-dark); transform: translateY(-1px); }
+
+/* ── 管理側ヘッダー ── */
+.admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    padding: 0 28px;
+    background: var(--brown);
+    box-shadow: 0 2px 12px rgba(0,0,0,.15);
+}
+.admin-logo { display: flex; align-items: center; gap: 10px; color: var(--white); }
+.admin-logo-icon {
+    width: 32px; height: 32px;
+    border-radius: 7px;
+    background: var(--orange);
+    color: var(--white);
+    font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+}
+.admin-logo span { font-size: 14px; font-weight: 700; }
+.admin-header-actions { display: flex; gap: 10px; }
+.btn-admin-outline {
+    background: rgba(255,255,255,.15);
+    color: var(--white);
+    border: 1px solid rgba(255,255,255,.3);
+    border-radius: 7px;
+    padding: 0 14px;
+    height: 34px;
+    font-size: 12px; font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex; align-items: center; gap: 5px;
+}
+.btn-admin-outline:hover { background: rgba(255,255,255,.25); }
+.btn-admin-orange {
+    background: var(--orange);
+    color: var(--white);
+    border: none;
+    border-radius: 7px;
+    padding: 0 14px;
+    height: 34px;
+    font-size: 12px; font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex; align-items: center; gap: 5px;
+}
+.btn-admin-orange:hover { background: var(--orange-mid); }
+
+/* ── KPIバー ── */
+.kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    padding: 16px 28px 0;
+}
+.kpi-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 14px 16px;
+    box-shadow: var(--shadow-card);
+}
+.kpi-card .label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+.kpi-card .value { font-size: 22px; font-weight: 700; color: var(--text-primary); }
+.kpi-card .value.orange { color: var(--orange); }
+.kpi-card .value.red { color: var(--red); }
+
+/* ── 管理メインレイアウト ── */
+.admin-main {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 14px;
+    padding: 16px 28px 20px;
+    min-height: calc(100vh - 140px);
+}
+
+/* ── フィルターパネル ── */
+.filter-panel {
+    background: var(--white);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    padding: 16px;
+    height: fit-content;
+}
+.filter-title { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px; }
+.filter-divider { height: 1px; background: var(--beige-mid); margin: 12px 0; }
+.filter-label { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .04em; }
+.filter-date-input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--beige-mid);
+    border-radius: 7px;
+    font-family: var(--font-main);
+    font-size: 12px;
+    background: var(--orange-soft);
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    transition: var(--transition);
+}
+.filter-date-input:focus { outline: none; border-color: var(--orange); }
+.filter-btn {
+    display: block;
+    width: 100%;
+    padding: 8px 10px;
+    border: none;
+    border-radius: 7px;
+    background: var(--orange-soft);
+    color: var(--text-secondary);
+    font-family: var(--font-main);
+    font-size: 12px;
+    cursor: pointer;
+    text-align: left;
+    transition: var(--transition);
+    margin-bottom: 4px;
+}
+.filter-btn.active { background: var(--orange); color: var(--white); font-weight: 700; }
+.filter-btn:hover:not(.active) { background: var(--beige-mid); }
+.filter-clear-btn {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    padding: 8px 10px;
+    border: 1.5px dashed var(--beige-mid);
+    border-radius: 7px;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--font-main);
+    font-size: 11px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.filter-clear-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+/* ── 予約テーブル ── */
+.table-panel {
+    background: var(--white);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+}
+.table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--beige-mid);
+}
+.table-header h2 { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.table-controls { display: flex; gap: 8px; align-items: center; }
+.search-input {
+    padding: 7px 12px;
+    border: 1px solid var(--beige-mid);
+    border-radius: 7px;
+    font-family: var(--font-main);
+    font-size: 12px;
+    background: var(--orange-soft);
+    color: var(--text-primary);
+    width: 200px;
+    transition: var(--transition);
+}
+.search-input:focus { outline: none; border-color: var(--orange); }
+.table-container { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px; font-weight: 700;
+    color: var(--text-muted);
+    background: #faf8f5;
+    border-bottom: 1px solid var(--beige-mid);
+    white-space: nowrap;
+}
+td {
+    padding: 13px 14px;
+    font-size: 12px;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--beige-mid);
+}
+tr:hover td { background: var(--beige); }
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 10px; font-weight: 700;
+}
+.badge-new { background: var(--orange-soft); color: var(--orange); }
+.badge-return { background: #F5E6EB; color: #C0526A; }
+.badge-confirmed { background: #E8F5E9; color: var(--green); }
+.badge-pending { background: #FFF3E2; color: #E07B21; }
+.badge-cancelled { background: #F5F5F5; color: #999; }
+.btn-detail {
+    padding: 4px 10px;
+    border: 1px solid var(--beige-mid);
+    border-radius: 6px;
+    background: var(--white);
+    color: var(--text-secondary);
+    font-size: 11px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.btn-detail:hover { border-color: var(--orange); color: var(--orange); }
+.empty-row td { text-align: center; color: var(--text-muted); padding: 40px; }
+
+/* ── モーダル ── */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(61,43,31,.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: auto; }
+.modal {
+    background: var(--white);
+    border-radius: 16px;
+    width: 560px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,.2);
+    transform: translateY(10px);
+    transition: transform .2s;
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--beige-mid);
+}
+.modal-header h3 { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+.modal-close {
+    width: 30px; height: 30px;
+    border: none;
+    background: var(--beige);
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted);
+    transition: var(--transition);
+}
+.modal-close:hover { background: var(--beige-mid); }
+.modal-body { padding: 24px; }
+.modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--beige-mid);
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+.detail-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--beige-mid);
+    font-size: 13px;
+}
+.detail-row:last-child { border-bottom: none; margin-bottom: 0; }
+.detail-label { width: 120px; font-weight: 700; color: var(--text-muted); flex-shrink: 0; font-size: 11px; }
+.detail-value { flex: 1; color: var(--text-primary); }
+
+/* ── メール設定モーダル ── */
+.mail-settings-form .form-group { margin-bottom: 14px; }
+.mail-settings-form label { display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 5px; }
+.mail-settings-form input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid var(--beige-mid);
+    border-radius: var(--radius-input);
+    font-size: 13px;
+    background: var(--beige);
+    transition: var(--transition);
+}
+.mail-settings-form input:focus { outline: none; border-color: var(--orange); background: var(--white); }
+.info-box {
+    background: var(--orange-soft);
+    border: 1px solid var(--orange-mid);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--brown);
+    line-height: 1.7;
+}
+
+/* ── ローディング ── */
+.loading-overlay {
+    position: fixed; inset: 0;
+    background: rgba(61,43,31,.6);
+    backdrop-filter: blur(4px);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 9999;
+    transition: opacity .3s;
+}
+.loading-overlay.hidden { opacity: 0; pointer-events: none; }
+.spinner {
+    width: 40px; height: 40px;
+    border: 3px solid rgba(255,255,255,.2);
+    border-top: 3px solid var(--orange);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+    margin-bottom: 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-overlay p { color: var(--white); font-size: 13px; }
+
+/* ── レスポンシブ ── */
+@media (max-width: 900px) {
+    .app-header { padding: 0 16px; }
+    .header-phone { display: none; }
+    .main { padding: 16px; }
+    .booking-layout { grid-template-columns: 1fr; }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .admin-main { grid-template-columns: 1fr; }
+    .filter-panel { display: flex; flex-wrap: wrap; gap: 10px; }
+}
+@media (max-width: 600px) {
+    .step-bar { overflow-x: auto; justify-content: flex-start; }
+    .step-sep { width: 20px; }
+    .form-row { flex-direction: column; }
+    .confirm-actions { flex-direction: column-reverse; }
+    .complete-actions { flex-direction: column; }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 12px 14px 0; }
+    .admin-main { padding: 12px 14px; }
+}
