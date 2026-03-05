@@ -93,6 +93,17 @@ function selectDate(date) {
 
 // ── 時間スロット描画 ──
 const DAY_NAMES = ['日','月','火','水','木','金','土'];
+// 今日の選択日において時間スロットが過去かどうか判定する
+function isPastSlot(timeStr) {
+    const now = new Date();
+    const isToday = formatDate(selectedDate) === formatDate(now);
+    if (!isToday) return false;
+    const [h, m] = timeStr.split(':').map(Number);
+    const slotMinutes = h * 60 + m;
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+    return slotMinutes <= nowMinutes;
+}
+
 function renderTimeSlots() {
     if (!selectedDate) return;
     const dow = selectedDate.getDay();
@@ -108,27 +119,28 @@ function renderTimeSlots() {
     const dayLabel = `${selectedDate.getMonth()+1}月${selectedDate.getDate()}日（${DAY_NAMES[dow]}）`;
     document.getElementById('slotDateLabel').textContent = `${dayLabel} の予約`;
 
-    const available = [...hours.am, ...hours.pm].filter(t => !bookedSlots.includes(t));
+    // 残り枠：予約済み・過去スロットを除いた数
+    const available = [...hours.am, ...hours.pm].filter(t => !bookedSlots.includes(t) && !isPastSlot(t));
     document.getElementById('slotCountBadge').textContent = `残り${available.length}枠`;
     document.getElementById('slotCountBadge').style.display = available.length > 0 ? 'inline-flex' : 'none';
+
+    const buildSlotBtn = (t) => {
+        const booked = bookedSlots.includes(t);
+        const past = !booked && isPastSlot(t);
+        const sel = t === selectedTime;
+        const cls = `time-slot${booked ? ' booked' : ''}${past ? ' past' : ''}${sel ? ' selected' : ''}`;
+        return `<button class="${cls}" ${booked || past ? 'disabled' : ''} onclick="selectTime('${t}')">${t}</button>`;
+    };
 
     let html = '';
     if (hours.am.length) {
         html += `<div class="time-section"><div class="time-section-label">午前</div><div class="time-slots">`;
-        html += hours.am.map(t => {
-            const booked = bookedSlots.includes(t);
-            const sel = t === selectedTime;
-            return `<button class="time-slot${booked?' booked':''}${sel?' selected':''}" ${booked?'disabled':''} onclick="selectTime('${t}')">${t}</button>`;
-        }).join('');
+        html += hours.am.map(buildSlotBtn).join('');
         html += `</div></div>`;
     }
     if (hours.pm.length) {
         html += `<div class="time-section"><div class="time-section-label">午後</div><div class="time-slots">`;
-        html += hours.pm.map(t => {
-            const booked = bookedSlots.includes(t);
-            const sel = t === selectedTime;
-            return `<button class="time-slot${booked?' booked':''}${sel?' selected':''}" ${booked?'disabled':''} onclick="selectTime('${t}')">${t}</button>`;
-        }).join('');
+        html += hours.pm.map(buildSlotBtn).join('');
         html += `</div></div>`;
     }
     document.getElementById('slotArea').innerHTML = html;

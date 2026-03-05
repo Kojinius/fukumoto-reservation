@@ -291,6 +291,7 @@ body {
 .time-slot:hover { background: var(--orange); color: var(--white); }
 .time-slot.selected { background: var(--orange); color: var(--white); box-shadow: 0 3px 10px rgba(247,147,33,.4); }
 .time-slot.booked { background: var(--beige-mid); border-color: var(--beige-mid); color: var(--text-muted); cursor: not-allowed; }
+.time-slot.past  { background: #f3f3f3; border-color: #e0e0e0; color: #c0c0c0; cursor: not-allowed; text-decoration: line-through; }
 
 /* ── 選択表示・次へボタン ── */
 .selected-datetime-box {
