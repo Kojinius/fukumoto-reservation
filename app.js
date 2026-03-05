@@ -129,7 +129,9 @@ function renderTimeSlots() {
         const past = !booked && isPastSlot(t);
         const sel = t === selectedTime;
         const cls = `time-slot${booked ? ' booked' : ''}${past ? ' past' : ''}${sel ? ' selected' : ''}`;
-        return `<button class="${cls}" ${booked || past ? 'disabled' : ''} onclick="selectTime('${t}')">${t}</button>`;
+        // past・booked はonclickを付与しない（モバイルのタッチイベント誤発火を防ぐ）
+        const handler = booked || past ? '' : `onclick="selectTime('${t}')"`;
+        return `<button class="${cls}" ${booked || past ? 'disabled' : ''} ${handler}>${t}</button>`;
     };
 
     let html = '';
@@ -148,6 +150,8 @@ function renderTimeSlots() {
 
 // ── 時間選択 ──
 function selectTime(time) {
+    // 過去スロットは選択不可（モバイルタッチイベントの二重対策）
+    if (isPastSlot(time)) return;
     selectedTime = time;
     const dow = selectedDate.getDay();
     const dayLabel = `${selectedDate.getMonth()+1}月${selectedDate.getDate()}日（${DAY_NAMES[dow]}）`;
