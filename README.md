@@ -122,14 +122,15 @@ python -m http.server 8080
 
 ## 本番実装に向けた拡張ポイント
 
-| 項目 | 現状（プロトタイプ） | 本番向け対応 |
-|------|---------------------|-------------|
-| データ保存 | localStorage | Firebase / Supabase / バックエンドDB |
-| メール通知 | mailto: リンク | SendGrid / EmailJS / AWS SES |
+| 項目 | 現状 | 残課題 |
+|------|------|--------|
+| データ保存 | ✅ Firebase Firestore 移行済み | — |
+| メール通知 | ✅ Firebase Functions + Resend 実装済み | 患者への確認メール・前日リマインダー（Phase 3） |
+| 認証 | ✅ Firebase Auth（adminクレーム）実装済み | — |
 | SMS通知 | 未実装 | Twilio / Vonage |
-| 認証 | なし（管理画面オープン）| パスワード認証 / Firebase Auth |
 | 複数院舗 | 未対応 | 院舗IDパラメータで切り替え |
-| 祝日対応 | 未実装 | 祝日APIを利用した自動判定 |
+| 祝日対応 | 未実装 | 祝日APIを利用した自動判定（Phase 4） |
+| スタッフ管理 | 未実装 | 管理画面からのアカウントCRUD（Phase 6） |
 
 ---
 
