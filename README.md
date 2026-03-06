@@ -143,9 +143,9 @@ fukumoto-reservation/
 ├── css/
 │   └── style.css       # 共通スタイル
 ├── js/
-│   └── utils.js        # 共通ユーティリティ（esc / DAY_NAMES / formatDate 等）
-├── app.js              # 患者側ロジック
-├── admin.js            # 管理側ロジック
+│   ├── utils.js        # 共通ユーティリティ（esc / DAY_NAMES / formatDate 等）
+│   ├── app.js          # 患者側ロジック
+│   └── admin.js        # 管理側ロジック
 ├── firebase.json       # Firebase設定
 ├── firestore.rules     # Firestoreセキュリティルール
 ├── functions/
