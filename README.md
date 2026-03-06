@@ -78,8 +78,11 @@ const BUSINESS_HOURS = {
 
 | 項目 | 内容 |
 |------|------|
-| 構成 | 静的HTML/CSS/Vanilla JS（サーバー不要）|
-| データ永続化 | `localStorage`（ブラウザ内）|
+| 構成 | 静的HTML/CSS/Vanilla JS + Firebase |
+| ホスティング | Firebase Hosting（カスタムドメイン: kojinius.jp）|
+| データ永続化 | `localStorage`（移行予定: Firestore）|
+| メール送信 | Firebase Functions + Resend（`noreply@kojinius.jp`）|
+| シークレット管理 | Firebase Secret Manager |
 | PDF生成 | [pdf-lib](https://pdf-lib.js.org/) v1.17.1 |
 | フォント | Noto Sans JP（Google Fonts）|
 | デザイン | Pencil（UIプロトタイプ）→ CSS実装 |
