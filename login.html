@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>スタッフログイン | 福元鍼灸整骨院</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .login-wrap {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--beige);
+        }
+        .login-card {
+            background: var(--white);
+            border-radius: var(--radius-card);
+            box-shadow: 0 8px 40px rgba(115,87,99,.13);
+            padding: 40px 36px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+        .login-logo-icon {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            background: var(--brown);
+            color: var(--white);
+            font-size: 16px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .login-logo-text h1 { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+        .login-logo-text span { font-size: 11px; color: var(--text-muted); }
+        .login-title { font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 24px; }
+        .login-error {
+            background: #FFF0F0;
+            border: 1px solid #F5C6C6;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 12px;
+            color: var(--red);
+            margin-bottom: 16px;
+            display: none;
+        }
+        .login-error.visible { display: block; }
+    </style>
+</head>
+<body>
+    <div class="login-wrap">
+        <div class="login-card">
+            <div class="login-logo">
+                <div class="login-logo-icon">管</div>
+                <div class="login-logo-text">
+                    <h1>福元鍼灸整骨院</h1>
+                    <span>スタッフ専用ログイン</span>
+                </div>
+            </div>
+            <p class="login-title">ログイン</p>
+            <div class="login-error" id="loginError"></div>
+            <form id="loginForm" novalidate>
+                <div class="form-group">
+                    <label>メールアドレス</label>
+                    <input type="email" id="loginEmail" placeholder="staff@example.com" autocomplete="email" required>
+                </div>
+                <div class="form-group">
+                    <label>パスワード</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top:8px;" id="loginBtn">ログイン</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { login } from "./js/auth.js";
+
+        const form  = document.getElementById('loginForm');
+        const errEl = document.getElementById('loginError');
+        const btn   = document.getElementById('loginBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errEl.classList.remove('visible');
+            btn.disabled    = true;
+            btn.textContent = 'ログイン中...';
+
+            const email    = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                await login(email, password);
+                window.location.href = '/admin.html';
+            } catch (err) {
+                errEl.textContent = err.message;
+                errEl.classList.add('visible');
+                btn.disabled    = false;
+                btn.textContent = 'ログイン';
+            }
+        });
+    </script>
+</body>
+</html>

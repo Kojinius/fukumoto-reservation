@@ -1,8 +1,44 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // デフォルト拒否
     match /{document=**} {
       allow read, write: if false;
     }
+
+    // 管理者判定（Firebase Auth カスタムクレーム）
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
+    // 予約データバリデーション
+    function isValidReservation(data) {
+      return data.keys().hasAll(['id','name','furigana','date','time','phone','status','createdAt'])
+        && data.name     is string && data.name.size()     <= 50
+        && data.furigana is string && data.furigana.size() <= 50
+        && data.phone    is string && data.phone.size()    <= 20
+        && data.date     is string && data.date.size()     == 10
+        && data.time     is string
+        && data.status   in ['pending','confirmed','cancelled'];
+    }
+
+    // 予約コレクション
+    match /reservations/{reservationId} {
+      // 患者：新規作成のみ（未認証でも可）
+      allow create: if request.auth == null
+        && isValidReservation(request.resource.data);
+      // 管理者：読み書きすべて可
+      allow read, write: if isAdmin();
+    }
+
+    // スロットコレクション（二重予約防止用）
+    match /slots/{slotId} {
+      // 患者：作成・読み取り可（トランザクション用）
+      allow read, create: if request.auth == null;
+      // 管理者：読み書きすべて可（キャンセル時の開放）
+      allow read, write:  if isAdmin();
+    }
+
   }
 }

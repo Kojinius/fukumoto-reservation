@@ -80,7 +80,7 @@ const BUSINESS_HOURS = {
 |------|------|
 | 構成 | 静的HTML/CSS/Vanilla JS + Firebase |
 | ホスティング | Firebase Hosting（カスタムドメイン: kojinius.jp）|
-| データ永続化 | `localStorage`（移行予定: Firestore）|
+| データ永続化 | Firebase Firestore |
 | メール送信 | Firebase Functions + Resend（`noreply@kojinius.jp`）|
 | シークレット管理 | Firebase Secret Manager |
 | PDF生成 | [pdf-lib](https://pdf-lib.js.org/) v1.17.1 |
@@ -138,18 +138,22 @@ python -m http.server 8080
 ```
 fukumoto-reservation/
 ├── index.html          # 患者側：予約フロー（4ステップ）
-├── admin.html          # 管理側：予約管理ダッシュボード
+├── admin.html          # 管理側：予約管理ダッシュボード（認証必須）
+├── login.html          # 管理者ログイン
 ├── 404.html            # 404エラーページ
 ├── css/
 │   └── style.css       # 共通スタイル
 ├── js/
+│   ├── config.js       # Firebase設定値
+│   ├── firebase.js     # Firebase初期化（db / auth）
+│   ├── auth.js         # 認証ガード・ログイン・ログアウト
 │   ├── utils.js        # 共通ユーティリティ（esc / DAY_NAMES / formatDate 等）
-│   ├── app.js          # 患者側ロジック
-│   └── admin.js        # 管理側ロジック
+│   ├── app.js          # 患者側ロジック（Firestore書き込み・トランザクション）
+│   └── admin.js        # 管理側ロジック（Firestoreリアルタイム同期）
 ├── firebase.json       # Firebase設定
 ├── firestore.rules     # Firestoreセキュリティルール
 ├── functions/
-│   ├── index.js        # Cloud Functions（メール送信）
+│   ├── index.js        # Cloud Functions（メール送信・初期管理者設定）
 │   └── package.json
 └── README.md           # このファイル
 ```
