@@ -84,7 +84,7 @@ exports.setInitialAdmin = onCall(async (request) => {
   const { email, setupKey } = request.data;
 
   // デプロイ前に必ず変更し、使用後は Function ごと削除すること
-  if (setupKey !== "CHANGE_ME_BEFORE_DEPLOY") {
+  if (setupKey !== "fukumoto-setup-2026") {
     throw new HttpsError("permission-denied", "無効なセットアップキーです");
   }
 
