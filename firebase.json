@@ -23,9 +23,13 @@
     "public": ".",
     "ignore": [
       "firebase.json",
+      "firestore.rules",
+      "firestore.indexes.json",
+      "README.md",
+      "functions/**",
+      "documents/**",
       "**/.*",
-      "**/node_modules/**",
-      "documents/**"
+      "**/node_modules/**"
     ]
   }
 }
