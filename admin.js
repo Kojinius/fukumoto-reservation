@@ -2,11 +2,6 @@
    福元鍼灸整骨院 管理側ロジック
    =========================== */
 
-// ── XSSエスケープ ──
-function esc(s) {
-    return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
 // ── データ ──
 function getBookings() {
     try { return JSON.parse(localStorage.getItem('fukumoto_bookings') || '[]'); } catch { return []; }
@@ -27,14 +22,6 @@ const VISIT_BADGE = {
     '初診': '<span class="badge badge-new">初診</span>',
     '再診': '<span class="badge badge-return">再診</span>',
 };
-const DAY_NAMES = ['日','月','火','水','木','金','土'];
-
-function formatDateTimeJa(dateStr, time) {
-    const [y,m,d] = dateStr.split('-');
-    const dow = new Date(dateStr).getDay();
-    return `${parseInt(m)}/${parseInt(d)}（${DAY_NAMES[dow]}） ${time}`;
-}
-
 // ── KPI計算 ──
 function updateKpi(all) {
     const today = new Date().toISOString().slice(0,10);

@@ -13,11 +13,6 @@ const BUSINESS_HOURS = {
     6: { am: ['9:00','9:30','10:00','10:30','11:00','11:30'], pm: ['14:00','14:30','15:00','15:30','16:00'] }, // 土は17:00まで
 };
 
-// ── XSSエスケープ ──
-function esc(s) {
-    return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
 // ── 予約データ (localStorage) ──
 function getBookings() {
     try { return JSON.parse(localStorage.getItem('fukumoto_bookings') || '[]'); } catch { return []; }
@@ -92,7 +87,6 @@ function selectDate(date) {
 }
 
 // ── 時間スロット描画 ──
-const DAY_NAMES = ['日','月','火','水','木','金','土'];
 // 今日の選択日において時間スロットが過去かどうか判定する
 function isPastSlot(timeStr) {
     const now = new Date();
@@ -217,14 +211,6 @@ function validateForm() {
 }
 
 // ── 確認画面へデータ反映 ──
-function formatDate(date) {
-    return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
-}
-function formatDateJa(dateStr) {
-    const [y,m,d] = dateStr.split('-');
-    return `${y}年${parseInt(m)}月${parseInt(d)}日`;
-}
-
 function fillConfirmation() {
     const dow = selectedDate.getDay();
     const dayLabel = `${selectedDate.getMonth()+1}月${selectedDate.getDate()}日（${DAY_NAMES[dow]}）`;

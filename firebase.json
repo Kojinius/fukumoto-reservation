@@ -7,7 +7,7 @@
   },
   "functions": [
     {
-      "source": "C:/Users/SM7B/Workspace/dev/Fukumoto",
+      "source": "./functions",
       "codebase": "default",
       "disallowLegacyRuntimeConfig": true,
       "ignore": [
@@ -24,7 +24,8 @@
     "ignore": [
       "firebase.json",
       "**/.*",
-      "**/node_modules/**"
+      "**/node_modules/**",
+      "documents/**"
     ]
   }
 }

@@ -137,12 +137,21 @@ python -m http.server 8080
 
 ```
 fukumoto-reservation/
-├── index.html      # 患者側：予約フロー（4ステップ）
-├── admin.html      # 管理側：予約管理ダッシュボード
-├── style.css       # 共通スタイル
-├── app.js          # 患者側ロジック
-├── admin.js        # 管理側ロジック
-└── README.md       # このファイル
+├── index.html          # 患者側：予約フロー（4ステップ）
+├── admin.html          # 管理側：予約管理ダッシュボード
+├── 404.html            # 404エラーページ
+├── css/
+│   └── style.css       # 共通スタイル
+├── js/
+│   └── utils.js        # 共通ユーティリティ（esc / DAY_NAMES / formatDate 等）
+├── app.js              # 患者側ロジック
+├── admin.js            # 管理側ロジック
+├── firebase.json       # Firebase設定
+├── firestore.rules     # Firestoreセキュリティルール
+├── functions/
+│   ├── index.js        # Cloud Functions（メール送信）
+│   └── package.json
+└── README.md           # このファイル
 ```
 
 ---
