@@ -26,12 +26,19 @@ async function sendMail(resend, { to, subject, html }) {
  * POST /sendReservationEmail
  * Body: { to, name, date, time, menu, id }
  */
+// ── 共通：CORSヘッダー設定 ──
+function setCorsHeaders(req, res) {
+  const allowed = ["https://kojinius.jp", "http://localhost:5000"];
+  const origin  = req.headers.origin;
+  res.set("Access-Control-Allow-Origin",  allowed.includes(origin) ? origin : "https://kojinius.jp");
+  res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.set("Access-Control-Allow-Headers", "Content-Type");
+}
+
 exports.sendReservationEmail = onRequest(
   { secrets: [resendApiKey], invoker: "public" },
   async (req, res) => {
-    res.set("Access-Control-Allow-Origin",  "https://kojinius.jp");
-    res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.set("Access-Control-Allow-Headers", "Content-Type");
+    setCorsHeaders(req, res);
 
     if (req.method === "OPTIONS") { res.status(204).send(""); return; }
     if (req.method !== "POST")    { res.status(405).json({ error: "Method Not Allowed" }); return; }
@@ -102,9 +109,7 @@ exports.sendReservationEmail = onRequest(
 exports.notifyAdminOnReservation = onRequest(
   { secrets: [resendApiKey], invoker: "public" },
   async (req, res) => {
-    res.set("Access-Control-Allow-Origin",  "https://kojinius.jp");
-    res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.set("Access-Control-Allow-Headers", "Content-Type");
+    setCorsHeaders(req, res);
 
     if (req.method === "OPTIONS") { res.status(204).send(""); return; }
     if (req.method !== "POST")    { res.status(405).json({ error: "Method Not Allowed" }); return; }

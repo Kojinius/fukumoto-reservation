@@ -29,9 +29,9 @@ let selectedDate = null;
 let selectedTime = null;
 let cachedBookedSlots = [];
 
-// ── Firestore：選択日の予約済みスロット取得 ──
+// ── Firestore：選択日の予約済みスロット取得（slotsコレクションを使用）──
 async function fetchBookedSlots(dateStr) {
-    const q    = query(collection(db, 'reservations'), where('date', '==', dateStr));
+    const q    = query(collection(db, 'slots'), where('date', '==', dateStr));
     const snap = await getDocs(q);
     return snap.docs
         .map(d => d.data())
@@ -186,6 +186,12 @@ function validateForm() {
         const el = document.getElementById(f.id);
         if (!el.value.trim()) { alert(`「${f.label}」を入力してください。`); el.focus(); return false; }
     }
+    const consent = document.getElementById('consentCheck');
+    if (!consent.checked) {
+        alert('プライバシーポリシーへの同意が必要です。');
+        document.getElementById('consentLabel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return false;
+    }
     return true;
 }
 
@@ -323,48 +329,111 @@ function newReservation() {
     renderCalendar();
 }
 
+// ── フォントキャッシュ ──
+let _fontCache = null;
+async function loadJapaneseFont(pdfDoc) {
+    if (!_fontCache) {
+        _fontCache = await fetch('/fonts/NotoSansJP-Regular.ttf').then(r => r.arrayBuffer());
+    }
+    pdfDoc.registerFontkit(fontkit);
+    const fontJp = await pdfDoc.embedFont(_fontCache);
+    return { fontJp, fontLatin: fontJp };
+}
+
 // ── PDF出力 ──
 async function exportPdf() {
     const booking = window._lastBooking;
     if (!booking) return;
     try {
-        const { PDFDocument, rgb, StandardFonts } = PDFLib;
-        const pdfDoc  = await PDFDocument.create();
-        const page    = pdfDoc.addPage([595.28, 420]);
+        const { PDFDocument, rgb } = PDFLib;
+        const pdfDoc = await PDFDocument.create();
+        const page   = pdfDoc.addPage([595.28, 500]);
         const { width, height } = page.getSize();
-        const font     = await pdfDoc.embedFont(StandardFonts.Helvetica);
-        const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+        const { fontJp } = await loadJapaneseFont(pdfDoc);
 
-        page.drawRectangle({ x:0, y:0, width, height, color:rgb(0.99,0.94,0.87) });
-        page.drawRectangle({ x:0, y:height-60, width, height:60, color:rgb(0.45,0.34,0.39) });
-        page.drawText('Fukumoto Acupuncture Clinic', { x:30, y:height-28, size:14, font:fontBold, color:rgb(1,1,1) });
-        page.drawText('Reservation Ticket',           { x:30, y:height-46, size:10, font, color:rgb(0.97,0.95,0.87) });
-        page.drawText(booking.id,                     { x:width-150, y:height-36, size:10, font, color:rgb(0.97,0.57,0.13) });
-        page.drawRectangle({ x:28, y:height-105, width:width-56, height:36, color:rgb(0.97,0.57,0.13), borderRadius:6 });
-        page.drawText(`${booking.date} ${booking.time}~`, { x:40, y:height-93, size:14, font:fontBold, color:rgb(1,1,1) });
+        const t = (text, x, y, size, color) =>
+            page.drawText(String(text ?? '-'), { x, y, size, font: fontJp, color });
+        const r = (x, y, w, h, color, borderRadius) =>
+            page.drawRectangle({ x, y, width: w, height: h, color, ...(borderRadius ? { borderRadius } : {}) });
+        const line = (x1, y1, x2, y2) =>
+            page.drawLine({ start:{x:x1,y:y1}, end:{x:x2,y:y2}, thickness:0.5, color:rgb(0.85,0.77,0.70) });
+        const clip = (str, max) => String(str ?? '-').length > max ? String(str).slice(0, max) + '…' : String(str ?? '-');
 
-        const rows = [
-            ['Name / Furigana', `${booking.name}  (${booking.furigana})`],
-            ['Birthdate',  booking.birthdate || '-'], ['Address',    booking.address],
-            ['Phone',      booking.phone],             ['Email',      booking.email || '-'],
-            ['Visit Type', booking.visitType],         ['Insurance',  booking.insurance],
-            ['Symptoms',   booking.symptoms],
-        ];
-        let y = height - 130;
-        rows.forEach(([lbl, val]) => {
-            page.drawText(lbl, { x:40, y, size:8, font, color:rgb(0.55,0.45,0.33) });
-            const v = val.length > 60 ? val.substring(0,60)+'...' : val;
-            page.drawText(v,   { x:160, y, size:10, font:fontBold, color:rgb(0.24,0.17,0.12) });
-            y -= 22;
-        });
-        page.drawLine({ start:{x:28,y:50}, end:{x:width-28,y:50}, thickness:0.5, color:rgb(0.87,0.79,0.72) });
-        page.drawText('Tel: 0120-XXX-XXX  |  Mon-Fri 9:00-19:30  /  Sat 9:00-17:00  /  Sun & Holidays: Closed',
-            { x:40, y:36, size:8, font, color:rgb(0.55,0.45,0.33) });
+        // ── 全体背景 ──
+        r(0, 0, width, height, rgb(0.99, 0.97, 0.93));
+
+        // ── ヘッダー ──
+        r(0, height - 70, width, 70, rgb(0.27, 0.18, 0.12));
+        r(24, height - 56, 36, 36, rgb(0.97, 0.57, 0.13), 6);
+        t('鍼', 33, height - 43, 16, rgb(1, 1, 1));
+        t('福元鍼灸整骨院', 72, height - 36, 17, rgb(1, 1, 1));
+        t('FUKUMOTO ACUPUNCTURE CLINIC', 73, height - 53, 8, rgb(0.72, 0.62, 0.57));
+        // 予約番号
+        t('予約番号', width - 210, height - 34, 9, rgb(0.72, 0.62, 0.57));
+        t(booking.id, width - 210, height - 52, 9, rgb(0.97, 0.72, 0.40));
+
+        // ── 日時バー ──
+        r(0, height - 118, width, 44, rgb(0.97, 0.57, 0.13));
+        const [yr, mo, dy] = booking.date.split('-').map(Number);
+        const dow = ['日','月','火','水','木','金','土'][new Date(yr, mo-1, dy).getDay()];
+        t(`${yr}年${mo}月${dy}日（${dow}）　${booking.time}〜`, 36, height - 103, 17, rgb(1, 1, 1));
+        t('予約票', width - 80, height - 103, 12, rgb(1, 0.85, 0.6));
+
+        // ── コンテンツ白背景 ──
+        r(20, 68, width - 40, height - 196, rgb(1, 1, 1), 8);
+
+        // 縦区切り
+        line(width / 2, height - 130, width / 2, 72);
+
+        const CL = 36;                  // 左列 x
+        const CR = width / 2 + 16;     // 右列 x
+        const LBL_W = 72;              // ラベル幅
+
+        // セクションヘッダー
+        const sec = (label, x, y) => {
+            r(x, y - 1, 4, 16, rgb(0.97, 0.57, 0.13));
+            t(label, x + 10, y, 11, rgb(0.45, 0.34, 0.39));
+        };
+
+        // ラベル + 値 行
+        const row = (label, value, x, y) => {
+            t(label,          x,           y, 9,  rgb(0.60, 0.50, 0.42));
+            t(clip(value, 28), x + LBL_W, y, 11, rgb(0.15, 0.10, 0.06));
+            return y - 24;
+        };
+
+        // ── 左列：基本情報 ──
+        let yL = height - 148;
+        sec('基本情報', CL, yL); yL -= 26;
+        yL = row('氏名',     booking.name,          CL, yL);
+        yL = row('ふりがな', booking.furigana,       CL, yL);
+        yL = row('生年月日', booking.birthdate,      CL, yL);
+        yL = row('住所',     clip(booking.address, 22), CL, yL);
+        yL = row('電話番号', booking.phone,          CL, yL);
+        yL = row('メール',   booking.email || '未入力', CL, yL);
+
+        // ── 右列：診療情報 ──
+        let yR = height - 148;
+        sec('診療情報', CR, yR); yR -= 26;
+        yR = row('初・再診',  booking.visitType,     CR, yR);
+        yR = row('保険証',    booking.insurance,     CR, yR);
+        yR = row('症状',      clip(booking.symptoms, 22), CR, yR);
+        yR = row('連絡方法',  booking.contactMethod, CR, yR);
+        if (booking.notes) {
+            yR = row('伝達事項', clip(booking.notes, 22), CR, yR);
+        }
+
+        // ── フッター ──
+        r(0, 0, width, 64, rgb(0.94, 0.88, 0.82));
+        line(0, 64, width, 64);
+        t('☎  0120-XXX-XXX', CL, 42, 10, rgb(0.40, 0.30, 0.25));
+        t('月〜金  9:00–19:30　／　土  9:00–17:00　／　日・祝  休診', CL, 24, 9, rgb(0.55, 0.45, 0.38));
+        t('https://kojinius.jp', width - 160, 24, 8, rgb(0.65, 0.55, 0.48));
 
         const bytes = await pdfDoc.save();
-        const blob  = new Blob([bytes], { type:'application/pdf' });
+        const blob  = new Blob([bytes], { type: 'application/pdf' });
         const url   = URL.createObjectURL(blob);
-        Object.assign(document.createElement('a'), { href:url, download:`予約票_${booking.id}.pdf` }).click();
+        Object.assign(document.createElement('a'), { href: url, download: `予約票_${booking.id}.pdf` }).click();
         URL.revokeObjectURL(url);
     } catch (e) { console.error('PDF生成エラー:', e); alert('PDFの生成に失敗しました。'); }
 }

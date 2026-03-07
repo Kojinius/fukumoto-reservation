@@ -391,6 +391,51 @@ body {
     font-weight: 700;
 }
 
+/* ── 同意チェックボックス ── */
+.consent-text {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 14px;
+}
+.consent-text a {
+    color: var(--orange);
+    text-decoration: underline;
+}
+.consent-text a:hover { color: var(--brown); }
+.consent-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    user-select: none;
+}
+.consent-label input[type="checkbox"] { display: none; }
+.consent-check-box {
+    flex-shrink: 0;
+    width: 20px; height: 20px;
+    border: 2px solid var(--beige-mid);
+    border-radius: 5px;
+    background: var(--beige);
+    transition: var(--transition);
+    display: flex; align-items: center; justify-content: center;
+}
+.consent-label input:checked + .consent-check-box {
+    background: var(--orange);
+    border-color: var(--orange);
+}
+.consent-label input:checked + .consent-check-box::after {
+    content: '';
+    width: 5px; height: 9px;
+    border: 2px solid #fff;
+    border-top: none; border-left: none;
+    transform: rotate(45deg) translateY(-1px);
+    display: block;
+}
+
 /* ── 確認画面 ── */
 .confirm-container { max-width: 700px; margin: 0 auto; }
 .confirm-card {

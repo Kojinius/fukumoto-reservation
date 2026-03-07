@@ -203,6 +203,19 @@
                         </div>
                     </div>
 
+                    <div class="form-section">
+                        <div class="form-section-title">📋 個人情報の取り扱い</div>
+                        <p class="consent-text">
+                            ご入力いただいた個人情報は、診療予約・ご連絡の目的のみに使用します。
+                            詳細は<a href="privacy-policy.html" target="_blank" rel="noopener">プライバシーポリシー</a>をご確認ください。
+                        </p>
+                        <label class="consent-label" id="consentLabel">
+                            <input type="checkbox" id="consentCheck">
+                            <span class="consent-check-box"></span>
+                            <span>プライバシーポリシーに同意する<span class="required">必須</span></span>
+                        </label>
+                    </div>
+
                     <div style="display:flex;gap:12px;margin-top:4px;">
                         <button type="button" class="btn btn-outline" style="height:52px;flex:1;" onclick="goToStep1()">← 戻る</button>
                         <button type="button" class="btn btn-primary" style="flex:2;" onclick="goToStep3()">確認画面へ →</button>
