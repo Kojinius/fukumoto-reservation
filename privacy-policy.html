@@ -86,111 +86,94 @@
     <main class="main">
         <div class="pp-container">
             <h1 class="pp-title">プライバシーポリシー</h1>
-            <p class="pp-subtitle">最終更新日：2026年3月7日</p>
+            <p class="pp-subtitle" id="ppSubtitle">最終更新日：2026年3月7日</p>
 
-            <div class="pp-section">
-                <h2>1. 事業者情報</h2>
-                <p>
-                    名称：福元鍼灸整骨院<br>
-                    所在地：〒XXX-XXXX ○○県○○市○○<br>
-                    電話番号：0120-XXX-XXX<br>
-                    メールアドレス：admin@kojinius.jp
-                </p>
-            </div>
+            <!-- Firestoreから読み込んだポリシーを表示（設定されている場合のみ） -->
+            <div id="dynamicPolicy" style="display:none;"></div>
 
+            <!-- デフォルト静的コンテンツ（Firestore未設定時のフォールバック） -->
+            <div id="staticPolicy">
             <div class="pp-section">
-                <h2>2. 収集する個人情報</h2>
-                <p>当院は、オンライン予約の際に以下の個人情報を収集します。</p>
+                <h2>1. 個人情報の利用目的</h2>
+                <p>当院は、患者様の個人情報を以下の目的のために利用いたします。</p>
                 <ul>
-                    <li>氏名・ふりがな</li>
-                    <li>生年月日・年齢</li>
-                    <li>住所</li>
-                    <li>電話番号</li>
-                    <li>メールアドレス（任意）</li>
-                    <li>初診・再診の区分</li>
-                    <li>保険証の有無</li>
-                    <li>症状・お悩み</li>
-                    <li>ご伝達事項（任意）</li>
+                    <li>患者様への医療・介護サービスの提供</li>
+                    <li>医療保険事務・会計・経理に関する業務</li>
+                    <li>医療安全管理および医療事故の報告</li>
+                    <li>業務委託先への必要な範囲での情報提供</li>
                 </ul>
             </div>
 
             <div class="pp-section">
-                <h2>3. 利用目的</h2>
-                <p>収集した個人情報は、以下の目的のみに使用します。</p>
-                <ul>
-                    <li>予約の確認・管理</li>
-                    <li>予約確認メール・リマインダーの送信</li>
-                    <li>診療に必要なご連絡</li>
-                    <li>キャンセル・変更のご案内</li>
-                </ul>
-            </div>
-
-            <div class="pp-section">
-                <h2>4. 第三者への提供</h2>
+                <h2>2. 要配慮個人情報の取り扱い</h2>
                 <p>
-                    当院は、以下の場合を除き、取得した個人情報を第三者に提供することはありません。
-                </p>
-                <ul>
-                    <li>ご本人の同意がある場合</li>
-                    <li>法令に基づく場合</li>
-                    <li>人の生命・身体・財産の保護のために必要な場合</li>
-                </ul>
-            </div>
-
-            <div class="pp-section">
-                <h2>5. 業務委託について</h2>
-                <p>
-                    当院は、予約確認メール・リマインダーの送信に際し、メール送信サービス（Resend Inc.）を利用しています。
-                    委託先に対しては、適切な安全管理措置を講じるよう契約により義務づけています。
+                    診療録（カルテ）・健康診断結果など、特に慎重な取り扱いを要する個人情報については、適切な安全管理措置を講じ、細心の注意を払って管理いたします。
                 </p>
             </div>
 
             <div class="pp-section">
-                <h2>6. 個人情報の保管・管理</h2>
+                <h2>3. 第三者提供の制限</h2>
                 <p>
-                    収集した個人情報は、Google Firebase（データセンター：東京リージョン）上で管理します。
-                    アクセス制御・暗号化等の適切なセキュリティ対策を実施し、個人情報の漏洩・滅失・毀損の防止に努めます。
+                    患者様の個人情報は、ご本人の同意なく第三者へ提供いたしません。ただし、裁判所・警察等からの法令に基づく開示要請があった場合はこの限りではありません。
                 </p>
             </div>
 
             <div class="pp-section">
-                <h2>7. 保存期間</h2>
+                <h2>4. 安全管理措置</h2>
                 <p>
-                    予約情報は、予約日から1年間保存した後、適切な方法で削除します。
+                    個人情報の漏洩・紛失・改ざんを防止するため、アクセス制限・スタッフへの教育研修等、技術的・組織的な対策を実施いたします。
                 </p>
             </div>
 
             <div class="pp-section">
-                <h2>8. 開示・訂正・削除のご請求</h2>
+                <h2>5. 開示・訂正・利用停止のご請求</h2>
                 <p>
-                    ご自身の個人情報の開示・訂正・削除をご希望の場合は、下記のお問い合わせ先までご連絡ください。
-                    ご本人確認のうえ、合理的な期間内に対応いたします。
+                    患者様ご本人からの個人情報の開示・訂正・利用停止のご請求には、本人確認のうえ速やかに対応いたします。お問い合わせ窓口は院内にご案内しております。
                 </p>
             </div>
 
             <div class="pp-section">
-                <h2>9. プライバシーポリシーの変更</h2>
+                <h2>6. プライバシーポリシーの見直し</h2>
                 <p>
-                    当院は、必要に応じて本ポリシーを変更することがあります。
-                    変更後のポリシーは、本ページに掲載した時点で効力を生じるものとします。
-                </p>
-            </div>
-
-            <div class="pp-section">
-                <h2>10. お問い合わせ</h2>
-                <p>
-                    個人情報の取り扱いに関するお問い合わせは、以下までご連絡ください。<br><br>
-                    福元鍼灸整骨院<br>
-                    電話：0120-XXX-XXX（月〜金 9:00〜19:30 / 土 9:00〜17:00）<br>
-                    メール：admin@kojinius.jp
+                    法令改正等に応じて本ポリシーを定期的に見直し、改定する場合は当院ウェブサイト等にて公表いたします。
                 </p>
             </div>
 
             <div class="pp-back">
                 <a href="javascript:void(0)" onclick="window.close()">← 予約ページに戻る</a>
             </div>
+            </div><!-- /staticPolicy -->
+
+            <div class="pp-back" id="dynamicBack" style="display:none;">
+                <a href="javascript:void(0)" onclick="window.close()">← 予約ページに戻る</a>
+            </div>
         </div>
     </main>
 
+    <script type="module">
+        import { db } from "./js/firebase.js";
+        import { getDoc, doc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+        const snap = await getDoc(doc(db, 'settings', 'clinic'));
+        if (snap.exists()) {
+            const { privacyPolicy, updatedAt } = snap.data();
+            if (privacyPolicy) {
+                // 動的ポリシーを段落に変換して表示
+                const html = privacyPolicy
+                    .split(/\n{2,}/)
+                    .map(p => `<div class="pp-section"><p>${p.replace(/\n/g, '<br>')}</p></div>`)
+                    .join('');
+                document.getElementById('dynamicPolicy').innerHTML = html;
+                document.getElementById('dynamicPolicy').style.display = 'block';
+                document.getElementById('staticPolicy').style.display  = 'none';
+                document.getElementById('dynamicBack').style.display   = 'block';
+                if (updatedAt) {
+                    const d = new Date(updatedAt);
+                    document.getElementById('ppSubtitle').textContent =
+                        `最終更新日：${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+                }
+            }
+        }
+    </script>
 </body>
 </html>

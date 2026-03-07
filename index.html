@@ -149,6 +149,20 @@
                                 <input type="email" id="email" placeholder="example@email.com">
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label>性別（任意）</label>
+                            <div class="radio-group" id="genderGroup">
+                                <label class="radio-label">
+                                    <input type="radio" name="gender" value="男性">男性
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="gender" value="女性">女性
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="gender" value="回答しない">回答しない
+                                </label>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-section">
@@ -238,6 +252,7 @@
                         <tr><td>住所</td><td id="c-address"></td></tr>
                         <tr><td>電話番号</td><td id="c-phone"></td></tr>
                         <tr><td>メール</td><td id="c-email"></td></tr>
+                        <tr><td>性別</td><td id="c-gender"></td></tr>
                     </table>
                 </div>
 
@@ -278,6 +293,9 @@
                         <button class="btn btn-pdf" onclick="exportPdf()">📄 予約票PDF出力</button>
                         <button class="btn btn-primary" style="width:auto;height:44px;padding:0 24px;" onclick="newReservation()">新しく予約する</button>
                     </div>
+                    <p style="font-size:12px;color:var(--text-muted);margin-top:20px;">
+                        予約をキャンセルする場合は<a id="cancelLink" href="cancel.html" target="_blank" rel="noopener" style="color:var(--orange);">こちら</a>
+                    </p>
                 </div>
                 <p style="font-size:12px;color:var(--text-muted);margin-top:16px;">
                     ☎ お電話でのお問い合わせ: <strong>0120-XXX-XXX</strong>（月〜金 9:00-19:30 / 土 9:00-17:00）

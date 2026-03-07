@@ -28,6 +28,13 @@ service cloud.firestore {
       // 患者：新規作成のみ（未認証でも可）
       allow create: if request.auth == null
         && isValidReservation(request.resource.data);
+      // 患者：予約番号（ドキュメントID）による1件読み取り可（IDが事実上のアクセストークン）
+      allow get: if request.auth == null;
+      // 患者：statusをcancelledに変更するのみ許可（他フィールドは変更不可）
+      allow update: if request.auth == null
+        && resource.data.status != 'cancelled'
+        && request.resource.data.status == 'cancelled'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']);
       // 管理者：読み書きすべて可
       allow read, write: if isAdmin();
     }
@@ -36,8 +43,28 @@ service cloud.firestore {
     match /slots/{slotId} {
       // 患者：作成・読み取り可（トランザクション用）
       allow read, create: if request.auth == null;
-      // 管理者：読み書きすべて可（キャンセル時の開放）
-      allow read, write:  if isAdmin();
+      // 患者：スロット更新（2パターン許可）
+      //   1. キャンセル済みスロットへの再予約（cancelled → pending）
+      //   2. 予約キャンセル時のスロット開放（* → cancelled、status変更のみ）
+      allow update: if request.auth == null
+        && (
+          (resource.data.status == 'cancelled'
+            && request.resource.data.status == 'pending')
+          ||
+          (resource.data.status != 'cancelled'
+            && request.resource.data.status == 'cancelled'
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']))
+        );
+      // 管理者：読み書きすべて可
+      allow read, write: if isAdmin();
+    }
+
+    // 設定コレクション
+    match /settings/{settingId} {
+      // 院名・PP等の表示のため未認証でも読み取り可
+      allow read: if true;
+      // 管理者のみ書き込み可
+      allow write: if isAdmin();
     }
 
   }

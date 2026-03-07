@@ -1,7 +1,7 @@
 import { db } from "./firebase.js";
 import {
-    collection, doc, setDoc, getDocs,
-    query, where, runTransaction,
+    doc, setDoc, getDocs, getDoc,
+    collection, query, where, runTransaction,
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import { esc, DAY_NAMES, formatDate, formatDateJa } from "./utils.js";
 
@@ -9,16 +9,55 @@ import { esc, DAY_NAMES, formatDate, formatDateJa } from "./utils.js";
    福元鍼灸整骨院 患者側予約ロジック
    =========================== */
 
-// ── 営業時間定義 ──
+// ── 営業時間定義（Firestore設定から動的生成、未設定時はデフォルト値）──
 // 0=日 1=月 2=火 3=水 4=木 5=金 6=土
-const BUSINESS_HOURS = {
+let BUSINESS_HOURS = {
     1: { am: ['9:00','9:30','10:00','10:30','11:00','11:30'], pm: ['14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30'] },
     2: { am: ['9:00','9:30','10:00','10:30','11:00','11:30'], pm: ['14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30'] },
     3: { am: ['9:00','9:30','10:00','10:30','11:00','11:30'], pm: ['14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30'] },
     4: { am: ['9:00','9:30','10:00','10:30','11:00','11:30'], pm: ['14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30'] },
     5: { am: ['9:00','9:30','10:00','10:30','11:00','11:30'], pm: ['14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30'] },
-    6: { am: ['9:00','9:30','10:00','10:30','11:00','11:30'], pm: ['14:00','14:30','15:00','15:30','16:00','16:00'] },
+    6: { am: ['9:00','9:30','10:00','10:30','11:00','11:30'], pm: ['14:00','14:30','15:00','15:30','16:00','16:30','17:00'] },
 };
+
+function generateSlots(startStr, endStr) {
+    const [sh, sm] = startStr.split(':').map(Number);
+    const [eh, em] = endStr.split(':').map(Number);
+    const slots = [];
+    let cur = sh * 60 + sm;
+    const end = eh * 60 + em;
+    while (cur <= end) {
+        slots.push(`${Math.floor(cur / 60)}:${String(cur % 60).padStart(2, '0')}`);
+        cur += 30;
+    }
+    return slots;
+}
+
+function buildBusinessHours(settings) {
+    const bh = {};
+    for (const [key, day] of Object.entries(settings)) {
+        if (!day.open) continue;
+        const am = day.amOpen !== false ? generateSlots(day.amStart, day.amEnd) : [];
+        const pm = day.pmOpen !== false ? generateSlots(day.pmStart, day.pmEnd) : [];
+        if (am.length > 0 || pm.length > 0) {
+            bh[Number(key)] = { am, pm };
+        }
+    }
+    return bh;
+}
+
+// ── クリニック設定 ──
+let clinicSettings = {};
+
+async function loadClinicSettings() {
+    const snap = await getDoc(doc(db, 'settings', 'clinic'));
+    if (snap.exists()) {
+        clinicSettings = snap.data();
+        if (clinicSettings.businessHours) {
+            BUSINESS_HOURS = buildBusinessHours(clinicSettings.businessHours);
+        }
+    }
+}
 
 // ── カレンダー状態 ──
 const today = new Date();
@@ -56,7 +95,9 @@ function renderCalendar() {
     for (let d = 1; d <= daysInMonth; d++) {
         const date       = new Date(calYear, calMonth, d);
         const dow        = date.getDay();
-        const isDisabled = date < today || dow === 0 || !BUSINESS_HOURS[dow];
+        const dateStr    = formatDate(date);
+        const isHoliday  = (clinicSettings.holidays || []).includes(dateStr);
+        const isDisabled = date < today || dow === 0 || !BUSINESS_HOURS[dow] || isHoliday;
         const isToday    = date.getTime() === today.getTime();
         const isSel      = selectedDate && date.getTime() === selectedDate.getTime();
 
@@ -93,15 +134,16 @@ async function selectDate(date) {
     renderTimeSlots();
 }
 
-// ── 今日の過去スロット判定 ──
+// ── 今日の過去スロット判定（bookingCutoffMinutes 考慮）──
 function isPastSlot(timeStr) {
     const now     = new Date();
     const isToday = formatDate(selectedDate) === formatDate(now);
     if (!isToday) return false;
     const [h, m]      = timeStr.split(':').map(Number);
     const slotMinutes = h * 60 + m;
+    const cutoff      = clinicSettings.bookingCutoffMinutes ?? 0;
     const nowMinutes  = now.getHours() * 60 + now.getMinutes();
-    return slotMinutes <= nowMinutes;
+    return slotMinutes <= nowMinutes + cutoff;
 }
 
 // ── 時間スロット描画 ──
@@ -207,6 +249,7 @@ function fillConfirmation() {
     document.getElementById('c-address').textContent         = document.getElementById('address').value;
     document.getElementById('c-phone').textContent           = document.getElementById('phone').value;
     document.getElementById('c-email').textContent           = document.getElementById('email').value || '-';
+    document.getElementById('c-gender').textContent          = document.querySelector('input[name="gender"]:checked')?.value || '未入力';
     document.getElementById('c-visitType').textContent       = document.querySelector('input[name="visitType"]:checked')?.value || '-';
     document.getElementById('c-insurance').textContent       = document.querySelector('input[name="insurance"]:checked')?.value || '-';
     document.getElementById('c-symptoms').textContent        = document.getElementById('symptoms').value;
@@ -214,17 +257,23 @@ function fillConfirmation() {
     document.getElementById('c-contactMethod').textContent   = document.querySelector('input[name="contactMethod"]:checked')?.value || '-';
 }
 
+// ── 予約番号生成（8桁英数字、紛らわしい文字を除外）──
+function generateBookingId() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    return Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+}
+
 // ── 予約確定（Firestore + トランザクションで二重予約防止）──
 async function submitReservation() {
     const overlay = document.getElementById('loadingOverlay');
     overlay.classList.remove('hidden');
 
-    const dateStr = formatDate(selectedDate);
-    const slotId  = `${dateStr}_${selectedTime.replace(':', '')}`;
-
-    const reservationRef = doc(collection(db, 'reservations'));
+    const dateStr    = formatDate(selectedDate);
+    const slotId     = `${dateStr}_${selectedTime.replace(':', '')}`;
+    const bookingId  = generateBookingId();
+    const reservationRef = doc(db, 'reservations', bookingId);
     const booking = {
-        id:            reservationRef.id,
+        id:            bookingId,
         date:          dateStr,
         time:          selectedTime,
         name:          document.getElementById('name').value,
@@ -233,6 +282,7 @@ async function submitReservation() {
         address:       document.getElementById('address').value,
         phone:         document.getElementById('phone').value,
         email:         document.getElementById('email').value,
+        gender:        document.querySelector('input[name="gender"]:checked')?.value || '',
         visitType:     document.querySelector('input[name="visitType"]:checked')?.value,
         insurance:     document.querySelector('input[name="insurance"]:checked')?.value,
         symptoms:      document.getElementById('symptoms').value,
@@ -319,6 +369,9 @@ function newReservation() {
     ['visitType','insurance','contactMethod'].forEach(name => {
         const first = document.querySelector(`input[name="${name}"]`);
         if (first) { first.checked = true; first.closest('.radio-label').classList.add('checked'); }
+    });
+    document.querySelectorAll('input[name="gender"]').forEach(r => {
+        r.checked = false; r.closest('.radio-label').classList.remove('checked');
     });
     selectedDate = null; selectedTime = null; cachedBookedSlots = [];
     document.getElementById('nextBtnWrap').style.display = 'none';
@@ -470,4 +523,5 @@ document.getElementById('nextMonth').addEventListener('click', () => {
 Object.assign(window, { goToStep1, goToStep2, goToStep3, selectTime, submitReservation, newReservation, exportPdf });
 
 // 初期化
+await loadClinicSettings();
 renderCalendar();

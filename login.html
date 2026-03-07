@@ -52,6 +52,28 @@
             display: none;
         }
         .login-error.visible { display: block; }
+        .login-success {
+            background: #F0FFF4;
+            border: 1px solid #9AE6B4;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 12px;
+            color: #276749;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .login-success.visible { display: block; }
+        .forgot-link {
+            display: block;
+            text-align: right;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 8px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .forgot-link:hover { color: var(--brown); }
+        #resetForm { display: none; }
     </style>
 </head>
 <body>
@@ -64,8 +86,11 @@
                     <span>スタッフ専用ログイン</span>
                 </div>
             </div>
-            <p class="login-title">ログイン</p>
+            <p class="login-title" id="formTitle">ログイン</p>
             <div class="login-error" id="loginError"></div>
+            <div class="login-success" id="loginSuccess"></div>
+
+            <!-- ログインフォーム -->
             <form id="loginForm" novalidate>
                 <div class="form-group">
                     <label>メールアドレス</label>
@@ -76,22 +101,42 @@
                     <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" required>
                 </div>
                 <button type="submit" class="btn btn-primary" style="margin-top:8px;" id="loginBtn">ログイン</button>
+                <span class="forgot-link" id="showResetLink">パスワードをお忘れの方</span>
+            </form>
+
+            <!-- パスワード再設定フォーム -->
+            <form id="resetForm" novalidate>
+                <div class="form-group">
+                    <label>登録済みメールアドレス</label>
+                    <input type="email" id="resetEmail" placeholder="staff@example.com" autocomplete="email" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top:8px;" id="resetBtn">再設定メールを送信</button>
+                <span class="forgot-link" id="showLoginLink">ログインに戻る</span>
             </form>
         </div>
     </div>
 
     <script type="module">
-        import { login } from "./js/auth.js";
+        import { login, sendPasswordReset } from "./js/auth.js";
 
-        const form  = document.getElementById('loginForm');
-        const errEl = document.getElementById('loginError');
-        const btn   = document.getElementById('loginBtn');
+        const loginForm  = document.getElementById('loginForm');
+        const resetForm  = document.getElementById('resetForm');
+        const errEl      = document.getElementById('loginError');
+        const successEl  = document.getElementById('loginSuccess');
+        const formTitle  = document.getElementById('formTitle');
+        const loginBtn   = document.getElementById('loginBtn');
+        const resetBtn   = document.getElementById('resetBtn');
 
-        form.addEventListener('submit', async (e) => {
+        function showError(msg)   { errEl.textContent = msg; errEl.classList.add('visible'); successEl.classList.remove('visible'); }
+        function showSuccess(msg) { successEl.textContent = msg; successEl.classList.add('visible'); errEl.classList.remove('visible'); }
+        function clearMessages()  { errEl.classList.remove('visible'); successEl.classList.remove('visible'); }
+
+        // ログインフォーム
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            errEl.classList.remove('visible');
-            btn.disabled    = true;
-            btn.textContent = 'ログイン中...';
+            clearMessages();
+            loginBtn.disabled    = true;
+            loginBtn.textContent = 'ログイン中...';
 
             const email    = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
@@ -100,11 +145,44 @@
                 await login(email, password);
                 window.location.href = '/admin.html';
             } catch (err) {
-                errEl.textContent = err.message;
-                errEl.classList.add('visible');
-                btn.disabled    = false;
-                btn.textContent = 'ログイン';
+                showError(err.message);
+                loginBtn.disabled    = false;
+                loginBtn.textContent = 'ログイン';
             }
+        });
+
+        // パスワード再設定フォーム
+        resetForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearMessages();
+            resetBtn.disabled    = true;
+            resetBtn.textContent = '送信中...';
+
+            const email = document.getElementById('resetEmail').value.trim();
+
+            try {
+                await sendPasswordReset(email);
+                showSuccess('再設定用メールを送信しました。メールをご確認ください。');
+            } catch (err) {
+                showError(err.message);
+            } finally {
+                resetBtn.disabled    = false;
+                resetBtn.textContent = '再設定メールを送信';
+            }
+        });
+
+        // フォーム切り替え
+        document.getElementById('showResetLink').addEventListener('click', () => {
+            clearMessages();
+            loginForm.style.display = 'none';
+            resetForm.style.display = 'block';
+            formTitle.textContent   = 'パスワード再設定';
+        });
+        document.getElementById('showLoginLink').addEventListener('click', () => {
+            clearMessages();
+            resetForm.style.display = 'none';
+            loginForm.style.display = 'block';
+            formTitle.textContent   = 'ログイン';
         });
     </script>
 </body>

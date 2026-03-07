@@ -18,7 +18,7 @@
             <span>予約管理ダッシュボード — 福元鍼灸整骨院</span>
         </div>
         <div class="admin-header-actions">
-            <button class="btn-admin-outline" onclick="openMailSettings()">✉ メール設定</button>
+            <button class="btn-admin-outline" onclick="openSettings()">⚙ 設定</button>
             <button class="btn-admin-orange" onclick="exportCsv()">⬇ CSV出力</button>
             <button class="btn-admin-outline" onclick="window.location.href='index.html'">← 予約ページへ</button>
             <button class="btn-admin-outline" onclick="handleLogout()">ログアウト</button>
@@ -88,31 +88,92 @@
         </div>
     </div>
 
-    <!-- メール設定モーダル -->
-    <div class="modal-overlay" id="mailModal">
-        <div class="modal">
+    <!-- システム設定モーダル -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal" style="width:620px;">
             <div class="modal-header">
-                <h3>✉ 管理者メール設定</h3>
-                <button class="modal-close" onclick="closeModal('mailModal')">×</button>
+                <h3>⚙ システム設定</h3>
+                <button class="modal-close" onclick="closeModal('settingsModal')">×</button>
             </div>
             <div class="modal-body">
-                <div class="info-box" style="margin-bottom:16px;">
-                    患者からの予約が入ると、登録したメールアドレスへ通知メールが送信されます（予約フォームから mailto: リンクで起動）。
+                <div class="settings-tabs">
+                    <button class="settings-tab active" onclick="switchSettingsTab('Clinic', this)">院内情報</button>
+                    <button class="settings-tab" onclick="switchSettingsTab('Booking', this)">予約設定</button>
+                    <button class="settings-tab" onclick="switchSettingsTab('Privacy', this)">プライバシーポリシー</button>
+                    <button class="settings-tab" onclick="switchSettingsTab('Holiday', this)">休日設定</button>
+                    <button class="settings-tab" onclick="switchSettingsTab('BusinessHours', this)">営業時間</button>
                 </div>
-                <div class="mail-settings-form">
+
+                <!-- 院内情報 -->
+                <div class="settings-panel active" id="tabClinic">
                     <div class="form-group">
-                        <label>管理者メールアドレス</label>
-                        <input type="email" id="adminEmailInput" placeholder="clinic@example.com">
+                        <label>院名</label>
+                        <input type="text" id="settingClinicName" placeholder="福元鍼灸整骨院">
                     </div>
                     <div class="form-group">
-                        <label>院名 / 担当者名</label>
-                        <input type="text" id="adminNameInput" placeholder="福元鍼灸整骨院 担当者">
+                        <label>電話番号</label>
+                        <input type="text" id="settingPhone" placeholder="0120-XXX-XXX">
+                    </div>
+                </div>
+
+                <!-- 予約設定 -->
+                <div class="settings-panel" id="tabBooking">
+                    <div class="form-group">
+                        <label>予約受付最終時刻（何分前まで受け付けるか）</label>
+                        <input type="number" id="settingBookingCutoff" min="0" max="1440" placeholder="0">
+                        <p class="settings-hint">例: 15 と設定すると、16:30 の枠は 16:15 まで予約可能になります。0 = 制限なし</p>
+                    </div>
+                    <div class="form-group" style="margin-top:16px;">
+                        <label>キャンセル受付期限（予約時刻の何分前まで）</label>
+                        <input type="number" id="settingCancelCutoff" min="0" max="10080" placeholder="60">
+                        <p class="settings-hint">例: 60 と設定すると、予約時刻の 1 時間前までキャンセル可能になります。</p>
+                    </div>
+                </div>
+
+                <!-- 休日設定 -->
+                <div class="settings-panel" id="tabHoliday">
+                    <div class="holiday-toolbar">
+                        <button class="btn-admin-orange" style="height:32px;font-size:12px;" id="fetchHolidaysBtn" onclick="fetchHolidays()">祝日を自動取得（今年・来年）</button>
+                        <button style="height:32px;font-size:12px;margin-left:8px;padding:0 12px;border:1.5px solid var(--beige-mid);border-radius:7px;background:var(--white);color:var(--text-secondary);cursor:pointer;font-family:var(--font-main);font-weight:600;" onclick="clearAllHolidays()">すべてクリア</button>
+                        <span class="settings-hint" id="holidayCount" style="margin-left:10px;">0日 設定中</span>
+                    </div>
+                    <div class="holiday-layout">
+                        <div>
+                            <div class="holiday-cal-nav">
+                                <button class="cal-nav-btn" style="width:28px;height:28px;" onclick="prevHolidayCal()">&#8249;</button>
+                                <span class="cal-month" style="font-size:13px;" id="holidayCalLabel"></span>
+                                <button class="cal-nav-btn" style="width:28px;height:28px;" onclick="nextHolidayCal()">&#8250;</button>
+                            </div>
+                            <div class="cal-days-header" style="font-size:10px;">
+                                <span class="sun">日</span><span>月</span><span>火</span>
+                                <span>水</span><span>木</span><span>金</span><span class="sat">土</span>
+                            </div>
+                            <div id="holidayCalCells" class="cal-cells"></div>
+                        </div>
+                        <div class="holiday-list-wrap">
+                            <div class="filter-label" style="margin-bottom:8px;">設定済み休日</div>
+                            <div id="holidayList"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 営業時間 -->
+                <div class="settings-panel" id="tabBusinessHours">
+                    <table class="biz-hours-table" id="bizHoursTable"></table>
+                </div>
+
+                <!-- プライバシーポリシー -->
+                <div class="settings-panel" id="tabPrivacy">
+                    <div class="form-group">
+                        <label>プライバシーポリシー本文</label>
+                        <textarea id="settingPrivacyPolicy" rows="14" placeholder="1.【個人情報の利用目的】&#10;当院は、患者様の個人情報を以下の目的のために利用いたします。&#10;・患者様への医療・介護サービスの提供&#10;・医療保険事務・会計・経理に関する業務&#10;・医療安全管理および医療事故の報告&#10;・業務委託先への必要な範囲での情報提供&#10;&#10;2.【要配慮個人情報の取り扱い】&#10;診療録（カルテ）・健康診断結果など、特に慎重な取り扱いを要する個人情報については、適切な安全管理措置を講じ、細心の注意を払って管理いたします。&#10;&#10;3.【第三者提供の制限】&#10;患者様の個人情報は、ご本人の同意なく第三者へ提供いたしません。ただし、裁判所・警察等からの法令に基づく開示要請があった場合はこの限りではありません。&#10;&#10;4.【安全管理措置】&#10;個人情報の漏洩・紛失・改ざんを防止するため、アクセス制限・スタッフへの教育研修等、技術的・組織的な対策を実施いたします。&#10;&#10;5.【開示・訂正・利用停止のご請求】&#10;患者様ご本人からの個人情報の開示・訂正・利用停止のご請求には、本人確認のうえ速やかに対応いたします。お問い合わせ窓口は院内にご案内しております。&#10;&#10;6.【プライバシーポリシーの見直し】&#10;法令改正等に応じて本ポリシーを定期的に見直し、改定する場合は当院ウェブサイト等にて公表いたします。"></textarea>
+                        <p class="settings-hint">空欄の場合はデフォルトのポリシーが表示されます。</p>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline btn-sm" onclick="closeModal('mailModal')">キャンセル</button>
-                <button class="btn btn-primary btn-sm" style="width:auto;height:34px;" onclick="saveMailSettings()">保存</button>
+                <button class="btn btn-outline btn-sm" onclick="closeModal('settingsModal')">キャンセル</button>
+                <button class="btn btn-primary btn-sm" style="width:auto;height:34px;" id="saveSettingsBtn" onclick="saveSettings()">保存</button>
             </div>
         </div>
     </div>
