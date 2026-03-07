@@ -82,7 +82,7 @@
             <div class="login-logo">
                 <div class="login-logo-icon">管</div>
                 <div class="login-logo-text">
-                    <h1>福元鍼灸整骨院</h1>
+                    <h1 id="clinic-name-heading">福元鍼灸整骨院</h1>
                     <span>スタッフ専用ログイン</span>
                 </div>
             </div>
@@ -118,6 +118,20 @@
 
     <script type="module">
         import { login, sendPasswordReset } from "./js/auth.js";
+        import { db } from "./js/firebase.js";
+        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+        // 院名をヘッダー・タイトルに反映
+        (async () => {
+            const snap = await getDoc(doc(db, 'settings', 'clinic'));
+            if (snap.exists()) {
+                const name = snap.data().clinicName;
+                if (name) {
+                    document.getElementById('clinic-name-heading').textContent = name;
+                    document.title = document.title.replace(/ [^|]+$/, ` ${name}`);
+                }
+            }
+        })();
 
         const loginForm  = document.getElementById('loginForm');
         const resetForm  = document.getElementById('resetForm');

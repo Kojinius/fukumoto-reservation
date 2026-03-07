@@ -12,11 +12,17 @@ setGlobalOptions({ maxInstances: 10 });
 
 const resendApiKey = defineSecret("RESEND_API_KEY");
 const ADMIN_EMAIL  = "admin@kojinius.jp";
-const FROM_ADDRESS = "福元鍼灸整骨院 <noreply@kojinius.jp>";
+
+// ── 共通：Firestoreから院名を取得 ──
+async function getClinicSettings() {
+  const db   = getFirestore();
+  const snap = await db.collection("settings").doc("clinic").get();
+  return snap.exists ? snap.data() : {};
+}
 
 // ── 共通：メール送信ヘルパー ──
-async function sendMail(resend, { to, subject, html }) {
-  const { data, error } = await resend.emails.send({ from: FROM_ADDRESS, to: [to], subject, html });
+async function sendMail(resend, { from, to, subject, html }) {
+  const { data, error } = await resend.emails.send({ from, to: [to], subject, html });
   if (error) throw new Error(`Resend エラー: ${JSON.stringify(error)}`);
   return data;
 }
@@ -49,11 +55,14 @@ exports.sendReservationEmail = onRequest(
       return;
     }
 
-    const resend = new Resend(resendApiKey.value());
+    const resend  = new Resend(resendApiKey.value());
+    const { clinicName: cn = '福元鍼灸整骨院', phone: ph = '0120-XXX-XXX', clinicAddress: addr = '', clinicUrl: siteUrl = '' } = await getClinicSettings();
+    const mapUrl  = addr ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}` : '';
     try {
       const data = await sendMail(resend, {
+        from:    `${cn} <noreply@kojinius.jp>`,
         to,
-        subject: "【福元鍼灸整骨院】ご予約確認",
+        subject: `【${cn}】ご予約確認`,
         html: `
           <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#333;">
             <div style="background:#72586f;padding:24px 32px;">
@@ -79,16 +88,16 @@ exports.sendReservationEmail = onRequest(
               <div style="background:#fff8f0;border-left:4px solid #f5913e;padding:12px 16px;margin-bottom:24px;">
                 <p style="margin:0 0 8px;font-weight:bold;">キャンセルについて</p>
                 <p style="margin:0;font-size:14px;">ご予約のキャンセル・変更は、お電話にてご連絡ください。<br>
-                  <strong>電話番号：0120-XXX-XXX</strong>（受付時間：診療時間内）</p>
+                  <strong>電話番号：${ph}</strong>（受付時間：診療時間内）</p>
               </div>
               <p>ご不明な点がございましたら、お気軽にお問い合わせください。</p>
             </div>
             <div style="background:#f5f5f5;padding:16px 32px;">
-              <p style="margin:0;color:#888;font-size:12px;">
-                福元鍼灸整骨院<br>
-                月〜金 9:00〜19:30 / 土 9:00〜17:00 / 日・祝 休診<br>
-                https://kojinius.jp
-              </p>
+              <p style="margin:0;color:#555;font-size:13px;font-weight:bold;">${cn}</p>
+              ${addr ? `<p style="margin:4px 0 0;color:#888;font-size:12px;">📍 ${addr}</p>` : ''}
+              ${ph   ? `<p style="margin:4px 0 0;color:#888;font-size:12px;">📞 ${ph}</p>` : ''}
+              ${siteUrl ? `<p style="margin:4px 0 0;font-size:12px;"><a href="${siteUrl}" style="color:#72586f;">${siteUrl}</a></p>` : ''}
+              ${mapUrl ? `<p style="margin:12px 0 0;"><a href="${mapUrl}" style="display:inline-block;background:#72586f;color:#fff;padding:8px 16px;border-radius:6px;font-size:13px;text-decoration:none;">🗺 Googleマップで見る</a></p>` : ''}
             </div>
           </div>
         `,
@@ -120,10 +129,12 @@ exports.notifyAdminOnReservation = onRequest(
       return;
     }
 
-    const resend = new Resend(resendApiKey.value());
+    const resend  = new Resend(resendApiKey.value());
+    const { clinicName: cn = '福元鍼灸整骨院' } = await getClinicSettings();
     try {
       const data = await sendMail(resend, {
-        to: ADMIN_EMAIL,
+        from:    `${cn} <noreply@kojinius.jp>`,
+        to:      ADMIN_EMAIL,
         subject: `【新規予約】${name} 様 - ${date} ${time}〜`,
         html: `
           <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#333;">
@@ -167,7 +178,7 @@ exports.notifyAdminOnReservation = onRequest(
               </table>
             </div>
             <div style="background:#f5f5f5;padding:16px 32px;">
-              <p style="margin:0;color:#888;font-size:12px;">福元鍼灸整骨院 予約システム</p>
+              <p style="margin:0;color:#888;font-size:12px;">${cn} 予約システム</p>
             </div>
           </div>
         `,
@@ -197,24 +208,28 @@ exports.sendDailyReminders = onSchedule(
     const tomorrowStr = `${yyyy}-${mm}-${dd}`;
 
     const db   = getFirestore();
-    const snap = await db.collection("reservations")
-      .where("date", "==", tomorrowStr)
-      .where("status", "!=", "cancelled")
-      .get();
+    const [reservationsSnap, { clinicName: cn = '福元鍼灸整骨院', phone: ph = '0120-XXX-XXX' }] = await Promise.all([
+      db.collection("reservations")
+        .where("date", "==", tomorrowStr)
+        .where("status", "!=", "cancelled")
+        .get(),
+      getClinicSettings(),
+    ]);
 
-    if (snap.empty) {
+    if (reservationsSnap.empty) {
       console.log(`${tomorrowStr} の予約なし。リマインダー送信をスキップ。`);
       return;
     }
 
     const resend = new Resend(resendApiKey.value());
-    const tasks  = snap.docs
+    const tasks  = reservationsSnap.docs
       .map(d => d.data())
       .filter(r => r.email)
       .map(r =>
         sendMail(resend, {
+          from:    `${cn} <noreply@kojinius.jp>`,
           to:      r.email,
-          subject: `【福元鍼灸整骨院】明日のご予約リマインダー`,
+          subject: `【${cn}】明日のご予約リマインダー`,
           html: `
             <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#333;">
               <div style="background:#72586f;padding:24px 32px;">
@@ -235,14 +250,13 @@ exports.sendDailyReminders = onSchedule(
                 </table>
                 <div style="background:#fff8f0;border-left:4px solid #f5913e;padding:12px 16px;margin-bottom:24px;">
                   <p style="margin:0;font-size:14px;">キャンセル・変更はお電話にてご連絡ください。<br>
-                    <strong>電話番号：0120-XXX-XXX</strong></p>
+                    <strong>電話番号：${ph}</strong></p>
                 </div>
                 <p>ご来院をお待ちしております。</p>
               </div>
               <div style="background:#f5f5f5;padding:16px 32px;">
                 <p style="margin:0;color:#888;font-size:12px;">
-                  福元鍼灸整骨院<br>
-                  月〜金 9:00〜19:30 / 土 9:00〜17:00 / 日・祝 休診<br>
+                  ${cn}<br>
                   https://kojinius.jp
                 </p>
               </div>

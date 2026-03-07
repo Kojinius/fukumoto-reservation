@@ -18,12 +18,25 @@ let currentSettings = {};
 
 async function loadSettings() {
     const snap = await getDoc(doc(db, 'settings', 'clinic'));
-    if (snap.exists()) currentSettings = snap.data();
+    if (snap.exists()) {
+        currentSettings = snap.data();
+        // 院名をヘッダー・タイトルに反映
+        const name = currentSettings.clinicName;
+        if (name) {
+            const el = document.getElementById('clinic-name-heading');
+            if (el) el.textContent = `予約管理ダッシュボード — ${name}`;
+            document.title = document.title.replace(/ [^|]+$/, ` ${name}`);
+        }
+    }
 }
 
 function openSettings() {
     document.getElementById('settingClinicName').value    = currentSettings.clinicName    || '';
     document.getElementById('settingPhone').value         = currentSettings.phone         || '';
+    document.getElementById('settingClinicUrl').value     = currentSettings.clinicUrl     || '';
+    document.getElementById('settingClinicZip').value     = currentSettings.clinicZip     || '';
+    document.getElementById('settingClinicAddress').value = currentSettings.clinicAddress || '';
+    document.getElementById('zipFetchMsg').textContent    = '';
     document.getElementById('settingBookingCutoff').value = currentSettings.bookingCutoffMinutes ?? '';
     document.getElementById('settingCancelCutoff').value  = currentSettings.cancelCutoffMinutes  ?? '';
     document.getElementById('settingPrivacyPolicy').value = currentSettings.privacyPolicy  || '';
@@ -65,13 +78,30 @@ function validateBizHours() {
 
 async function saveSettings() {
     const btn = document.getElementById('saveSettingsBtn');
-    const err = validateBizHours();
-    if (err) { alert(`【営業時間エラー】\n${err}`); return; }
+
+    // 必須・バリデーション
+    const clinicName = document.getElementById('settingClinicName').value.trim();
+    const phone      = document.getElementById('settingPhone').value.trim();
+    const clinicUrl  = document.getElementById('settingClinicUrl').value.trim();
+    if (!clinicName) { alert('院名は必須です。'); return; }
+    if (!phone)      { alert('電話番号は必須です。'); return; }
+    if (clinicUrl) {
+        try { new URL(clinicUrl); } catch {
+            alert('WebサイトURLの形式が正しくありません。\n例: https://example.com');
+            return;
+        }
+    }
+    const bizErr = validateBizHours();
+    if (bizErr) { alert(`【営業時間エラー】\n${bizErr}`); return; }
+
     btn.disabled = true; btn.textContent = '保存中...';
     try {
         const data = {
-            clinicName:            document.getElementById('settingClinicName').value.trim(),
-            phone:                 document.getElementById('settingPhone').value.trim(),
+            clinicName,
+            phone,
+            clinicUrl,
+            clinicZip:             document.getElementById('settingClinicZip').value.trim(),
+            clinicAddress:         document.getElementById('settingClinicAddress').value.trim(),
             bookingCutoffMinutes:  Number(document.getElementById('settingBookingCutoff').value) || 0,
             cancelCutoffMinutes:   Number(document.getElementById('settingCancelCutoff').value)  || 0,
             privacyPolicy:         document.getElementById('settingPrivacyPolicy').value.trim(),
@@ -82,6 +112,10 @@ async function saveSettings() {
         };
         await setDoc(doc(db, 'settings', 'clinic'), data, { merge: true });
         currentSettings = { ...currentSettings, ...data };
+        // 院名をヘッダー・タイトルに即時反映
+        const el = document.getElementById('clinic-name-heading');
+        if (el) el.textContent = `予約管理ダッシュボード — ${clinicName}`;
+        document.title = document.title.replace(/ [^|]+$/, ` ${clinicName}`);
         closeModal('settingsModal');
         alert('設定を保存しました。');
     } catch (err) {
@@ -333,6 +367,35 @@ function clearAllHolidays() {
     renderHolidayList();
 }
 
+// ── 郵便番号 → 住所自動取得（zipcloud API）──
+async function fetchAddressFromZip() {
+    const zip = document.getElementById('settingClinicZip').value.replace(/[^0-9]/g, '');
+    const msg = document.getElementById('zipFetchMsg');
+    if (zip.length !== 7) {
+        msg.textContent = '7桁の郵便番号を入力してください（ハイフン不要）';
+        msg.style.color = 'var(--red, #c0392b)';
+        return;
+    }
+    msg.textContent = '取得中...';
+    msg.style.color = 'var(--text-muted)';
+    try {
+        const res  = await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${zip}`);
+        const json = await res.json();
+        if (!json.results) {
+            msg.textContent = '住所が見つかりませんでした';
+            msg.style.color = 'var(--red, #c0392b)';
+            return;
+        }
+        const { address1, address2, address3 } = json.results[0];
+        document.getElementById('settingClinicAddress').value = `${address1}${address2}${address3}`;
+        msg.textContent = '住所を取得しました（番地・建物名を追記してください）';
+        msg.style.color = 'green';
+    } catch (e) {
+        msg.textContent = '取得に失敗しました';
+        msg.style.color = 'var(--red, #c0392b)';
+    }
+}
+
 async function fetchHolidays() {
     const btn = document.getElementById('fetchHolidaysBtn');
     btn.disabled = true; btn.textContent = '取得中...';
@@ -553,7 +616,7 @@ Object.assign(window, {
     openDetail, updateStatus, openModal, closeModal,
     exportCsv, handleLogout,
     openSettings, saveSettings, switchSettingsTab,
-    prevHolidayCal, nextHolidayCal, fetchHolidays, toggleHoliday, clearAllHolidays,
+    prevHolidayCal, nextHolidayCal, fetchHolidays, toggleHoliday, clearAllHolidays, fetchAddressFromZip,
     toggleBizDay, toggleBizAmPm,
 });
 

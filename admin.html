@@ -15,7 +15,7 @@
     <header class="admin-header">
         <div class="admin-logo">
             <div class="admin-logo-icon">管</div>
-            <span>予約管理ダッシュボード — 福元鍼灸整骨院</span>
+            <span id="clinic-name-heading">予約管理ダッシュボード — 福元鍼灸整骨院</span>
         </div>
         <div class="admin-header-actions">
             <button class="btn-admin-outline" onclick="openSettings()">⚙ 設定</button>
@@ -107,12 +107,29 @@
                 <!-- 院内情報 -->
                 <div class="settings-panel active" id="tabClinic">
                     <div class="form-group">
-                        <label>院名</label>
-                        <input type="text" id="settingClinicName" placeholder="福元鍼灸整骨院">
+                        <label>院名 <span style="color:var(--red,#c0392b);font-size:11px;">必須</span></label>
+                        <input type="text" id="settingClinicName" placeholder="〇〇△△医院">
                     </div>
                     <div class="form-group">
-                        <label>電話番号</label>
+                        <label>電話番号 <span style="color:var(--red,#c0392b);font-size:11px;">必須</span></label>
                         <input type="text" id="settingPhone" placeholder="0120-XXX-XXX">
+                    </div>
+                    <div class="form-group">
+                        <label>WebサイトURL</label>
+                        <input type="text" id="settingClinicUrl" placeholder="https://example.com">
+                        <p class="settings-hint">http:// または https:// から始まる形式で入力してください</p>
+                    </div>
+                    <div class="form-group">
+                        <label>郵便番号</label>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <input type="text" id="settingClinicZip" placeholder="1234567" maxlength="8" style="width:140px;">
+                            <button type="button" style="height:36px;padding:0 14px;font-size:12px;font-weight:600;border:1.5px solid var(--brown);border-radius:7px;background:var(--white);color:var(--brown);cursor:pointer;font-family:var(--font-main);" onclick="fetchAddressFromZip()">住所を自動取得</button>
+                        </div>
+                        <p class="settings-hint" id="zipFetchMsg"></p>
+                    </div>
+                    <div class="form-group">
+                        <label>院の住所</label>
+                        <input type="text" id="settingClinicAddress" placeholder="〇〇県〇〇市〇〇町1-2-3">
                     </div>
                 </div>
 

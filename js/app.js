@@ -46,6 +46,36 @@ function buildBusinessHours(settings) {
     return bh;
 }
 
+// ── PDF フッター用 営業時間テキスト生成 ──
+function buildBizHoursText() {
+    const bh = clinicSettings.businessHours;
+    if (!bh) return '月〜金  9:00–19:30　／　土  9:00–17:00　／　日・祝  休診';
+    const DAY = ['日','月','火','水','木','金','土'];
+    const openMap = new Map();
+    for (let i = 0; i <= 6; i++) {
+        const d = bh[String(i)];
+        if (!d || !d.open) continue;
+        const start = d.amOpen !== false ? d.amStart : d.pmStart;
+        const end   = d.pmOpen !== false ? d.pmEnd   : d.amEnd;
+        if (start && end) openMap.set(i, `${start}–${end}`);
+    }
+    const groups = [];
+    const processed = new Set();
+    for (let i = 0; i <= 6; i++) {
+        if (!openMap.has(i) || processed.has(i)) continue;
+        const hours = openMap.get(i);
+        let j = i;
+        while (j + 1 <= 6 && openMap.get(j + 1) === hours) j++;
+        const dayStr = j > i ? `${DAY[i]}〜${DAY[j]}` : DAY[i];
+        groups.push(`${dayStr}  ${hours}`);
+        for (let k = i; k <= j; k++) processed.add(k);
+        i = j;
+    }
+    const closed = [0,1,2,3,4,5,6].filter(x => !openMap.has(x));
+    if (closed.length && closed.length < 7) groups.push(`${closed.map(x => DAY[x]).join('・')}  休診`);
+    return groups.join('　／　') || '営業時間未設定';
+}
+
 // ── クリニック設定 ──
 let clinicSettings = {};
 
@@ -54,7 +84,37 @@ async function loadClinicSettings() {
     if (snap.exists()) {
         clinicSettings = snap.data();
         if (clinicSettings.businessHours) {
-            BUSINESS_HOURS = buildBusinessHours(clinicSettings.businessHours);
+            const built = buildBusinessHours(clinicSettings.businessHours);
+            // 全曜日が closed の場合はデフォルトを維持
+            if (Object.keys(built).length > 0) {
+                BUSINESS_HOURS = built;
+            }
+        }
+        // 院名をヘッダー・タイトルに反映
+        const name = clinicSettings.clinicName;
+        if (name) {
+            const h1 = document.getElementById('clinic-name-heading');
+            if (h1) h1.textContent = name;
+            document.title = document.title.replace(/ [^|]+$/, ` ${name}`);
+        }
+        // 電話番号をヘッダー・Step4 に反映
+        const ph = clinicSettings.phone;
+        if (ph) {
+            const hPhone = document.getElementById('header-phone');
+            if (hPhone) hPhone.textContent = `☎ ${ph}`;
+            const s4Phone = document.getElementById('step4-phone');
+            if (s4Phone) s4Phone.textContent = ph;
+        }
+        // 院の住所・マップを Step4 に反映
+        const addr = clinicSettings.clinicAddress;
+        if (addr) {
+            const section = document.getElementById('clinic-map-section');
+            if (section) {
+                document.getElementById('clinic-address-display').textContent = addr;
+                document.getElementById('clinic-map-iframe').src =
+                    `https://maps.google.com/maps?q=${encodeURIComponent(addr)}&output=embed&hl=ja`;
+                section.style.display = 'block';
+            }
         }
     }
 }
@@ -97,7 +157,7 @@ function renderCalendar() {
         const dow        = date.getDay();
         const dateStr    = formatDate(date);
         const isHoliday  = (clinicSettings.holidays || []).includes(dateStr);
-        const isDisabled = date < today || dow === 0 || !BUSINESS_HOURS[dow] || isHoliday;
+        const isDisabled = date < today || !BUSINESS_HOURS[dow] || isHoliday;
         const isToday    = date.getTime() === today.getTime();
         const isSel      = selectedDate && date.getTime() === selectedDate.getTime();
 
@@ -214,15 +274,46 @@ function setStep(n) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+// ── 郵便番号 → 住所自動取得（zipcloud API）──
+async function fetchAddressFromZip() {
+    const zip = document.getElementById('zip').value.replace(/[^0-9]/g, '');
+    const msg = document.getElementById('zipMsg');
+    if (zip.length !== 7) {
+        msg.textContent = '7桁の郵便番号を入力してください（ハイフン不要）';
+        msg.style.color = 'var(--red, #c0392b)';
+        return;
+    }
+    msg.textContent = '取得中...';
+    msg.style.color = 'var(--text-muted)';
+    try {
+        const res  = await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${zip}`);
+        const json = await res.json();
+        if (!json.results) {
+            msg.textContent = '住所が見つかりませんでした';
+            msg.style.color = 'var(--red, #c0392b)';
+            return;
+        }
+        const { address1, address2, address3 } = json.results[0];
+        document.getElementById('addressMain').value = `${address1}${address2}${address3}`;
+        document.getElementById('addressMain').focus();
+        msg.textContent = '住所を取得しました。番地・建物名を入力してください。';
+        msg.style.color = 'green';
+    } catch (e) {
+        msg.textContent = '取得に失敗しました';
+        msg.style.color = 'var(--red, #c0392b)';
+    }
+}
+
 // ── フォームバリデーション ──
 function validateForm() {
     const required = [
-        { id: 'name',      label: '氏名' },
-        { id: 'furigana',  label: 'ふりがな' },
-        { id: 'birthdate', label: '生年月日' },
-        { id: 'address',   label: '住所' },
-        { id: 'phone',     label: '電話番号' },
-        { id: 'symptoms',  label: '症状・お悩み' },
+        { id: 'name',        label: '氏名' },
+        { id: 'furigana',    label: 'ふりがな' },
+        { id: 'birthdate',   label: '生年月日' },
+        { id: 'zip',         label: '郵便番号' },
+        { id: 'addressMain', label: '都道府県・市区町村・番地' },
+        { id: 'phone',       label: '電話番号' },
+        { id: 'symptoms',    label: '症状・お悩み' },
     ];
     for (const f of required) {
         const el = document.getElementById(f.id);
@@ -246,7 +337,11 @@ function fillConfirmation() {
     document.getElementById('c-furigana').textContent        = document.getElementById('furigana').value;
     const bd = document.getElementById('birthdate').value;
     document.getElementById('c-birthdate').textContent       = bd ? formatDateJa(bd) : '-';
-    document.getElementById('c-address').textContent         = document.getElementById('address').value;
+    const zip         = document.getElementById('zip').value.trim();
+    const addressMain = document.getElementById('addressMain').value.trim();
+    const addressSub  = document.getElementById('addressSub').value.trim();
+    document.getElementById('c-zip').textContent     = zip ? `〒${zip}` : '-';
+    document.getElementById('c-address').textContent = addressSub ? `${addressMain}　${addressSub}` : addressMain;
     document.getElementById('c-phone').textContent           = document.getElementById('phone').value;
     document.getElementById('c-email').textContent           = document.getElementById('email').value || '-';
     document.getElementById('c-gender').textContent          = document.querySelector('input[name="gender"]:checked')?.value || '未入力';
@@ -279,7 +374,8 @@ async function submitReservation() {
         name:          document.getElementById('name').value,
         furigana:      document.getElementById('furigana').value,
         birthdate:     document.getElementById('birthdate').value,
-        address:       document.getElementById('address').value,
+        zip:           document.getElementById('zip').value.trim(),
+        address:       [document.getElementById('addressMain').value.trim(), document.getElementById('addressSub').value.trim()].filter(Boolean).join('　'),
         phone:         document.getElementById('phone').value,
         email:         document.getElementById('email').value,
         gender:        document.querySelector('input[name="gender"]:checked')?.value || '',
@@ -365,6 +461,7 @@ async function submitReservation() {
 // ── 新しい予約 ──
 function newReservation() {
     document.getElementById('reservationForm').reset();
+    document.getElementById('zipMsg').textContent = '';
     document.querySelectorAll('.radio-label').forEach(el => el.classList.remove('checked'));
     ['visitType','insurance','contactMethod'].forEach(name => {
         const first = document.querySelector(`input[name="${name}"]`);
@@ -419,7 +516,7 @@ async function exportPdf() {
         r(0, height - 70, width, 70, rgb(0.27, 0.18, 0.12));
         r(24, height - 56, 36, 36, rgb(0.97, 0.57, 0.13), 6);
         t('鍼', 33, height - 43, 16, rgb(1, 1, 1));
-        t('福元鍼灸整骨院', 72, height - 36, 17, rgb(1, 1, 1));
+        t(clinicSettings.clinicName || '福元鍼灸整骨院', 72, height - 36, 17, rgb(1, 1, 1));
         t('FUKUMOTO ACUPUNCTURE CLINIC', 73, height - 53, 8, rgb(0.72, 0.62, 0.57));
         // 予約番号
         t('予約番号', width - 210, height - 34, 9, rgb(0.72, 0.62, 0.57));
@@ -461,7 +558,18 @@ async function exportPdf() {
         yL = row('氏名',     booking.name,          CL, yL);
         yL = row('ふりがな', booking.furigana,       CL, yL);
         yL = row('生年月日', booking.birthdate,      CL, yL);
-        yL = row('住所',     clip(booking.address, 22), CL, yL);
+        // 郵便番号・住所（18文字で折り返し2行）
+        if (booking.zip) yL = row('郵便番号', `〒${booking.zip}`, CL, yL);
+        const addrFull = booking.address || '-';
+        yL = row('住所', addrFull.slice(0, 14), CL, yL);
+        if (addrFull.length > 14) {
+            t(addrFull.slice(14, 28), CL + LBL_W, yL, 11, rgb(0.15, 0.10, 0.06));
+            yL -= 24;
+        }
+        if (addrFull.length > 28) {
+            t(addrFull.slice(28, 42), CL + LBL_W, yL, 11, rgb(0.15, 0.10, 0.06));
+            yL -= 24;
+        }
         yL = row('電話番号', booking.phone,          CL, yL);
         yL = row('メール',   booking.email || '未入力', CL, yL);
 
@@ -479,8 +587,8 @@ async function exportPdf() {
         // ── フッター ──
         r(0, 0, width, 64, rgb(0.94, 0.88, 0.82));
         line(0, 64, width, 64);
-        t('☎  0120-XXX-XXX', CL, 42, 10, rgb(0.40, 0.30, 0.25));
-        t('月〜金  9:00–19:30　／　土  9:00–17:00　／　日・祝  休診', CL, 24, 9, rgb(0.55, 0.45, 0.38));
+        t(`☎  ${clinicSettings.phone || '0120-XXX-XXX'}`, CL, 42, 10, rgb(0.40, 0.30, 0.25));
+        t(buildBizHoursText(), CL, 24, 9, rgb(0.55, 0.45, 0.38));
         t('https://kojinius.jp', width - 160, 24, 8, rgb(0.65, 0.55, 0.48));
 
         const bytes = await pdfDoc.save();
@@ -520,7 +628,7 @@ document.getElementById('nextMonth').addEventListener('click', () => {
 });
 
 // onclick から呼べるようにグローバル公開
-Object.assign(window, { goToStep1, goToStep2, goToStep3, selectTime, submitReservation, newReservation, exportPdf });
+Object.assign(window, { goToStep1, goToStep2, goToStep3, selectTime, submitReservation, newReservation, exportPdf, fetchAddressFromZip });
 
 // 初期化
 await loadClinicSettings();

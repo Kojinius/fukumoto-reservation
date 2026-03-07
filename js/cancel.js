@@ -13,7 +13,16 @@ let clinicSettings  = {};
 
 // ── 設定ロード ──
 const settingsSnap = await getDoc(doc(db, 'settings', 'clinic'));
-if (settingsSnap.exists()) clinicSettings = settingsSnap.data();
+if (settingsSnap.exists()) {
+    clinicSettings = settingsSnap.data();
+    // 院名をヘッダー・タイトルに反映
+    const name = clinicSettings.clinicName;
+    if (name) {
+        const h1 = document.getElementById('clinic-name-heading');
+        if (h1) h1.textContent = name;
+        document.title = document.title.replace(/ [^|]+$/, ` ${name}`);
+    }
+}
 
 // ── 検索 ──
 async function searchBooking() {
