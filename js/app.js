@@ -250,7 +250,7 @@ async function submitReservation() {
             tx.set(reservationRef, booking);
         });
 
-        // 確認メール（非同期・失敗しても予約は完了扱い）
+        // 患者への確認メール（非同期・失敗しても予約は完了扱い）
         if (booking.email) {
             fetch('https://sendreservationemail-po3aztuimq-uc.a.run.app', {
                 method: 'POST',
@@ -259,9 +259,28 @@ async function submitReservation() {
                     to: booking.email, name: booking.name,
                     date: booking.date, time: booking.time,
                     menu: booking.visitType || '診療',
+                    id: booking.id,
                 }),
-            }).catch(e => console.warn('メール送信エラー:', e));
+            }).catch(e => console.warn('患者メール送信エラー:', e));
         }
+
+        // 管理者への新着通知（非同期・失敗しても予約は完了扱い）
+        fetch('https://notifyadminonreservation-po3aztuimq-uc.a.run.app', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id:            booking.id,
+                name:          booking.name,
+                furigana:      booking.furigana,
+                date:          booking.date,
+                time:          booking.time,
+                visitType:     booking.visitType,
+                insurance:     booking.insurance,
+                phone:         booking.phone,
+                symptoms:      booking.symptoms,
+                contactMethod: booking.contactMethod,
+            }),
+        }).catch(e => console.warn('管理者通知メール送信エラー:', e));
 
         window._lastBooking = booking; // PDF出力用
         overlay.classList.add('hidden');

@@ -81,7 +81,7 @@ const BUSINESS_HOURS = {
 | 構成 | 静的HTML/CSS/Vanilla JS + Firebase |
 | ホスティング | Firebase Hosting（カスタムドメイン: kojinius.jp）|
 | データ永続化 | Firebase Firestore |
-| メール送信 | Firebase Functions + Resend（`noreply@kojinius.jp`）|
+| メール送信 | Firebase Functions + Resend（`noreply@kojinius.jp`）患者確認・管理者通知・前日リマインダー |
 | シークレット管理 | Firebase Secret Manager |
 | PDF生成 | [pdf-lib](https://pdf-lib.js.org/) v1.17.1 |
 | フォント | Noto Sans JP（Google Fonts）|
@@ -125,7 +125,7 @@ python -m http.server 8080
 | 項目 | 現状 | 残課題 |
 |------|------|--------|
 | データ保存 | ✅ Firebase Firestore 移行済み | — |
-| メール通知 | ✅ Firebase Functions + Resend 実装済み | 患者への確認メール・前日リマインダー（Phase 3） |
+| メール通知 | ✅ Firebase Functions + Resend 実装済み | — |
 | 認証 | ✅ Firebase Auth（adminクレーム）実装済み | — |
 | SMS通知 | 未実装 | Twilio / Vonage |
 | 複数院舗 | 未対応 | 院舗IDパラメータで切り替え |
@@ -154,7 +154,7 @@ fukumoto-reservation/
 ├── firebase.json       # Firebase設定
 ├── firestore.rules     # Firestoreセキュリティルール
 ├── functions/
-│   ├── index.js        # Cloud Functions（メール送信・初期管理者設定）
+│   ├── index.js        # Cloud Functions（患者確認メール・管理者通知・前日リマインダー・初期管理者設定）
 │   └── package.json
 └── README.md           # このファイル
 ```
