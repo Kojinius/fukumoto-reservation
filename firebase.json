@@ -33,8 +33,8 @@
     ],
     "rewrites": [
       {
-        "source": "/apps/FukumotoGroup/OnlineAppointSystem",
-        "destination": "/apps/FukumotoGroup/OnlineAppointSystem/index.html"
+        "source": "/apps/OnlineAppointSystem",
+        "destination": "/apps/OnlineAppointSystem/index.html"
       }
     ]
   },
