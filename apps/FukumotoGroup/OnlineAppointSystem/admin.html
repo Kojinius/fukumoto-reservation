@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>予約管理 | 〇〇△△医院</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+</head>
+<body>
+
+    <!-- 管理ヘッダー -->
+    <header class="admin-header">
+        <div class="admin-logo">
+            <div class="admin-logo-icon">管</div>
+            <span id="clinic-name-heading">予約管理ダッシュボード — 〇〇△△医院</span>
+        </div>
+        <div class="admin-header-actions">
+            <button class="btn-admin-outline" onclick="openSettings()">⚙ 設定</button>
+            <button class="btn-admin-orange" onclick="exportCsv()">⬇ CSV出力</button>
+            <button class="btn-admin-outline" onclick="window.location.href='index.html'">← 予約ページへ</button>
+            <button class="btn-admin-outline" onclick="handleLogout()">ログアウト</button>
+        </div>
+    </header>
+
+    <!-- KPIカード -->
+    <div class="kpi-row" id="kpiRow">
+        <div class="kpi-card"><div class="label">本日の予約</div><div class="value" id="kpiToday">0件</div></div>
+        <div class="kpi-card"><div class="label">今月の予約数</div><div class="value" id="kpiMonth">0件</div></div>
+        <div class="kpi-card"><div class="label">新規患者数</div><div class="value orange" id="kpiNew">0名</div></div>
+        <div class="kpi-card"><div class="label">未確認予約</div><div class="value red" id="kpiPending">0件</div></div>
+    </div>
+
+    <div class="admin-main">
+
+        <!-- フィルターパネル -->
+        <aside class="filter-panel">
+            <div class="filter-title">絞り込み</div>
+            <div class="filter-label">日付</div>
+            <input type="date" class="filter-date-input" id="filterDate" onchange="applyFilter()">
+            <div class="filter-divider"></div>
+            <div class="filter-label">ステータス</div>
+            <button class="filter-btn active" data-status="all" onclick="setStatusFilter(this)">全て</button>
+            <button class="filter-btn" data-status="pending" onclick="setStatusFilter(this)">未確認</button>
+            <button class="filter-btn" data-status="confirmed" onclick="setStatusFilter(this)">確認済み</button>
+            <button class="filter-btn" data-status="cancelled" onclick="setStatusFilter(this)">キャンセル</button>
+            <button class="filter-clear-btn" onclick="clearFilter()">× フィルタをクリア</button>
+        </aside>
+
+        <!-- 予約テーブル -->
+        <div class="table-panel">
+            <div class="table-header">
+                <h2>予約一覧 <span id="tableCount" style="font-size:12px;font-weight:400;color:var(--text-muted);margin-left:8px;"></span></h2>
+                <div class="table-controls">
+                    <input type="text" class="search-input" id="searchInput" placeholder="🔍 患者名で検索" oninput="applyFilter()">
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>予約日時</th>
+                            <th>患者名</th>
+                            <th>初診/再診</th>
+                            <th>症状</th>
+                            <th>連絡先</th>
+                            <th>ステータス</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 詳細モーダル -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>予約詳細</h3>
+                <button class="modal-close" onclick="closeModal('detailModal')">×</button>
+            </div>
+            <div class="modal-body" id="detailModalBody"></div>
+            <div class="modal-footer" id="detailModalFooter"></div>
+        </div>
+    </div>
+
+    <!-- システム設定モーダル -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal" style="width:700px;">
+            <div class="modal-header">
+                <h3>⚙ システム設定</h3>
+                <button class="modal-close" onclick="closeModal('settingsModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-tabs">
+                    <button class="settings-tab active" onclick="switchSettingsTab('Clinic', this)">院内情報</button>
+                    <button class="settings-tab" onclick="switchSettingsTab('Booking', this)">予約設定</button>
+                    <button class="settings-tab" onclick="switchSettingsTab('Privacy', this)">プライバシーポリシー</button>
+                    <button class="settings-tab" onclick="switchSettingsTab('Holiday', this)">休日設定</button>
+                    <button class="settings-tab" onclick="switchSettingsTab('BusinessHours', this)">営業時間</button>
+                    <button class="settings-tab" onclick="switchSettingsTab('Announcement', this)">お知らせ</button>
+                </div>
+
+                <!-- 院内情報 -->
+                <div class="settings-panel active" id="tabClinic">
+                    <div class="form-group">
+                        <label>院名 <span style="color:var(--red,#c0392b);font-size:11px;">必須</span></label>
+                        <input type="text" id="settingClinicName" placeholder="〇〇△△医院">
+                    </div>
+                    <div class="form-group">
+                        <label>電話番号 <span style="color:var(--red,#c0392b);font-size:11px;">必須</span></label>
+                        <input type="text" id="settingPhone" placeholder="0120-XXX-XXX">
+                    </div>
+                    <div class="form-group">
+                        <label>WebサイトURL</label>
+                        <input type="text" id="settingClinicUrl" placeholder="https://example.com">
+                        <p class="settings-hint">http:// または https:// から始まる形式で入力してください</p>
+                    </div>
+                    <div class="form-group">
+                        <label>郵便番号</label>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <input type="text" id="settingClinicZip" placeholder="1234567" maxlength="8" style="width:140px;">
+                            <button type="button" style="height:36px;padding:0 14px;font-size:12px;font-weight:600;border:1.5px solid var(--brown);border-radius:7px;background:var(--white);color:var(--brown);cursor:pointer;font-family:var(--font-main);" onclick="fetchAddressFromZip()">住所を自動取得</button>
+                        </div>
+                        <p class="settings-hint" id="zipFetchMsg"></p>
+                    </div>
+                    <div class="form-group">
+                        <label>院の住所</label>
+                        <input type="text" id="settingClinicAddress" placeholder="〇〇県〇〇市〇〇町1-2-3">
+                    </div>
+                    <div class="form-group">
+                        <label>ロゴ画像</label>
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+                            <div id="logoCurrentPreview" class="logo-preview-box">鍼</div>
+                            <div>
+                                <button type="button" class="btn-admin-outline" style="height:32px;font-size:12px;padding:0 14px;" onclick="document.getElementById('logoFileInput').click()">画像を選択</button>
+                                <p class="settings-hint" style="margin-top:4px;">PNG・JPG・WEBP対応 / 最大2MB</p>
+                            </div>
+                        </div>
+                        <input type="file" id="logoFileInput" accept="image/*" style="display:none;">
+                        <div id="logoCropArea" style="display:none;margin-top:12px;">
+                            <div style="max-height:300px;overflow:hidden;border-radius:8px;border:1px solid var(--border);">
+                                <img id="logoCropImage" style="max-width:100%;display:block;">
+                            </div>
+                            <div style="display:flex;gap:8px;margin-top:10px;">
+                                <button type="button" id="logoCropConfirmBtn" class="btn btn-primary" style="height:34px;font-size:13px;padding:0 18px;">切り抜き確定</button>
+                                <button type="button" id="logoCropCancelBtn" class="btn-admin-outline" style="height:34px;font-size:13px;padding:0 14px;">キャンセル</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>カラーテーマ</label>
+                        <div id="themePicker" style="display:flex;flex-wrap:wrap;gap:16px;margin-top:6px;"></div>
+                    </div>
+                </div>
+
+                <!-- 予約設定 -->
+                <div class="settings-panel" id="tabBooking">
+                    <div class="form-group">
+                        <label>予約受付最終時刻（何分前まで受け付けるか）</label>
+                        <input type="number" id="settingBookingCutoff" min="0" max="1440" placeholder="0">
+                        <p class="settings-hint">例: 15 と設定すると、16:30 の枠は 16:15 まで予約可能になります。0 = 制限なし</p>
+                    </div>
+                    <div class="form-group" style="margin-top:16px;">
+                        <label>キャンセル受付期限（予約時刻の何分前まで）</label>
+                        <input type="number" id="settingCancelCutoff" min="0" max="10080" placeholder="60">
+                        <p class="settings-hint">例: 60 と設定すると、予約時刻の 1 時間前までキャンセル可能になります。</p>
+                    </div>
+                </div>
+
+                <!-- 休日設定 -->
+                <div class="settings-panel" id="tabHoliday">
+                    <div class="holiday-toolbar">
+                        <button class="btn-admin-orange" style="height:32px;font-size:12px;" id="fetchHolidaysBtn" onclick="fetchHolidays()">祝日を自動取得（今年・来年）</button>
+                        <button style="height:32px;font-size:12px;margin-left:8px;padding:0 12px;border:1.5px solid var(--beige-mid);border-radius:7px;background:var(--white);color:var(--text-secondary);cursor:pointer;font-family:var(--font-main);font-weight:600;" onclick="clearAllHolidays()">すべてクリア</button>
+                        <span class="settings-hint" id="holidayCount" style="margin-left:10px;">0日 設定中</span>
+                    </div>
+                    <div class="holiday-layout">
+                        <div>
+                            <div class="holiday-cal-nav">
+                                <button class="cal-nav-btn" style="width:28px;height:28px;" onclick="prevHolidayCal()">&#8249;</button>
+                                <span class="cal-month" style="font-size:13px;" id="holidayCalLabel"></span>
+                                <button class="cal-nav-btn" style="width:28px;height:28px;" onclick="nextHolidayCal()">&#8250;</button>
+                            </div>
+                            <div class="cal-days-header" style="font-size:10px;">
+                                <span class="sun">日</span><span>月</span><span>火</span>
+                                <span>水</span><span>木</span><span>金</span><span class="sat">土</span>
+                            </div>
+                            <div id="holidayCalCells" class="cal-cells"></div>
+                        </div>
+                        <div class="holiday-list-wrap">
+                            <div class="filter-label" style="margin-bottom:8px;">設定済み休日</div>
+                            <div id="holidayList"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 営業時間 -->
+                <div class="settings-panel" id="tabBusinessHours">
+                    <table class="biz-hours-table" id="bizHoursTable"></table>
+                </div>
+
+                <!-- お知らせ -->
+                <div class="settings-panel" id="tabAnnouncement">
+                    <div class="form-group" style="display:flex;align-items:center;gap:12px;">
+                        <label style="margin:0;font-weight:700;">お知らせを表示する</label>
+                        <input type="checkbox" id="annActive" style="width:18px;height:18px;cursor:pointer;">
+                    </div>
+                    <div class="form-group">
+                        <label>タイプ</label>
+                        <select id="annType" style="width:180px;">
+                            <option value="info">ℹ️ お知らせ（青）</option>
+                            <option value="warning">⚠️ 警告（オレンジ）</option>
+                            <option value="maintenance">🔧 メンテナンス（赤）</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>メッセージ</label>
+                        <textarea id="annMessage" rows="4" placeholder="例：システムメンテナンスのため、〇月〇日〇時〜〇時は予約を一時停止いたします。ご不便をおかけします。"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>表示期間（任意）</label>
+                        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                            <input type="datetime-local" id="annStartDate" style="width:190px;">
+                            <span style="font-size:13px;color:var(--text-muted);">〜</span>
+                            <input type="datetime-local" id="annEndDate" style="width:190px;">
+                        </div>
+                        <p class="settings-hint">空欄の場合は期間制限なしで表示されます。</p>
+                    </div>
+                </div>
+
+                <!-- プライバシーポリシー -->
+                <div class="settings-panel" id="tabPrivacy">
+                    <div class="form-group">
+                        <label>プライバシーポリシー本文</label>
+                        <textarea id="settingPrivacyPolicy" rows="14" placeholder="1.【個人情報の利用目的】&#10;当院は、患者様の個人情報を以下の目的のために利用いたします。&#10;・患者様への医療・介護サービスの提供&#10;・医療保険事務・会計・経理に関する業務&#10;・医療安全管理および医療事故の報告&#10;・業務委託先への必要な範囲での情報提供&#10;&#10;2.【要配慮個人情報の取り扱い】&#10;診療録（カルテ）・健康診断結果など、特に慎重な取り扱いを要する個人情報については、適切な安全管理措置を講じ、細心の注意を払って管理いたします。&#10;&#10;3.【第三者提供の制限】&#10;患者様の個人情報は、ご本人の同意なく第三者へ提供いたしません。ただし、裁判所・警察等からの法令に基づく開示要請があった場合はこの限りではありません。&#10;&#10;4.【安全管理措置】&#10;個人情報の漏洩・紛失・改ざんを防止するため、アクセス制限・スタッフへの教育研修等、技術的・組織的な対策を実施いたします。&#10;&#10;5.【開示・訂正・利用停止のご請求】&#10;患者様ご本人からの個人情報の開示・訂正・利用停止のご請求には、本人確認のうえ速やかに対応いたします。お問い合わせ窓口は院内にご案内しております。&#10;&#10;6.【プライバシーポリシーの見直し】&#10;法令改正等に応じて本ポリシーを定期的に見直し、改定する場合は当院ウェブサイト等にて公表いたします。"></textarea>
+                        <p class="settings-hint">空欄の場合はデフォルトのポリシーが表示されます。</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline btn-sm" onclick="closeModal('settingsModal')">キャンセル</button>
+                <button class="btn btn-primary btn-sm" style="width:auto;height:34px;" id="saveSettingsBtn" onclick="saveSettings()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/admin.js"></script>
+</body>
+</html>

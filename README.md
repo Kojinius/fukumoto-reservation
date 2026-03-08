@@ -5,12 +5,13 @@
 
 ---
 
-## デモURL（GitHub Pages）
+## 本番URL
 
-**🔗 [予約ページ（患者側）](https://kojinius.github.io/fukumoto-reservation/)**
-**🔗 [管理画面（スタッフ側）](https://kojinius.github.io/fukumoto-reservation/admin.html)**
-
-> ※ GitHub Pages を有効化した後、上記URLにアクセスできます（設定方法は下記参照）。
+| ページ | URL |
+|---|---|
+| ポートフォリオ（ルート） | `https://kojinius.jp/` |
+| 予約ページ（患者側） | `https://kojinius.jp/apps/FukumotoGroup/OnlineAppointSystem/` |
+| 管理画面（スタッフ側） | `https://kojinius.jp/apps/FukumotoGroup/OnlineAppointSystem/admin.html` |
 
 ---
 
@@ -139,28 +140,37 @@ python -m http.server 8080
 
 ```
 fukumoto-reservation/
-├── index.html          # 患者側：予約フロー（4ステップ）
-├── admin.html          # 管理側：予約管理ダッシュボード（認証必須）
-├── login.html          # 管理者ログイン
-├── privacy-policy.html # プライバシーポリシーページ
-├── 404.html            # 404エラーページ
-├── fonts/
-│   └── NotoSansJP-Regular.ttf  # PDF用日本語フォント（pdf-lib埋め込み）
-├── css/
-│   └── style.css       # 共通スタイル
-├── js/
-│   ├── config.js       # Firebase設定値
-│   ├── firebase.js     # Firebase初期化（db / auth）
-│   ├── auth.js         # 認証ガード・ログイン・ログアウト
-│   ├── utils.js        # 共通ユーティリティ（esc / DAY_NAMES / formatDate 等）
-│   ├── app.js          # 患者側ロジック（Firestore書き込み・トランザクション）
-│   └── admin.js        # 管理側ロジック（Firestoreリアルタイム同期）
-├── firebase.json       # Firebase設定
-├── firestore.rules     # Firestoreセキュリティルール
+├── index.html                        # ポートフォリオページ（kojinius.jp/）
+├── firebase.json                     # Firebase設定
+├── firestore.rules                   # Firestoreセキュリティルール
+├── firestore.indexes.json
 ├── functions/
-│   ├── index.js        # Cloud Functions（患者確認メール・管理者通知・前日リマインダー・初期管理者設定）
+│   ├── index.js                      # Cloud Functions（メール・リマインダー等）
 │   └── package.json
-└── README.md           # このファイル
+├── apps/
+│   └── FukumotoGroup/
+│       └── OnlineAppointSystem/      # 予約システム本体（/apps/FukumotoGroup/OnlineAppointSystem/）
+│           ├── index.html            # 患者側：予約フロー（4ステップ）
+│           ├── admin.html            # 管理側：予約管理ダッシュボード（認証必須）
+│           ├── login.html            # 管理者ログイン
+│           ├── cancel.html           # 患者側：予約キャンセル
+│           ├── maintenance.html      # メンテナンスページ
+│           ├── privacy-policy.html   # プライバシーポリシー
+│           ├── reset-password-done.html
+│           ├── 404.html
+│           ├── fonts/
+│           │   └── NotoSansJP-Regular.ttf  # PDF用日本語フォント
+│           ├── css/
+│           │   └── style.css
+│           └── js/
+│               ├── config.js
+│               ├── firebase.js
+│               ├── auth.js
+│               ├── utils.js
+│               ├── app.js
+│               ├── admin.js
+│               └── cancel.js
+└── README.md
 ```
 
 ---

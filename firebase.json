@@ -30,6 +30,12 @@
       "documents/**",
       "**/.*",
       "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/apps/FukumotoGroup/OnlineAppointSystem",
+        "destination": "/apps/FukumotoGroup/OnlineAppointSystem/index.html"
+      }
     ]
   },
   "emulators": {

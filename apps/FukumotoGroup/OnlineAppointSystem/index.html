@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>オンライン予約 | 〇〇△△医院</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
+</head>
+<body>
+
+    <!-- ヘッダー -->
+    <header class="app-header">
+        <div class="logo">
+            <div class="logo-icon">鍼</div>
+            <div class="logo-text">
+                <h1 id="clinic-name-heading">〇〇△△医院</h1>
+                <span>ONLINE RESERVATION</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <span class="header-phone" id="header-phone">☎ 0120-XXX-XXX</span>
+            <button class="btn-check-booking" onclick="window.location.href='admin.html'">予約管理（スタッフ）</button>
+        </div>
+    </header>
+
+    <!-- お知らせバナー -->
+    <div id="announcement-banner" style="display:none;"></div>
+
+    <!-- ステップバー -->
+    <nav class="step-bar" id="stepBar">
+        <div class="step-item" id="stepItem1">
+            <div class="step-num active" id="stepNum1">1</div>
+            <span class="step-label active" id="stepLbl1">日時選択</span>
+        </div>
+        <div class="step-sep" id="stepSep1"></div>
+        <div class="step-item" id="stepItem2">
+            <div class="step-num" id="stepNum2">2</div>
+            <span class="step-label" id="stepLbl2">情報入力</span>
+        </div>
+        <div class="step-sep" id="stepSep2"></div>
+        <div class="step-item" id="stepItem3">
+            <div class="step-num" id="stepNum3">3</div>
+            <span class="step-label" id="stepLbl3">確認</span>
+        </div>
+        <div class="step-sep" id="stepSep3"></div>
+        <div class="step-item" id="stepItem4">
+            <div class="step-num" id="stepNum4">4</div>
+            <span class="step-label" id="stepLbl4">完了</span>
+        </div>
+    </nav>
+
+    <main class="main">
+
+        <!-- ステップ1: 日時選択 -->
+        <div class="step-panel active" id="step1">
+            <div class="booking-layout">
+                <!-- カレンダー -->
+                <div class="card">
+                    <div class="cal-nav">
+                        <button class="cal-nav-btn" id="prevMonth">&#8249;</button>
+                        <span class="cal-month" id="calMonthLabel"></span>
+                        <button class="cal-nav-btn" id="nextMonth">&#8250;</button>
+                    </div>
+                    <div class="cal-grid">
+                        <div class="cal-days-header">
+                            <span class="sun">日</span>
+                            <span>月</span>
+                            <span>火</span>
+                            <span>水</span>
+                            <span>木</span>
+                            <span>金</span>
+                            <span class="sat">土</span>
+                        </div>
+                        <div class="cal-cells" id="calCells"></div>
+                    </div>
+                    <div class="cal-legend">
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background:#F79321"></div>
+                            <span>選択中</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background:#EDE3D8"></div>
+                            <span>休診・満枠</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 時間スロット -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 id="slotDateLabel">日付を選択してください</h2>
+                        <span class="badge badge-new" id="slotCountBadge" style="display:none;"></span>
+                    </div>
+                    <div class="card-body" id="slotArea">
+                        <p style="color:var(--text-muted);font-size:13px;">カレンダーから希望の日付を選択してください。</p>
+                    </div>
+                    <div class="card-body" style="padding-top:0;" id="selectedArea">
+                        <div class="selected-datetime-box" id="selectedDatetimeBox">
+                            選択中：<span id="selectedDatetimeText"></span>
+                        </div>
+                        <div class="next-btn-wrap" id="nextBtnWrap" style="display:none;">
+                            <button class="btn btn-primary" onclick="goToStep2()">次へ → 情報入力</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ステップ2: 情報入力 -->
+        <div class="step-panel" id="step2">
+            <div class="form-container">
+                <form id="reservationForm" novalidate>
+
+                    <div class="form-section">
+                        <div class="form-section-title">👤 基本情報</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>氏名<span class="required">必須</span></label>
+                                <input type="text" id="name" placeholder="山田 花子" required>
+                            </div>
+                            <div class="form-group">
+                                <label>ふりがな<span class="required">必須</span></label>
+                                <input type="text" id="furigana" placeholder="やまだ はなこ" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>生年月日<span class="required">必須</span></label>
+                                <input type="date" id="birthdate" required>
+                            </div>
+                            <div class="form-group">
+                                <label>年齢</label>
+                                <div class="age-display" id="ageDisplay">-</div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>郵便番号<span class="required">必須</span></label>
+                                <div style="display:flex;gap:8px;align-items:center;">
+                                    <input type="text" id="zip" placeholder="1234567" maxlength="8" style="width:130px;" required>
+                                    <button type="button" class="btn btn-outline" style="height:38px;padding:0 12px;font-size:12px;width:auto;" onclick="fetchAddressFromZip()">住所を自動取得</button>
+                                </div>
+                                <p style="font-size:11px;color:var(--text-muted);margin-top:4px;" id="zipMsg"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>都道府県・市区町村・番地<span class="required">必須</span></label>
+                            <input type="text" id="addressMain" placeholder="東京都豊島区〇〇1-2-3" required>
+                        </div>
+                        <div class="form-group">
+                            <label>アパート・マンション名（部屋番号まで）</label>
+                            <input type="text" id="addressSub" placeholder="〇〇マンション101号室">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>電話番号<span class="required">必須</span></label>
+                                <input type="tel" id="phone" placeholder="090-1234-5678" required>
+                            </div>
+                            <div class="form-group">
+                                <label>メールアドレス</label>
+                                <input type="email" id="email" placeholder="example@email.com">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>性別（任意）</label>
+                            <div class="radio-group" id="genderGroup">
+                                <label class="radio-label">
+                                    <input type="radio" name="gender" value="男性">男性
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="gender" value="女性">女性
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="gender" value="回答しない">回答しない
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-section-title">🏥 診療情報</div>
+                        <div class="form-group">
+                            <label>初診 / 再診<span class="required">必須</span></label>
+                            <div class="radio-group" id="visitTypeGroup">
+                                <label class="radio-label checked">
+                                    <input type="radio" name="visitType" value="初診" checked>初診
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="visitType" value="再診">再診
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>保険証<span class="required">必須</span></label>
+                            <div class="radio-group" id="insuranceGroup">
+                                <label class="radio-label checked">
+                                    <input type="radio" name="insurance" value="あり" checked>あり
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="insurance" value="なし">なし
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="insurance" value="不明">不明
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>症状・お悩み<span class="required">必須</span></label>
+                            <textarea id="symptoms" placeholder="腰痛、肩こり、膝の痛みなど" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>ご伝達事項（任意）</label>
+                            <textarea id="notes" placeholder="アレルギーや持病など、スタッフへの連絡事項があればご記入ください"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-section-title">📬 ご連絡方法</div>
+                        <div class="form-group">
+                            <label>予約確認の連絡方法<span class="required">必須</span></label>
+                            <div class="radio-group" id="contactMethodGroup">
+                                <label class="radio-label checked">
+                                    <input type="radio" name="contactMethod" value="メール" checked>メール
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="contactMethod" value="電話">電話
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-section-title">📋 個人情報の取り扱い</div>
+                        <p class="consent-text">
+                            ご入力いただいた個人情報は、診療予約・ご連絡の目的のみに使用します。
+                            詳細は<a href="privacy-policy.html" target="_blank" rel="noopener">プライバシーポリシー</a>をご確認ください。
+                        </p>
+                        <label class="consent-label" id="consentLabel">
+                            <input type="checkbox" id="consentCheck">
+                            <span class="consent-check-box"></span>
+                            <span>プライバシーポリシーに同意する<span class="required">必須</span></span>
+                        </label>
+                    </div>
+
+                    <div style="display:flex;gap:12px;margin-top:4px;">
+                        <button type="button" class="btn btn-outline" style="height:52px;flex:1;" onclick="goToStep1()">← 戻る</button>
+                        <button type="button" class="btn btn-primary" style="flex:2;" onclick="goToStep3()">確認画面へ →</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ステップ3: 確認 -->
+        <div class="step-panel" id="step3">
+            <div class="confirm-container">
+                <div class="confirm-datetime" id="confirmDatetime"></div>
+
+                <div class="confirm-card">
+                    <div class="confirm-card-header">👤 基本情報</div>
+                    <table class="confirm-table">
+                        <tr><td>氏名</td><td id="c-name"></td></tr>
+                        <tr><td>ふりがな</td><td id="c-furigana"></td></tr>
+                        <tr><td>生年月日</td><td id="c-birthdate"></td></tr>
+                        <tr><td>郵便番号</td><td id="c-zip"></td></tr>
+                        <tr><td>住所</td><td id="c-address"></td></tr>
+                        <tr><td>電話番号</td><td id="c-phone"></td></tr>
+                        <tr><td>メール</td><td id="c-email"></td></tr>
+                        <tr><td>性別</td><td id="c-gender"></td></tr>
+                    </table>
+                </div>
+
+                <div class="confirm-card">
+                    <div class="confirm-card-header">🏥 診療情報</div>
+                    <table class="confirm-table">
+                        <tr><td>初診/再診</td><td id="c-visitType"></td></tr>
+                        <tr><td>保険証</td><td id="c-insurance"></td></tr>
+                        <tr><td>症状</td><td id="c-symptoms"></td></tr>
+                        <tr><td>伝達事項</td><td id="c-notes"></td></tr>
+                        <tr><td>連絡方法</td><td id="c-contactMethod"></td></tr>
+                    </table>
+                </div>
+
+                <div class="confirm-actions">
+                    <button class="btn btn-outline" onclick="goToStep2()">← 修正する</button>
+                    <button class="btn btn-primary" onclick="submitReservation()">✔ この内容で予約する</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ステップ4: 完了 -->
+        <div class="step-panel" id="step4">
+            <div class="complete-container">
+                <div class="complete-icon">✓</div>
+                <div class="complete-card">
+                    <h2>ご予約が完了しました</h2>
+                    <p>
+                        ご予約ありがとうございます。<br>
+                        確認のご連絡をさせていただきます。<br>
+                        ご不明な点はお電話にてお問い合わせください。
+                    </p>
+                    <div class="booking-number">
+                        <strong id="bookingNumberDisplay"></strong>
+                        <span id="bookingSummaryDisplay"></span>
+                    </div>
+                    <div class="complete-actions">
+                        <button class="btn btn-pdf" onclick="exportPdf()">📄 予約票PDF出力</button>
+                        <button class="btn btn-primary" style="width:auto;height:44px;padding:0 24px;" onclick="newReservation()">新しく予約する</button>
+                    </div>
+                    <p style="font-size:12px;color:var(--text-muted);margin-top:20px;">
+                        予約をキャンセルする場合は<a id="cancelLink" href="cancel.html" target="_blank" rel="noopener" style="color:var(--orange);">こちら</a>
+                    </p>
+                </div>
+                <p style="font-size:12px;color:var(--text-muted);margin-top:16px;">
+                    ☎ お電話でのお問い合わせ: <strong id="step4-phone">0120-XXX-XXX</strong>
+                </p>
+                <div id="clinic-map-section" style="display:none;margin-top:20px;width:100%;max-width:560px;">
+                    <p style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">📍 <span id="clinic-address-display"></span></p>
+                    <iframe id="clinic-map-iframe" src="" width="100%" height="200" style="border:0;border-radius:10px;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ローディングオーバーレイ -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <p>予約を送信しています...</p>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
