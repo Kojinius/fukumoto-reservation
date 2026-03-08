@@ -128,7 +128,11 @@ async function loadClinicSettings() {
         if (clinicSettings.clinicLogo) {
             const logoIcon = document.querySelector('.logo-icon');
             if (logoIcon) {
-                logoIcon.innerHTML = `<img src="${clinicSettings.clinicLogo}" alt="ロゴ">`;
+                const img = document.createElement('img');
+                img.src = clinicSettings.clinicLogo;
+                img.alt = 'ロゴ';
+                logoIcon.innerHTML = '';
+                logoIcon.appendChild(img);
                 logoIcon.style.background = 'transparent';
             }
         }
@@ -387,10 +391,9 @@ function fillConfirmation() {
     document.getElementById('c-contactMethod').textContent   = document.querySelector('input[name="contactMethod"]:checked')?.value || '-';
 }
 
-// ── 予約番号生成（8桁英数字、紛らわしい文字を除外）──
+// ── 予約番号生成（UUID v4、エントロピー強化）──
 function generateBookingId() {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    return Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+    return crypto.randomUUID();
 }
 
 // ── 予約確定（Firestore + トランザクションで二重予約防止）──
