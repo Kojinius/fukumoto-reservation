@@ -166,7 +166,7 @@
 
             try {
                 await login(email, password);
-                window.location.href = '/admin.html';
+                window.location.href = 'admin.html';
             } catch (err) {
                 showError(err.message);
                 loginBtn.disabled    = false;
