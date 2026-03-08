@@ -105,6 +105,7 @@
                     <button class="settings-tab" onclick="switchSettingsTab('Holiday', this)">休日設定</button>
                     <button class="settings-tab" onclick="switchSettingsTab('BusinessHours', this)">営業時間</button>
                     <button class="settings-tab" onclick="switchSettingsTab('Announcement', this)">お知らせ</button>
+                    <button class="settings-tab" onclick="switchSettingsTab('Account', this)">アカウント設定</button>
                 </div>
 
                 <!-- 院内情報 -->
@@ -256,6 +257,30 @@
                         <textarea id="settingPrivacyPolicy" rows="14" placeholder="1.【個人情報の利用目的】&#10;当院は、患者様の個人情報を以下の目的のために利用いたします。&#10;・患者様への医療・介護サービスの提供&#10;・医療保険事務・会計・経理に関する業務&#10;・医療安全管理および医療事故の報告&#10;・業務委託先への必要な範囲での情報提供&#10;&#10;2.【要配慮個人情報の取り扱い】&#10;診療録（カルテ）・健康診断結果など、特に慎重な取り扱いを要する個人情報については、適切な安全管理措置を講じ、細心の注意を払って管理いたします。&#10;&#10;3.【第三者提供の制限】&#10;患者様の個人情報は、ご本人の同意なく第三者へ提供いたしません。ただし、裁判所・警察等からの法令に基づく開示要請があった場合はこの限りではありません。&#10;&#10;4.【安全管理措置】&#10;個人情報の漏洩・紛失・改ざんを防止するため、アクセス制限・スタッフへの教育研修等、技術的・組織的な対策を実施いたします。&#10;&#10;5.【開示・訂正・利用停止のご請求】&#10;患者様ご本人からの個人情報の開示・訂正・利用停止のご請求には、本人確認のうえ速やかに対応いたします。お問い合わせ窓口は院内にご案内しております。&#10;&#10;6.【プライバシーポリシーの見直し】&#10;法令改正等に応じて本ポリシーを定期的に見直し、改定する場合は当院ウェブサイト等にて公表いたします。"></textarea>
                         <p class="settings-hint">空欄の場合はデフォルトのポリシーが表示されます。</p>
                     </div>
+                </div>
+                <!-- アカウント設定 -->
+                <div class="settings-panel" id="tabAccount">
+                    <div class="form-group">
+                        <label>現在のメールアドレス</label>
+                        <input type="email" id="currentEmailDisplay" readonly style="background:var(--beige,#FCF0DE);cursor:default;color:var(--text-muted);">
+                    </div>
+                    <div class="form-group" style="border-top:1px solid var(--border,#EDE3D8);padding-top:16px;">
+                        <label>メールアドレスを変更する（任意）</label>
+                        <input type="email" id="newEmailInput" placeholder="new@example.com" autocomplete="email">
+                        <p class="settings-hint">入力した場合、新しいメールアドレスに確認メールを送信します。メール内のリンクをクリックして変更が完了します。</p>
+                    </div>
+                    <div class="form-group" style="border-top:1px solid var(--border,#EDE3D8);padding-top:16px;">
+                        <label>パスワードを変更する（任意）</label>
+                        <input type="password" id="newPasswordInput" placeholder="新しいパスワード（8文字以上）" autocomplete="new-password">
+                        <input type="password" id="newPasswordConfirm" placeholder="新しいパスワード（確認）" autocomplete="new-password" style="margin-top:8px;">
+                    </div>
+                    <div class="form-group" style="border-top:1px solid var(--border,#EDE3D8);padding-top:16px;">
+                        <label>現在のパスワード <span style="color:var(--red,#c0392b);font-size:11px;">変更時に必須</span></label>
+                        <input type="password" id="currentPasswordInput" placeholder="現在のパスワードを入力" autocomplete="current-password">
+                        <p class="settings-hint">メールアドレスまたはパスワードを変更する場合は必須です。</p>
+                    </div>
+                    <div id="accountMsg" style="display:none;padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:8px;"></div>
+                    <button class="btn btn-primary btn-sm" style="width:auto;height:34px;" id="saveAccountBtn" onclick="saveAccount()">変更を保存</button>
                 </div>
             </div>
             <div class="modal-footer">

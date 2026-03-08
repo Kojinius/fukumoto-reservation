@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>メール認証 | 〇〇△△医院</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .login-wrap {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--beige);
+        }
+        .login-card {
+            background: var(--white);
+            border-radius: var(--radius-card);
+            box-shadow: 0 8px 40px rgba(115,87,99,.13);
+            padding: 40px 36px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+        .login-logo-icon {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            background: var(--brown);
+            color: var(--white);
+            font-size: 16px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .login-logo-text h1 { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+        .login-logo-text span { font-size: 11px; color: var(--text-muted); }
+        .login-title { font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 24px; }
+        .action-error {
+            background: #FFF0F0;
+            border: 1px solid #F5C6C6;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 12px;
+            color: var(--red);
+            margin-bottom: 16px;
+            display: none;
+        }
+        .action-error.visible { display: block; }
+        .action-success {
+            background: #F0FFF4;
+            border: 1px solid #9AE6B4;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 12px;
+            color: #276749;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .action-success.visible { display: block; }
+        .login-link {
+            display: block;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 16px;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        .login-link:hover { color: var(--brown); }
+        #resetSection { display: none; }
+        #resultSection { display: none; }
+        #loadingSection { text-align: center; padding: 20px 0; color: var(--text-muted); font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="login-wrap">
+        <div class="login-card">
+            <div class="login-logo">
+                <div class="login-logo-icon" id="logoIcon">管</div>
+                <div class="login-logo-text">
+                    <h1 id="clinic-name-heading">〇〇△△医院</h1>
+                    <span id="logoSubtitle">メール認証</span>
+                </div>
+            </div>
+            <p class="login-title" id="pageTitle">処理中...</p>
+
+            <div class="action-error" id="actionError"></div>
+            <div class="action-success" id="actionSuccess"></div>
+
+            <!-- ローディング -->
+            <div id="loadingSection">
+                <p>処理中です。しばらくお待ちください...</p>
+            </div>
+
+            <!-- パスワード再設定フォーム -->
+            <div id="resetSection">
+                <form id="resetPasswordForm" novalidate>
+                    <div class="form-group">
+                        <label>新しいパスワード</label>
+                        <input type="password" id="newPassword" placeholder="8文字以上" autocomplete="new-password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>新しいパスワード（確認）</label>
+                        <input type="password" id="confirmPassword" placeholder="同じパスワードを入力" autocomplete="new-password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="margin-top:8px;" id="resetBtn">パスワードを変更する</button>
+                </form>
+            </div>
+
+            <!-- 完了・エラー後のリンク -->
+            <div id="resultSection">
+                <a class="login-link" href="login.html">← ログイン画面へ</a>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth } from "./js/firebase.js";
+        import { db } from "./js/firebase.js";
+        import {
+            confirmPasswordReset,
+            applyActionCode,
+            verifyPasswordResetCode,
+            checkActionCode,
+        } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+        import { applyTheme } from "./js/utils.js";
+
+        // 院名・ロゴをヘッダーに反映
+        (async () => {
+            try {
+                const snap = await getDoc(doc(db, 'settings', 'clinic'));
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (data.clinicName) {
+                        document.getElementById('clinic-name-heading').textContent = data.clinicName;
+                        document.title = `メール認証 | ${data.clinicName}`;
+                    }
+                    if (data.colorTheme) applyTheme(data.colorTheme);
+                    if (data.clinicLogo) {
+                        const logoIcon = document.getElementById('logoIcon');
+                        if (logoIcon) {
+                            logoIcon.innerHTML = `<img src="${data.clinicLogo}" alt="ロゴ">`;
+                            logoIcon.style.background = 'transparent';
+                        }
+                    }
+                }
+            } catch (_) {
+                // 設定取得失敗はサイレントに無視
+            }
+        })();
+
+        const params   = new URLSearchParams(window.location.search);
+        const mode     = params.get('mode');
+        const oobCode  = params.get('oobCode');
+
+        const errEl     = document.getElementById('actionError');
+        const successEl = document.getElementById('actionSuccess');
+        const loadingEl = document.getElementById('loadingSection');
+        const resetEl   = document.getElementById('resetSection');
+        const resultEl  = document.getElementById('resultSection');
+        const titleEl   = document.getElementById('pageTitle');
+
+        function showError(msg) {
+            errEl.textContent = msg;
+            errEl.classList.add('visible');
+            successEl.classList.remove('visible');
+            loadingEl.style.display  = 'none';
+            resetEl.style.display    = 'none';
+            resultEl.style.display   = 'block';
+        }
+
+        function showSuccess(msg) {
+            successEl.textContent = msg;
+            successEl.classList.add('visible');
+            errEl.classList.remove('visible');
+            loadingEl.style.display  = 'none';
+            resetEl.style.display    = 'none';
+            resultEl.style.display   = 'block';
+        }
+
+        // URLパラメータ不正チェック
+        if (!mode || !oobCode) {
+            titleEl.textContent = 'リンクが無効です';
+            showError('URLが正しくありません。メールのリンクを再度お試しください。');
+        } else if (mode === 'resetPassword') {
+            // パスワード再設定：コードを検証してからフォーム表示
+            titleEl.textContent = 'パスワードを再設定';
+            document.getElementById('logoSubtitle').textContent = 'パスワード再設定';
+
+            try {
+                // oobCode の有効性だけ確認（この時点では消費しない）
+                await verifyPasswordResetCode(auth, oobCode);
+                // 有効 → フォーム表示
+                loadingEl.style.display = 'none';
+                resetEl.style.display   = 'block';
+            } catch (err) {
+                titleEl.textContent = 'リンクが無効または期限切れです';
+                const msgs = {
+                    'auth/expired-action-code':  'パスワード再設定リンクの有効期限が切れています。再度お試しください。',
+                    'auth/invalid-action-code':  'パスワード再設定リンクが無効です。メールのリンクを再度お試しください。',
+                    'auth/user-disabled':        'このアカウントは無効になっています。',
+                    'auth/user-not-found':       'アカウントが見つかりません。',
+                };
+                showError(msgs[err.code] || `エラーが発生しました: ${err.message}`);
+            }
+
+            // フォーム送信処理
+            document.getElementById('resetPasswordForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn  = document.getElementById('resetBtn');
+                const pwd  = document.getElementById('newPassword').value;
+                const conf = document.getElementById('confirmPassword').value;
+
+                errEl.classList.remove('visible');
+
+                if (pwd.length < 8) {
+                    errEl.textContent = 'パスワードは8文字以上で入力してください。';
+                    errEl.classList.add('visible');
+                    return;
+                }
+                if (pwd !== conf) {
+                    errEl.textContent = 'パスワードが一致しません。';
+                    errEl.classList.add('visible');
+                    return;
+                }
+
+                btn.disabled    = true;
+                btn.textContent = '変更中...';
+
+                try {
+                    // ここで初めて oobCode を消費してパスワードをリセット
+                    await confirmPasswordReset(auth, oobCode, pwd);
+                    titleEl.textContent = 'パスワード変更完了';
+                    showSuccess('パスワードを変更しました。新しいパスワードでログインしてください。');
+                } catch (err) {
+                    const msgs = {
+                        'auth/expired-action-code': 'リンクの有効期限が切れています。再度パスワード再設定をお試しください。',
+                        'auth/invalid-action-code': 'リンクが無効です。再度パスワード再設定をお試しください。',
+                        'auth/weak-password':        'パスワードが弱すぎます。より強力なパスワードを設定してください。',
+                    };
+                    errEl.textContent = msgs[err.code] || `エラーが発生しました: ${err.message}`;
+                    errEl.classList.add('visible');
+                    btn.disabled    = false;
+                    btn.textContent = 'パスワードを変更する';
+                }
+            });
+
+        } else if (mode === 'verifyEmail') {
+            // メールアドレス確認
+            titleEl.textContent = 'メールアドレスを確認中...';
+            document.getElementById('logoSubtitle').textContent = 'メールアドレス確認';
+
+            try {
+                await applyActionCode(auth, oobCode);
+                titleEl.textContent = 'メールアドレス確認完了';
+                showSuccess('メールアドレスの確認が完了しました。ログイン画面からログインしてください。');
+            } catch (err) {
+                titleEl.textContent = 'リンクが無効または期限切れです';
+                const msgs = {
+                    'auth/expired-action-code': 'メール確認リンクの有効期限が切れています。再度メールを送信してください。',
+                    'auth/invalid-action-code': 'メール確認リンクが無効です。再度メールを送信してください。',
+                    'auth/user-disabled':       'このアカウントは無効になっています。',
+                };
+                showError(msgs[err.code] || `エラーが発生しました: ${err.message}`);
+            }
+
+        } else if (mode === 'recoverEmail') {
+            // メールアドレス復元
+            titleEl.textContent = 'メールアドレスを復元中...';
+            document.getElementById('logoSubtitle').textContent = 'メールアドレス復元';
+
+            try {
+                await applyActionCode(auth, oobCode);
+                titleEl.textContent = 'メールアドレス復元完了';
+                showSuccess('メールアドレスを元に戻しました。ログイン画面からログインしてください。');
+            } catch (err) {
+                titleEl.textContent = 'リンクが無効または期限切れです';
+                const msgs = {
+                    'auth/expired-action-code': 'リンクの有効期限が切れています。再度お試しください。',
+                    'auth/invalid-action-code': 'リンクが無効です。再度お試しください。',
+                    'auth/user-disabled':       'このアカウントは無効になっています。',
+                };
+                showError(msgs[err.code] || `エラーが発生しました: ${err.message}`);
+            }
+
+        } else {
+            titleEl.textContent = 'サポートされていない操作です';
+            showError('このリンクは対応していない操作です。');
+        }
+    </script>
+</body>
+</html>

@@ -1,5 +1,12 @@
 import { db } from "./firebase.js";
+import { auth } from "./firebase.js";
 import { requireAdmin, logout } from "./auth.js";
+import {
+    EmailAuthProvider,
+    reauthenticateWithCredential,
+    updatePassword,
+    verifyBeforeUpdateEmail,
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 import {
     collection, doc, updateDoc, onSnapshot,
     query, orderBy, writeBatch, getDoc, setDoc,
@@ -11,7 +18,7 @@ import { esc, DAY_NAMES, formatDateTimeJa, THEMES, applyTheme } from "./utils.js
    =========================== */
 
 // ── 認証ガード ──
-await requireAdmin();
+const currentUser = await requireAdmin();
 
 // ── システム設定 ──
 let currentSettings = {};
@@ -90,6 +97,15 @@ function openSettings() {
     updateHolidayCount();
     renderHolidayList();
     switchSettingsTab('Clinic', document.querySelector('.settings-tab'));
+    // アカウント設定初期化
+    document.getElementById('currentEmailDisplay').value = currentUser.email || '';
+    document.getElementById('newEmailInput').value = '';
+    document.getElementById('newPasswordInput').value = '';
+    document.getElementById('newPasswordConfirm').value = '';
+    document.getElementById('currentPasswordInput').value = '';
+    const accMsg = document.getElementById('accountMsg');
+    accMsg.style.display = 'none';
+    accMsg.textContent = '';
     openModal('settingsModal');
 }
 
@@ -769,6 +785,70 @@ document.getElementById('logoCropCancelBtn').addEventListener('click', () => {
     document.getElementById('logoCropArea').style.display = 'none';
     if (cropper) { cropper.destroy(); cropper = null; }
 });
+
+// アカウント設定保存（メールアドレス・パスワード変更）
+window.saveAccount = async function () {
+    const btn         = document.getElementById('saveAccountBtn');
+    const msgEl       = document.getElementById('accountMsg');
+    const newEmail    = document.getElementById('newEmailInput').value.trim();
+    const newPwd      = document.getElementById('newPasswordInput').value;
+    const newPwdConf  = document.getElementById('newPasswordConfirm').value;
+    const currentPwd  = document.getElementById('currentPasswordInput').value;
+
+    const showMsg = (msg, isErr) => {
+        msgEl.textContent = msg;
+        msgEl.style.display = 'block';
+        msgEl.style.background = isErr ? '#FFF0F0' : '#F0FFF4';
+        msgEl.style.border     = isErr ? '1px solid #F5C6C6' : '1px solid #9AE6B4';
+        msgEl.style.color      = isErr ? 'var(--red,#c0392b)' : '#276749';
+    };
+
+    if (!newEmail && !newPwd) { showMsg('変更内容を入力してください。', true); return; }
+    if (!currentPwd) { showMsg('現在のパスワードを入力してください。', true); return; }
+    if (newPwd && newPwd.length < 8) { showMsg('新しいパスワードは8文字以上で入力してください。', true); return; }
+    if (newPwd && newPwd !== newPwdConf) { showMsg('新しいパスワードが一致しません。', true); return; }
+    if (newEmail) {
+        try { new URL(`mailto:${newEmail}`); } catch { showMsg('新しいメールアドレスの形式が正しくありません。', true); return; }
+    }
+
+    btn.disabled = true; btn.textContent = '処理中...';
+    msgEl.style.display = 'none';
+
+    try {
+        // 再認証
+        const credential = EmailAuthProvider.credential(currentUser.email, currentPwd);
+        await reauthenticateWithCredential(currentUser, credential);
+
+        const results = [];
+        // メールアドレス変更
+        if (newEmail && newEmail !== currentUser.email) {
+            const actionCodeSettings = { url: window.location.origin + '/apps/OnlineAppointSystem/login.html' };
+            await verifyBeforeUpdateEmail(currentUser, newEmail, actionCodeSettings);
+            results.push('新しいメールアドレスに確認メールを送信しました。メール内のリンクをクリックして変更を完了してください。');
+        }
+        // パスワード変更
+        if (newPwd) {
+            await updatePassword(currentUser, newPwd);
+            results.push('パスワードを変更しました。');
+        }
+        showMsg(results.join('\n'), false);
+        document.getElementById('newEmailInput').value = '';
+        document.getElementById('newPasswordInput').value = '';
+        document.getElementById('newPasswordConfirm').value = '';
+        document.getElementById('currentPasswordInput').value = '';
+    } catch (err) {
+        const msgs = {
+            'auth/wrong-password':        '現在のパスワードが正しくありません。',
+            'auth/invalid-credential':    '現在のパスワードが正しくありません。',
+            'auth/email-already-in-use':  'そのメールアドレスはすでに使用されています。',
+            'auth/invalid-email':         'メールアドレスの形式が正しくありません。',
+            'auth/requires-recent-login': '再認証が必要です。一度ログアウトして再ログインしてください。',
+        };
+        showMsg(msgs[err.code] || `エラーが発生しました: ${err.message}`, true);
+    } finally {
+        btn.disabled = false; btn.textContent = '変更を保存';
+    }
+};
 
 // 初期化
 await loadSettings();

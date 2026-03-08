@@ -53,7 +53,10 @@ export async function login(email, password) {
 // パスワード再設定メール送信
 export async function sendPasswordReset(email) {
     try {
-        await sendPasswordResetEmail(auth, email);
+        const actionCodeSettings = {
+            url: `${window.location.origin}/apps/OnlineAppointSystem/auth-action.html`,
+        };
+        await sendPasswordResetEmail(auth, email, actionCodeSettings);
     } catch (err) {
         const safeMessages = {
             "auth/user-not-found": "メールアドレスが登録されていません",
