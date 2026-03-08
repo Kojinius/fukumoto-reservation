@@ -119,28 +119,28 @@
                     logoIcon.style.background = 'transparent';
                 }
             }
-            // お知らせ内容を表示
+            // お知らせメッセージを表示（あれば）
             const ann = s.announcement;
             if (ann && ann.message) {
                 document.getElementById('maintenance-message').textContent = ann.message;
             }
-            // 期間表示
-            if (ann && (ann.startDate || ann.endDate)) {
+            // メンテナンス期間（maintenance.startDate/endDate）を表示
+            const maint = s.maintenance;
+            if (maint && (maint.startDate || maint.endDate)) {
                 const fmt = (v) => v ? v.replace('T', ' ') : '';
                 const parts = [];
-                if (ann.startDate) parts.push(`開始: ${fmt(ann.startDate)}`);
-                if (ann.endDate)   parts.push(`終了: ${fmt(ann.endDate)}`);
+                if (maint.startDate) parts.push(`開始: ${fmt(maint.startDate)}`);
+                if (maint.endDate)   parts.push(`終了: ${fmt(maint.endDate)}`);
                 document.getElementById('maintenance-period').textContent = parts.join('　〜　');
             }
-            // メンテナンス終了後はトップへ自動遷移
+            // メンテナンス期間外ならトップへ戻す
             const d = new Date(), p = (n) => String(n).padStart(2, '0');
             const now = `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
-            const inMaintenance = ann && ann.active && ann.type === 'maintenance'
-                && (!ann.startDate || now >= ann.startDate)
-                && (!ann.endDate   || now <= ann.endDate);
+            const inMaintenance = maint
+                && (!maint.startDate || now >= maint.startDate)
+                && (!maint.endDate   || now <= maint.endDate);
             if (!inMaintenance) {
-                // メンテナンス期間外ならトップへ戻す
-                window.location.href = 'index.html';
+                window.location.replace('index.html');
             }
         }
     </script>
