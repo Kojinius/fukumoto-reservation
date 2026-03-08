@@ -7,9 +7,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <script>(function(){try{var v=JSON.parse(localStorage.getItem("_themeVars"));if(v){var r=document.documentElement;Object.keys(v).forEach(function(k){r.style.setProperty(k,v[k]);});}}catch(e){}})();</script>
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css" integrity="sha384-6LFfkTKLRlzFtgx8xsWyBdKGpcMMQTkv+dB7rAbugeJAu1Ym2q1Aji1cjHBG12Xh" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" integrity="sha384-jrOgQzBlDeUNdmQn3rUt/PZD+pdcRBdWd/HWRqRo+n2OR2QtGyjSaJC0GiCeH+ir" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -20,11 +21,11 @@
             <span id="clinic-name-heading">予約管理ダッシュボード — 〇〇△△医院</span>
         </div>
         <div class="admin-header-actions">
-            <button class="btn-admin-outline" onclick="openSettings()">⚙ 設定</button>
-            <button class="btn-admin-orange" onclick="exportCsv()">⬇ CSV出力</button>
-            <a class="btn-admin-outline" href="https://www.notion.so/31db36007a1981a9b236ee47894e2aad" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;">📋 テスト仕様書</a>
-            <button class="btn-admin-outline" onclick="window.location.href='index.html'">← 予約ページへ</button>
-            <button class="btn-admin-outline" onclick="handleLogout()">ログアウト</button>
+            <button class="btn-admin-outline" onclick="openSettings()">⚙ <span class="btn-label">設定</span></button>
+            <button class="btn-admin-orange" onclick="exportCsv()">⬇ <span class="btn-label">CSV出力</span></button>
+            <a class="btn-admin-outline" href="https://www.notion.so/31db36007a1981a9b236ee47894e2aad" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;">📋 <span class="btn-label">テスト仕様書</span></a>
+            <button class="btn-admin-outline" onclick="window.location.href='index.html'">← <span class="btn-label">予約ページへ</span></button>
+            <button class="btn-admin-outline" onclick="handleLogout()">🚪 <span class="btn-label">ログアウト</span></button>
         </div>
     </header>
 
@@ -141,7 +142,7 @@
                         <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
                             <div id="logoCurrentPreview" class="logo-preview-box">鍼</div>
                             <div>
-                                <button type="button" class="btn-admin-outline" style="height:32px;font-size:12px;padding:0 14px;" onclick="document.getElementById('logoFileInput').click()">画像を選択</button>
+                                <button type="button" style="height:32px;font-size:12px;padding:0 14px;border:1.5px solid var(--brown);border-radius:7px;background:var(--white);color:var(--brown);cursor:pointer;font-family:var(--font-main);font-weight:600;" onclick="document.getElementById('logoFileInput').click()">画像を選択</button>
                                 <p class="settings-hint" style="margin-top:4px;">PNG・JPG・WEBP対応 / 最大2MB</p>
                             </div>
                         </div>
@@ -152,7 +153,7 @@
                             </div>
                             <div style="display:flex;gap:8px;margin-top:10px;">
                                 <button type="button" id="logoCropConfirmBtn" class="btn btn-primary" style="height:34px;font-size:13px;padding:0 18px;">切り抜き確定</button>
-                                <button type="button" id="logoCropCancelBtn" class="btn-admin-outline" style="height:34px;font-size:13px;padding:0 14px;">キャンセル</button>
+                                <button type="button" id="logoCropCancelBtn" style="height:34px;font-size:13px;padding:0 14px;border:1.5px solid var(--beige-mid);border-radius:7px;background:var(--white);color:var(--text-secondary);cursor:pointer;font-family:var(--font-main);font-weight:600;">キャンセル</button>
                             </div>
                         </div>
                     </div>
@@ -235,6 +236,7 @@
                             <input type="datetime-local" id="annStartDate" style="width:190px;">
                             <span style="font-size:13px;color:var(--text-muted);">〜</span>
                             <input type="datetime-local" id="annEndDate" style="width:190px;">
+                            <button type="button" onclick="document.getElementById('annStartDate').value='';document.getElementById('annEndDate').value='';" style="height:32px;padding:0 12px;font-size:12px;font-weight:600;border:1.5px solid var(--beige-mid);border-radius:7px;background:var(--white);color:var(--text-secondary);cursor:pointer;font-family:var(--font-main);">クリア</button>
                         </div>
                         <p class="settings-hint">空欄の場合は期間制限なしで表示されます。</p>
                     </div>
@@ -246,6 +248,7 @@
                             <input type="datetime-local" id="maintStartDate" style="width:190px;">
                             <span style="font-size:13px;color:var(--text-muted);">〜</span>
                             <input type="datetime-local" id="maintEndDate" style="width:190px;">
+                            <button type="button" onclick="document.getElementById('maintStartDate').value='';document.getElementById('maintEndDate').value='';" style="height:32px;padding:0 12px;font-size:12px;font-weight:600;border:1.5px solid var(--beige-mid);border-radius:7px;background:var(--white);color:var(--text-secondary);cursor:pointer;font-family:var(--font-main);">クリア</button>
                         </div>
                         <p class="settings-hint">設定した期間中にアクセスすると、メンテナンスページに自動転送されます。お知らせバナーの表示期間とは独立して動作します。</p>
                     </div>
@@ -272,12 +275,21 @@
                     </div>
                     <div class="form-group" style="border-top:1px solid var(--border,#EDE3D8);padding-top:16px;">
                         <label>パスワードを変更する（任意）</label>
-                        <input type="password" id="newPasswordInput" placeholder="新しいパスワード（8文字以上）" autocomplete="new-password">
-                        <input type="password" id="newPasswordConfirm" placeholder="新しいパスワード（確認）" autocomplete="new-password" style="margin-top:8px;">
+                        <div class="pw-wrap">
+                            <input type="password" id="newPasswordInput" placeholder="新しいパスワード（8文字以上）" autocomplete="new-password">
+                            <button type="button" class="pw-toggle" onclick="togglePw('newPasswordInput',this)" tabindex="-1" aria-label="パスワードを表示"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                        </div>
+                        <div class="pw-wrap" style="margin-top:8px;">
+                            <input type="password" id="newPasswordConfirm" placeholder="新しいパスワード（確認）" autocomplete="new-password">
+                            <button type="button" class="pw-toggle" onclick="togglePw('newPasswordConfirm',this)" tabindex="-1" aria-label="パスワードを表示"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                        </div>
                     </div>
                     <div class="form-group" style="border-top:1px solid var(--border,#EDE3D8);padding-top:16px;">
                         <label>現在のパスワード <span style="color:var(--red,#c0392b);font-size:11px;">変更時に必須</span></label>
-                        <input type="password" id="currentPasswordInput" placeholder="現在のパスワードを入力" autocomplete="current-password">
+                        <div class="pw-wrap">
+                            <input type="password" id="currentPasswordInput" placeholder="現在のパスワードを入力" autocomplete="current-password">
+                            <button type="button" class="pw-toggle" onclick="togglePw('currentPasswordInput',this)" tabindex="-1" aria-label="パスワードを表示"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                        </div>
                         <p class="settings-hint">メールアドレスまたはパスワードを変更する場合は必須です。</p>
                     </div>
                     <div id="accountMsg" style="display:none;padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:8px;"></div>

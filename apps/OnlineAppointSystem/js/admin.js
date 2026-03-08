@@ -47,7 +47,11 @@ async function loadSettings() {
 function applyLogoToIcon(el, logoBase64) {
     if (!el) return;
     if (logoBase64) {
-        el.innerHTML = `<img src="${logoBase64}" alt="ロゴ">`;
+        const img = document.createElement('img');
+        img.src = logoBase64;
+        img.alt = 'ロゴ';
+        el.innerHTML = '';
+        el.appendChild(img);
         el.style.background = 'transparent';
     }
 }
@@ -64,7 +68,11 @@ function openSettings() {
     pendingLogoBase64 = null;
     const prev = document.getElementById('logoCurrentPreview');
     if (currentSettings.clinicLogo) {
-        prev.innerHTML = `<img src="${currentSettings.clinicLogo}" alt="ロゴ">`;
+        const img = document.createElement('img');
+        img.src = currentSettings.clinicLogo;
+        img.alt = 'ロゴ';
+        prev.innerHTML = '';
+        prev.appendChild(img);
         prev.style.background = 'transparent';
     } else {
         prev.textContent = '鍼';
@@ -631,9 +639,12 @@ function openDetail(id) {
         ['登録日時',  new Date(booking.createdAt).toLocaleString('ja-JP')],
     ];
 
-    document.getElementById('detailModalBody').innerHTML = rows.map(([l, v]) =>
-        `<div class="detail-row"><div class="detail-label">${esc(l)}</div><div class="detail-value">${esc(v)}</div></div>`
-    ).join('');
+    document.getElementById('detailModalBody').innerHTML = rows.map(([l, v]) => {
+        const valueHtml = l === '予約番号'
+            ? `${esc(v)}<button class="copy-btn" onclick="adminCopyId(this,'${v}')" title="コピー">⧉</button>`
+            : esc(v);
+        return `<div class="detail-row"><div class="detail-label">${esc(l)}</div><div class="detail-value">${valueHtml}</div></div>`;
+    }).join('');
 
     const footer = document.getElementById('detailModalFooter');
     footer.innerHTML = `
@@ -699,6 +710,23 @@ function exportCsv() {
 // ── ログアウト ──
 function handleLogout() { logout(); }
 
+// ── パスワード表示トグル ──
+function togglePw(id, btn) {
+    const inp = document.getElementById(id), show = inp.type === 'password';
+    inp.type = show ? 'text' : 'password';
+    btn.innerHTML = show
+        ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+        : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+}
+
+// ── 予約番号コピー（管理画面）──
+function adminCopyId(btn, id) {
+    navigator.clipboard.writeText(id).then(() => {
+        btn.textContent = '✓'; btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = '⧉'; btn.classList.remove('copied'); }, 1500);
+    }).catch(() => {});
+}
+
 // onclick から呼べるようにグローバル公開
 Object.assign(window, {
     applyFilter, setStatusFilter, clearFilter,
@@ -707,6 +735,7 @@ Object.assign(window, {
     openSettings, saveSettings, switchSettingsTab,
     prevHolidayCal, nextHolidayCal, fetchHolidays, toggleHoliday, clearAllHolidays, fetchAddressFromZip,
     toggleBizDay, toggleBizAmPm,
+    adminCopyId, togglePw,
 });
 
 // ── テーマピッカー ──
@@ -774,7 +803,11 @@ document.getElementById('logoCropConfirmBtn').addEventListener('click', () => {
     const canvas = cropper.getCroppedCanvas({ width: 80, height: 80 });
     pendingLogoBase64 = canvas.toDataURL('image/png');
     const prev = document.getElementById('logoCurrentPreview');
-    prev.innerHTML = `<img src="${pendingLogoBase64}" alt="ロゴ">`;
+    const cropImg = document.createElement('img');
+    cropImg.src = pendingLogoBase64;
+    cropImg.alt = 'ロゴ';
+    prev.innerHTML = '';
+    prev.appendChild(cropImg);
     prev.style.background = 'transparent';
     document.getElementById('logoCropArea').style.display = 'none';
     cropper.destroy();

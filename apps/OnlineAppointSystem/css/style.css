@@ -582,9 +582,42 @@ body {
     text-align: left;
     margin-bottom: 20px;
 }
-.booking-number strong { font-size: 18px; display: block; margin-bottom: 4px; }
+.booking-number strong { font-size: 18px; margin-bottom: 4px; }
+.booking-id-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
 .complete-actions { display: flex; gap: 12px; justify-content: center; }
+
+/* コピーボタン（予約番号など） */
+.copy-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 1.5px solid var(--brown, #72586f);
+    color: var(--brown, #72586f);
+    border-radius: 5px;
+    padding: 2px 7px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    vertical-align: middle;
+    line-height: 1.4;
+    flex-shrink: 0;
+}
+.copy-btn:hover { background: var(--brown, #72586f); color: #fff; }
+.copy-btn.copied { background: #4caf50; color: #fff; border-color: #4caf50; }
 .complete-actions .btn { min-width: 180px; }
+
+/* パスワード表示トグル */
+.pw-wrap { position: relative; display: flex; align-items: center; }
+.pw-wrap input { flex: 1; padding-right: 40px !important; }
+.pw-toggle {
+    position: absolute; right: 8px;
+    background: none; border: none; cursor: pointer;
+    color: var(--text-muted, #aaa); padding: 4px; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    transition: color 0.15s;
+}
+.pw-toggle:hover { color: var(--brown, #72586f); }
 .btn-pdf {
     background: var(--brown);
     color: var(--white);
@@ -995,4 +1028,6 @@ tr:hover td { background: var(--beige); }
     .complete-actions { flex-direction: column; }
     .kpi-row { grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 12px 14px 0; }
     .admin-main { padding: 12px 14px; }
+    /* 管理画面ヘッダー：スマホ縦はアイコンのみ表示 */
+    .btn-label { display: none; }
 }

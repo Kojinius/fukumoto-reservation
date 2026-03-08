@@ -18,6 +18,7 @@ export function applyTheme(themeId) {
     const theme = THEMES[themeId] || THEMES.warm;
     const root = document.documentElement;
     Object.entries(theme.vars).forEach(([k, v]) => root.style.setProperty(k, v));
+    try { localStorage.setItem('_themeVars', JSON.stringify(theme.vars)); } catch(e) {}
 }
 
 // XSSエスケープ

@@ -391,6 +391,11 @@ function fillConfirmation() {
     document.getElementById('c-contactMethod').textContent   = document.querySelector('input[name="contactMethod"]:checked')?.value || '-';
 }
 
+// ── 全角ASCII → 半角に正規化 ──
+function toHankaku(str) {
+    return String(str ?? '').replace(/[！-～]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).trim();
+}
+
 // ── 予約番号生成（UUID v4、エントロピー強化）──
 function generateBookingId() {
     return crypto.randomUUID();
@@ -414,14 +419,14 @@ async function submitReservation() {
         birthdate:     document.getElementById('birthdate').value,
         zip:           document.getElementById('zip').value.trim(),
         address:       [document.getElementById('addressMain').value.trim(), document.getElementById('addressSub').value.trim()].filter(Boolean).join('　'),
-        phone:         document.getElementById('phone').value,
-        email:         document.getElementById('email').value,
+        phone:         toHankaku(document.getElementById('phone').value),
+        email:         toHankaku(document.getElementById('email').value),
         gender:        document.querySelector('input[name="gender"]:checked')?.value || '',
-        visitType:     document.querySelector('input[name="visitType"]:checked')?.value,
-        insurance:     document.querySelector('input[name="insurance"]:checked')?.value,
-        symptoms:      document.getElementById('symptoms').value,
-        notes:         document.getElementById('notes').value,
-        contactMethod: document.querySelector('input[name="contactMethod"]:checked')?.value,
+        visitType:     document.querySelector('input[name="visitType"]:checked')?.value || '',
+        insurance:     document.querySelector('input[name="insurance"]:checked')?.value || '',
+        symptoms:      document.getElementById('symptoms').value || '',
+        notes:         document.getElementById('notes').value || '',
+        contactMethod: document.querySelector('input[name="contactMethod"]:checked')?.value || '',
         status:        'pending',
         createdAt:     new Date().toISOString(),
     };
@@ -477,7 +482,7 @@ async function submitReservation() {
 
         const dow      = selectedDate.getDay();
         const dayLabel = `${selectedDate.getMonth()+1}月${selectedDate.getDate()}日（${DAY_NAMES[dow]}）`;
-        document.getElementById('bookingNumberDisplay').textContent  = `予約番号: ${booking.id}`;
+        document.getElementById('bookingIdText').textContent = booking.id;
         document.getElementById('bookingSummaryDisplay').textContent = `${dayLabel} ${booking.time}〜 / ${booking.name}様`;
         setStep(4);
         selectedDate = null; selectedTime = null; cachedBookedSlots = [];
@@ -490,7 +495,7 @@ async function submitReservation() {
             renderTimeSlots();
             setStep(1);
         } else {
-            console.error('予約エラー:', err);
+            console.error('予約エラー:', err.code, err.message, err);
             alert('予約の送信に失敗しました。もう一度お試しください。');
         }
     }
@@ -571,9 +576,10 @@ async function exportPdf() {
                        : clinicNameText.length <= 22 ? 11 : 9;
         t(clinicNameText, 72, height - 36, nameSize, rgb(1, 1, 1));
         t('FUKUMOTO ACUPUNCTURE CLINIC', 73, height - 53, 8, rgb(0.72, 0.62, 0.57));
-        // 予約番号
-        t('予約番号', width - 210, height - 34, 9, rgb(0.72, 0.62, 0.57));
-        t(booking.id, width - 210, height - 52, 9, rgb(0.97, 0.72, 0.40));
+        // 予約番号（UUID を2行で表示）
+        t('予約番号', width - 205, height - 30, 8, rgb(0.72, 0.62, 0.57));
+        t(booking.id.slice(0, 18), width - 205, height - 43, 7, rgb(0.97, 0.72, 0.40));
+        t(booking.id.slice(18),    width - 205, height - 55, 7, rgb(0.97, 0.72, 0.40));
 
         // ── 日時バー ──
         r(0, height - 118, width, 44, rgb(0.97, 0.57, 0.13));
@@ -631,7 +637,12 @@ async function exportPdf() {
         sec('診療情報', CR, yR); yR -= 26;
         yR = row('初・再診',  booking.visitType,     CR, yR);
         yR = row('保険証',    booking.insurance,     CR, yR);
-        yR = row('症状',      clip(booking.symptoms, 22), CR, yR);
+        const sympText = String(booking.symptoms || '');
+        yR = row('症状', clip(sympText, 13), CR, yR);
+        if (sympText.length > 13) {
+            t(clip(sympText.slice(13), 13), CR + LBL_W, yR, 11, rgb(0.15, 0.10, 0.06));
+            yR -= 24;
+        }
         yR = row('連絡方法',  booking.contactMethod, CR, yR);
         if (booking.notes) {
             yR = row('伝達事項', clip(booking.notes, 22), CR, yR);
@@ -680,8 +691,17 @@ document.getElementById('nextMonth').addEventListener('click', () => {
     calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar();
 });
 
+// ── 予約番号コピー ──
+function copyBookingId(btn) {
+    const id = document.getElementById('bookingIdText').textContent;
+    navigator.clipboard.writeText(id).then(() => {
+        btn.textContent = '✓'; btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = '⧉'; btn.classList.remove('copied'); }, 1500);
+    }).catch(() => {});
+}
+
 // onclick から呼べるようにグローバル公開
-Object.assign(window, { goToStep1, goToStep2, goToStep3, selectTime, submitReservation, newReservation, exportPdf, fetchAddressFromZip });
+Object.assign(window, { goToStep1, goToStep2, goToStep3, selectTime, submitReservation, newReservation, exportPdf, fetchAddressFromZip, copyBookingId });
 
 // 初期化
 await loadClinicSettings();

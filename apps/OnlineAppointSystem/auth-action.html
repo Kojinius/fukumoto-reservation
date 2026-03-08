@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <script>(function(){try{var v=JSON.parse(localStorage.getItem("_themeVars"));if(v){var r=document.documentElement;Object.keys(v).forEach(function(k){r.style.setProperty(k,v[k]);});}}catch(e){}})();</script>
     <link rel="stylesheet" href="css/style.css">
     <style>
         .login-wrap {
@@ -103,11 +104,17 @@
                 <form id="resetPasswordForm" novalidate>
                     <div class="form-group">
                         <label>新しいパスワード</label>
-                        <input type="password" id="newPassword" placeholder="8文字以上" autocomplete="new-password" required>
+                        <div class="pw-wrap">
+                            <input type="password" id="newPassword" placeholder="8文字以上" autocomplete="new-password" required>
+                            <button type="button" class="pw-toggle" onclick="togglePw('newPassword',this)" tabindex="-1" aria-label="パスワードを表示"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>新しいパスワード（確認）</label>
-                        <input type="password" id="confirmPassword" placeholder="同じパスワードを入力" autocomplete="new-password" required>
+                        <div class="pw-wrap">
+                            <input type="password" id="confirmPassword" placeholder="同じパスワードを入力" autocomplete="new-password" required>
+                            <button type="button" class="pw-toggle" onclick="togglePw('confirmPassword',this)" tabindex="-1" aria-label="パスワードを表示"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-primary" style="margin-top:8px;" id="resetBtn">パスワードを変更する</button>
                 </form>
@@ -120,6 +127,15 @@
         </div>
     </div>
 
+    <script>
+    function togglePw(id, btn) {
+        var inp = document.getElementById(id), show = inp.type === 'password';
+        inp.type = show ? 'text' : 'password';
+        btn.innerHTML = show
+            ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+            : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+    }
+    </script>
     <script type="module">
         import { auth } from "./js/firebase.js";
         import { db } from "./js/firebase.js";

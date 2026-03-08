@@ -51,7 +51,11 @@ if (settingsSnap.exists()) {
     if (clinicSettings.clinicLogo) {
         const logoIcon = document.querySelector('.logo-icon');
         if (logoIcon) {
-            logoIcon.innerHTML = `<img src="${clinicSettings.clinicLogo}" alt="ロゴ">`;
+            const img = document.createElement('img');
+            img.src = clinicSettings.clinicLogo;
+            img.alt = 'ロゴ';
+            logoIcon.innerHTML = '';
+            logoIcon.appendChild(img);
             logoIcon.style.background = 'transparent';
         }
     }
@@ -129,9 +133,12 @@ function showDetail(booking) {
         ['ステータス', booking.status === 'cancelled' ? 'キャンセル済み'
                      : booking.status === 'confirmed'  ? '確認済み' : '受付中'],
     ];
-    document.getElementById('detailTable').innerHTML = rows.map(([l, v]) =>
-        `<tr><td>${esc(l)}</td><td>${esc(v)}</td></tr>`
-    ).join('');
+    document.getElementById('detailTable').innerHTML = rows.map(([l, v]) => {
+        const valueHtml = l === '予約番号'
+            ? `${esc(v)}<button class="copy-btn" onclick="cancelCopyId(this,'${v}')" title="コピー">⧉</button>`
+            : esc(v);
+        return `<tr><td>${esc(l)}</td><td>${valueHtml}</td></tr>`;
+    }).join('');
 
     // アラート／アクション
     const alertBox  = document.getElementById('cancelAlertBox');
@@ -172,7 +179,8 @@ async function execCancel() {
     try {
         const batch  = writeBatch(db);
         const resRef = doc(db, 'reservations', foundBooking.id);
-        batch.update(resRef, { status: 'cancelled' });
+        // _cancelVerify: Firestoreルール側でサーバーサイド電話番号照合
+        batch.update(resRef, { status: 'cancelled', _cancelVerify: foundBooking.phone });
 
         const slotId  = `${foundBooking.date}_${foundBooking.time.replace(':', '')}`;
         const slotRef = doc(db, 'slots', slotId);
@@ -195,5 +203,13 @@ function backToSearch() {
     document.getElementById('searchPanel').style.display = 'block';
 }
 
+// ── 予約番号コピー（キャンセル画面）──
+function cancelCopyId(btn, id) {
+    navigator.clipboard.writeText(id).then(() => {
+        btn.textContent = '✓'; btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = '⧉'; btn.classList.remove('copied'); }, 1500);
+    }).catch(() => {});
+}
+
 // グローバル公開
-Object.assign(window, { searchBooking, execCancel, backToSearch });
+Object.assign(window, { searchBooking, execCancel, backToSearch, cancelCopyId });

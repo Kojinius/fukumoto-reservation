@@ -13,7 +13,10 @@
       "Bash(cp:*)",
       "Bash(rm:*)",
       "Bash(curl:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(grep:*)",
+      "Bash(firebase functions:delete:*)",
+      "Bash(firebase functions:log:*)"
     ]
   }
 }

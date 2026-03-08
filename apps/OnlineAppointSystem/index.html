@@ -7,9 +7,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <script>(function(){try{var v=JSON.parse(localStorage.getItem("_themeVars"));if(v){var r=document.documentElement;Object.keys(v).forEach(function(k){r.style.setProperty(k,v[k]);});}}catch(e){}})();</script>
     <link rel="stylesheet" href="css/style.css">
-    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-    <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js" integrity="sha384-weMABwrltA6jWR8DDe9Jp5blk+tZQh7ugpCsF3JwSA53WZM9/14PjS5LAJNHNjAI" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js" integrity="sha384-2p6U+1mmqF10USehFeRiyG2ESG9FwIqN+jxULn5w9jjQIihSn9Pt13dVCn/Hawjn" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -303,7 +304,10 @@
                         ご不明な点はお電話にてお問い合わせください。
                     </p>
                     <div class="booking-number">
-                        <strong id="bookingNumberDisplay"></strong>
+                        <div class="booking-id-row">
+                            <strong>予約番号: <span id="bookingIdText"></span></strong>
+                            <button class="copy-btn" onclick="copyBookingId(this)" title="予約番号をコピー">⧉</button>
+                        </div>
                         <span id="bookingSummaryDisplay"></span>
                     </div>
                     <div class="complete-actions">

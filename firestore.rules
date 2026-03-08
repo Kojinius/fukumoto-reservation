@@ -19,8 +19,19 @@ service cloud.firestore {
         && data.furigana is string && data.furigana.size() <= 50
         && data.phone    is string && data.phone.size()    <= 20
         && data.date     is string && data.date.size()     == 10
-        && data.time     is string
-        && data.status   in ['pending','confirmed','cancelled'];
+        && data.time     is string && data.time.size()     <= 10
+        && data.status   in ['pending','confirmed','cancelled']
+        // 任意フィールドの型・長さ検証
+        && (!data.keys().hasAny(['email'])         || (data.email is string && data.email.size() <= 200))
+        && (!data.keys().hasAny(['zip'])           || (data.zip is string && data.zip.size() <= 8))
+        && (!data.keys().hasAny(['address'])       || (data.address is string && data.address.size() <= 200))
+        && (!data.keys().hasAny(['symptoms'])      || (data.symptoms is string && data.symptoms.size() <= 1000))
+        && (!data.keys().hasAny(['notes'])         || (data.notes is string && data.notes.size() <= 500))
+        && (!data.keys().hasAny(['visitType'])     || (data.visitType is string && data.visitType.size() <= 50))
+        && (!data.keys().hasAny(['insurance'])     || (data.insurance is string && data.insurance.size() <= 50))
+        && (!data.keys().hasAny(['gender'])        || (data.gender is string && data.gender.size() <= 20))
+        && (!data.keys().hasAny(['birthdate'])     || (data.birthdate is string && data.birthdate.size() <= 10))
+        && (!data.keys().hasAny(['contactMethod']) || (data.contactMethod is string && data.contactMethod.size() <= 50));
     }
 
     // 予約コレクション
@@ -30,11 +41,12 @@ service cloud.firestore {
         && isValidReservation(request.resource.data);
       // 患者：予約番号（ドキュメントID）による1件読み取り可（IDが事実上のアクセストークン）
       allow get: if request.auth == null;
-      // 患者：statusをcancelledに変更するのみ許可（他フィールドは変更不可）
+      // 患者：statusをcancelledに変更するのみ許可（_cancelVerifyで電話番号サーバーサイド検証）
       allow update: if request.auth == null
         && resource.data.status != 'cancelled'
         && request.resource.data.status == 'cancelled'
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']);
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', '_cancelVerify'])
+        && request.resource.data._cancelVerify == resource.data.phone;
       // 管理者：読み書きすべて可
       allow read, write: if isAdmin();
     }
