@@ -74,6 +74,9 @@ function openSettings() {
     document.getElementById('annMessage').value     = ann.message   || '';
     document.getElementById('annStartDate').value   = ann.startDate || '';
     document.getElementById('annEndDate').value     = ann.endDate   || '';
+    const maint = currentSettings.maintenance || {};
+    document.getElementById('maintStartDate').value = maint.startDate || '';
+    document.getElementById('maintEndDate').value   = maint.endDate   || '';
     // プログラムからのセットは input イベントが発火しないため手動で通知
     document.getElementById('settingCancelCutoff').value  = currentSettings.cancelCutoffMinutes  ?? '';
     document.getElementById('settingPrivacyPolicy').value = currentSettings.privacyPolicy  || '';
@@ -115,13 +118,17 @@ function validateBizHours() {
 
 function validateAnnouncement() {
     const active = document.getElementById('annActive').checked;
-    if (!active) return null;
-    const msg   = document.getElementById('annMessage').value.trim();
-    const start = document.getElementById('annStartDate').value;
-    const end   = document.getElementById('annEndDate').value;
-    if (!msg) return 'お知らせがONの場合、メッセージは必須です。';
     const fmt = (v) => v.replace('T', ' ');
-    if (start && end && start >= end) return `表示期間の開始日時（${fmt(start)}）が終了日時（${fmt(end)}）以降になっています。`;
+    if (active) {
+        const msg   = document.getElementById('annMessage').value.trim();
+        const start = document.getElementById('annStartDate').value;
+        const end   = document.getElementById('annEndDate').value;
+        if (!msg) return 'お知らせがONの場合、メッセージは必須です。';
+        if (start && end && start >= end) return `表示期間の開始日時（${fmt(start)}）が終了日時（${fmt(end)}）以降になっています。`;
+    }
+    const ms = document.getElementById('maintStartDate').value;
+    const me = document.getElementById('maintEndDate').value;
+    if (ms && me && ms >= me) return `メンテナンス期間の開始日時（${fmt(ms)}）が終了日時（${fmt(me)}）以降になっています。`;
     return null;
 }
 
@@ -167,6 +174,10 @@ async function saveSettings() {
                 message:   document.getElementById('annMessage').value.trim(),
                 startDate: document.getElementById('annStartDate').value || null,
                 endDate:   document.getElementById('annEndDate').value   || null,
+            },
+            maintenance: {
+                startDate: document.getElementById('maintStartDate').value || null,
+                endDate:   document.getElementById('maintEndDate').value   || null,
             },
             updatedAt:             new Date().toISOString(),
         };

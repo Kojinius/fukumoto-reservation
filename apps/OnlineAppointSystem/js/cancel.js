@@ -24,6 +24,15 @@ if (settingsSnap.exists()) {
     }
     // テーマ適用
     if (clinicSettings.colorTheme) applyTheme(clinicSettings.colorTheme);
+    // メンテナンス期間チェック
+    const maint = clinicSettings.maintenance;
+    if (maint && (maint.startDate || maint.endDate)) {
+        const d = new Date(), p = (n) => String(n).padStart(2, '0');
+        const now = `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+        if ((!maint.startDate || now >= maint.startDate) && (!maint.endDate || now <= maint.endDate)) {
+            window.location.replace('maintenance.html');
+        }
+    }
     // お知らせバナー表示
     const ann = clinicSettings.announcement;
     const banner = document.getElementById('announcement-banner');

@@ -99,6 +99,24 @@ body {
 .announcement-banner.warning     { background:#FFF0C2; color:#5C3A00; border-bottom:3px solid #E09800; }
 .announcement-banner.maintenance { background:#FFD6D6; color:#6B0000; border-bottom:3px solid #CC2222; }
 
+/* ── スライドスイッチ ── */
+.toggle-switch { position:relative; display:inline-flex; align-items:center; gap:10px; cursor:pointer; user-select:none; }
+.toggle-switch input[type="checkbox"] { position:absolute; opacity:0; width:0; height:0; }
+.toggle-track {
+    width:44px; height:24px; border-radius:12px;
+    background:var(--beige-mid,#D9C9B8); transition:background .2s;
+    flex-shrink:0; position:relative;
+}
+.toggle-track::after {
+    content:''; position:absolute; top:3px; left:3px;
+    width:18px; height:18px; border-radius:50%;
+    background:var(--white); box-shadow:0 1px 4px rgba(0,0,0,.2);
+    transition:transform .2s;
+}
+.toggle-switch input:checked ~ .toggle-track { background:var(--brown); }
+.toggle-switch input:checked ~ .toggle-track::after { transform:translateX(20px); }
+.toggle-label { font-size:14px; font-weight:700; color:var(--text-primary); }
+
 /* ロゴ画像表示 */
 .logo-icon img, .admin-logo-icon img, .login-logo-icon img {
     width: 100%; height: 100%;

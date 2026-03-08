@@ -79,6 +79,14 @@ function buildBizHoursText() {
 // ── クリニック設定 ──
 let clinicSettings = {};
 
+function checkMaintenancePeriod(maint) {
+    if (!maint || (!maint.startDate && !maint.endDate)) return;
+    const d = new Date(), p = (n) => String(n).padStart(2, '0');
+    const now = `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+    const inRange = (!maint.startDate || now >= maint.startDate) && (!maint.endDate || now <= maint.endDate);
+    if (inRange) window.location.replace('maintenance.html');
+}
+
 function showAnnouncementBanner(ann) {
     const banner = document.getElementById('announcement-banner');
     if (!banner || !ann || !ann.active || !ann.message) return;
@@ -112,6 +120,8 @@ async function loadClinicSettings() {
         }
         // テーマ適用
         if (clinicSettings.colorTheme) applyTheme(clinicSettings.colorTheme);
+        // メンテナンス期間チェック
+        checkMaintenancePeriod(clinicSettings.maintenance);
         // お知らせバナー表示
         showAnnouncementBanner(clinicSettings.announcement);
         // ロゴをヘッダーに反映
