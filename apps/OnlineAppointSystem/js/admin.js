@@ -822,8 +822,7 @@ window.saveAccount = async function () {
         const results = [];
         // メールアドレス変更
         if (newEmail && newEmail !== currentUser.email) {
-            const actionCodeSettings = { url: window.location.origin + '/apps/OnlineAppointSystem/login.html' };
-            await verifyBeforeUpdateEmail(currentUser, newEmail, actionCodeSettings);
+            await verifyBeforeUpdateEmail(currentUser, newEmail);
             results.push('新しいメールアドレスに確認メールを送信しました。メール内のリンクをクリックして変更を完了してください。');
         }
         // パスワード変更
