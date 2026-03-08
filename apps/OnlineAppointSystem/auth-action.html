@@ -252,20 +252,23 @@
                 }
             });
 
-        } else if (mode === 'verifyEmail') {
-            // メールアドレス確認
-            titleEl.textContent = 'メールアドレスを確認中...';
-            document.getElementById('logoSubtitle').textContent = 'メールアドレス確認';
+        } else if (mode === 'verifyEmail' || mode === 'verifyAndChangeEmail') {
+            // メールアドレス確認（新規確認 or 変更確認）
+            const isChange = mode === 'verifyAndChangeEmail';
+            titleEl.textContent = isChange ? 'メールアドレス変更を確認中...' : 'メールアドレスを確認中...';
+            document.getElementById('logoSubtitle').textContent = isChange ? 'メールアドレス変更確認' : 'メールアドレス確認';
 
             try {
                 await applyActionCode(auth, oobCode);
-                titleEl.textContent = 'メールアドレス確認完了';
-                showSuccess('メールアドレスの確認が完了しました。ログイン画面からログインしてください。');
+                titleEl.textContent = isChange ? 'メールアドレス変更完了' : 'メールアドレス確認完了';
+                showSuccess(isChange
+                    ? 'メールアドレスの変更が完了しました。新しいメールアドレスでログインしてください。'
+                    : 'メールアドレスの確認が完了しました。ログイン画面からログインしてください。');
             } catch (err) {
                 titleEl.textContent = 'リンクが無効または期限切れです';
                 const msgs = {
-                    'auth/expired-action-code': 'メール確認リンクの有効期限が切れています。再度メールを送信してください。',
-                    'auth/invalid-action-code': 'メール確認リンクが無効です。再度メールを送信してください。',
+                    'auth/expired-action-code': 'リンクの有効期限が切れています。再度メールを送信してください。',
+                    'auth/invalid-action-code': 'リンクが無効です。再度メールを送信してください。',
                     'auth/user-disabled':       'このアカウントは無効になっています。',
                 };
                 showError(msgs[err.code] || `エラーが発生しました: ${err.message}`);
