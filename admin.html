@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>予約管理 | 福元鍼灸整骨院</title>
+    <title>予約管理 | 〇〇△△医院</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
 </head>
 <body>
 
@@ -15,7 +17,7 @@
     <header class="admin-header">
         <div class="admin-logo">
             <div class="admin-logo-icon">管</div>
-            <span id="clinic-name-heading">予約管理ダッシュボード — 福元鍼灸整骨院</span>
+            <span id="clinic-name-heading">予約管理ダッシュボード — 〇〇△△医院</span>
         </div>
         <div class="admin-header-actions">
             <button class="btn-admin-outline" onclick="openSettings()">⚙ 設定</button>
@@ -90,7 +92,7 @@
 
     <!-- システム設定モーダル -->
     <div class="modal-overlay" id="settingsModal">
-        <div class="modal" style="width:620px;">
+        <div class="modal" style="width:700px;">
             <div class="modal-header">
                 <h3>⚙ システム設定</h3>
                 <button class="modal-close" onclick="closeModal('settingsModal')">×</button>
@@ -102,6 +104,7 @@
                     <button class="settings-tab" onclick="switchSettingsTab('Privacy', this)">プライバシーポリシー</button>
                     <button class="settings-tab" onclick="switchSettingsTab('Holiday', this)">休日設定</button>
                     <button class="settings-tab" onclick="switchSettingsTab('BusinessHours', this)">営業時間</button>
+                    <button class="settings-tab" onclick="switchSettingsTab('Announcement', this)">お知らせ</button>
                 </div>
 
                 <!-- 院内情報 -->
@@ -130,6 +133,30 @@
                     <div class="form-group">
                         <label>院の住所</label>
                         <input type="text" id="settingClinicAddress" placeholder="〇〇県〇〇市〇〇町1-2-3">
+                    </div>
+                    <div class="form-group">
+                        <label>ロゴ画像</label>
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+                            <div id="logoCurrentPreview" class="logo-preview-box">鍼</div>
+                            <div>
+                                <button type="button" class="btn-admin-outline" style="height:32px;font-size:12px;padding:0 14px;" onclick="document.getElementById('logoFileInput').click()">画像を選択</button>
+                                <p class="settings-hint" style="margin-top:4px;">PNG・JPG・WEBP対応 / 最大2MB</p>
+                            </div>
+                        </div>
+                        <input type="file" id="logoFileInput" accept="image/*" style="display:none;">
+                        <div id="logoCropArea" style="display:none;margin-top:12px;">
+                            <div style="max-height:300px;overflow:hidden;border-radius:8px;border:1px solid var(--border);">
+                                <img id="logoCropImage" style="max-width:100%;display:block;">
+                            </div>
+                            <div style="display:flex;gap:8px;margin-top:10px;">
+                                <button type="button" id="logoCropConfirmBtn" class="btn btn-primary" style="height:34px;font-size:13px;padding:0 18px;">切り抜き確定</button>
+                                <button type="button" id="logoCropCancelBtn" class="btn-admin-outline" style="height:34px;font-size:13px;padding:0 14px;">キャンセル</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>カラーテーマ</label>
+                        <div id="themePicker" style="display:flex;flex-wrap:wrap;gap:16px;margin-top:6px;"></div>
                     </div>
                 </div>
 
@@ -177,6 +204,35 @@
                 <!-- 営業時間 -->
                 <div class="settings-panel" id="tabBusinessHours">
                     <table class="biz-hours-table" id="bizHoursTable"></table>
+                </div>
+
+                <!-- お知らせ -->
+                <div class="settings-panel" id="tabAnnouncement">
+                    <div class="form-group" style="display:flex;align-items:center;gap:12px;">
+                        <label style="margin:0;font-weight:700;">お知らせを表示する</label>
+                        <input type="checkbox" id="annActive" style="width:18px;height:18px;cursor:pointer;">
+                    </div>
+                    <div class="form-group">
+                        <label>タイプ</label>
+                        <select id="annType" style="width:180px;">
+                            <option value="info">ℹ️ お知らせ（青）</option>
+                            <option value="warning">⚠️ 警告（オレンジ）</option>
+                            <option value="maintenance">🔧 メンテナンス（赤）</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>メッセージ</label>
+                        <textarea id="annMessage" rows="4" placeholder="例：システムメンテナンスのため、〇月〇日〇時〜〇時は予約を一時停止いたします。ご不便をおかけします。"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>表示期間（任意）</label>
+                        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                            <input type="datetime-local" id="annStartDate" style="width:190px;">
+                            <span style="font-size:13px;color:var(--text-muted);">〜</span>
+                            <input type="datetime-local" id="annEndDate" style="width:190px;">
+                        </div>
+                        <p class="settings-hint">空欄の場合は期間制限なしで表示されます。</p>
+                    </div>
                 </div>
 
                 <!-- プライバシーポリシー -->

@@ -2,7 +2,7 @@ import { db } from "./firebase.js";
 import {
     doc, getDoc, writeBatch,
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-import { esc, DAY_NAMES } from "./utils.js";
+import { esc, DAY_NAMES, applyTheme } from "./utils.js";
 
 /* ===========================
    予約キャンセル ロジック
@@ -21,6 +21,30 @@ if (settingsSnap.exists()) {
         const h1 = document.getElementById('clinic-name-heading');
         if (h1) h1.textContent = name;
         document.title = document.title.replace(/ [^|]+$/, ` ${name}`);
+    }
+    // テーマ適用
+    if (clinicSettings.colorTheme) applyTheme(clinicSettings.colorTheme);
+    // お知らせバナー表示
+    const ann = clinicSettings.announcement;
+    const banner = document.getElementById('announcement-banner');
+    if (banner && ann && ann.active && ann.message) {
+        const d = new Date(), p = (n) => String(n).padStart(2, '0');
+        const now = `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+        const inRange = (!ann.startDate || now >= ann.startDate) && (!ann.endDate || now <= ann.endDate);
+        if (inRange) {
+            const icons = { info:'ℹ️', warning:'⚠️', maintenance:'🔧' };
+            banner.className = `announcement-banner ${ann.type || 'info'}`;
+            banner.innerHTML = `<span>${icons[ann.type] || 'ℹ️'}</span><span>${esc(ann.message)}</span>`;
+            banner.style.display = 'flex';
+        }
+    }
+    // ロゴをヘッダーに反映
+    if (clinicSettings.clinicLogo) {
+        const logoIcon = document.querySelector('.logo-icon');
+        if (logoIcon) {
+            logoIcon.innerHTML = `<img src="${clinicSettings.clinicLogo}" alt="ロゴ">`;
+            logoIcon.style.background = 'transparent';
+        }
     }
 }
 

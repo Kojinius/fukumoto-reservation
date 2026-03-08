@@ -3,7 +3,7 @@ import {
     doc, setDoc, getDocs, getDoc,
     collection, query, where, runTransaction,
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-import { esc, DAY_NAMES, formatDate, formatDateJa } from "./utils.js";
+import { esc, DAY_NAMES, formatDate, formatDateJa, applyTheme } from "./utils.js";
 
 /* ===========================
    福元鍼灸整骨院 患者側予約ロジック
@@ -79,6 +79,19 @@ function buildBizHoursText() {
 // ── クリニック設定 ──
 let clinicSettings = {};
 
+function showAnnouncementBanner(ann) {
+    const banner = document.getElementById('announcement-banner');
+    if (!banner || !ann || !ann.active || !ann.message) return;
+    const d = new Date(), p = (n) => String(n).padStart(2, '0');
+    const now = `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+    if (ann.startDate && now < ann.startDate) return;
+    if (ann.endDate   && now > ann.endDate)   return;
+    const icons = { info:'ℹ️', warning:'⚠️', maintenance:'🔧' };
+    banner.className = `announcement-banner ${ann.type || 'info'}`;
+    banner.innerHTML = `<span>${icons[ann.type] || 'ℹ️'}</span><span>${esc(ann.message)}</span>`;
+    banner.style.display = 'flex';
+}
+
 async function loadClinicSettings() {
     const snap = await getDoc(doc(db, 'settings', 'clinic'));
     if (snap.exists()) {
@@ -96,6 +109,18 @@ async function loadClinicSettings() {
             const h1 = document.getElementById('clinic-name-heading');
             if (h1) h1.textContent = name;
             document.title = document.title.replace(/ [^|]+$/, ` ${name}`);
+        }
+        // テーマ適用
+        if (clinicSettings.colorTheme) applyTheme(clinicSettings.colorTheme);
+        // お知らせバナー表示
+        showAnnouncementBanner(clinicSettings.announcement);
+        // ロゴをヘッダーに反映
+        if (clinicSettings.clinicLogo) {
+            const logoIcon = document.querySelector('.logo-icon');
+            if (logoIcon) {
+                logoIcon.innerHTML = `<img src="${clinicSettings.clinicLogo}" alt="ロゴ">`;
+                logoIcon.style.background = 'transparent';
+            }
         }
         // 電話番号をヘッダー・Step4 に反映
         const ph = clinicSettings.phone;
@@ -515,8 +540,23 @@ async function exportPdf() {
         // ── ヘッダー ──
         r(0, height - 70, width, 70, rgb(0.27, 0.18, 0.12));
         r(24, height - 56, 36, 36, rgb(0.97, 0.57, 0.13), 6);
-        t('鍼', 33, height - 43, 16, rgb(1, 1, 1));
-        t(clinicSettings.clinicName || '福元鍼灸整骨院', 72, height - 36, 17, rgb(1, 1, 1));
+        // ロゴ: 画像があれば埋め込み、なければ「鍼」テキスト
+        if (clinicSettings.clinicLogo) {
+            try {
+                const base64Data = clinicSettings.clinicLogo.split(',')[1];
+                const logoBytes  = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+                const logoImg    = await pdfDoc.embedPng(logoBytes);
+                page.drawImage(logoImg, { x: 24, y: height - 56, width: 36, height: 36 });
+            } catch { t('鍼', 33, height - 43, 16, rgb(1, 1, 1)); }
+        } else {
+            t('鍼', 33, height - 43, 16, rgb(1, 1, 1));
+        }
+        // 院名: 長さに応じてフォントサイズを動的調整
+        const clinicNameText = clinicSettings.clinicName || '〇〇△△医院';
+        const nameSize = clinicNameText.length <= 12 ? 17
+                       : clinicNameText.length <= 17 ? 14
+                       : clinicNameText.length <= 22 ? 11 : 9;
+        t(clinicNameText, 72, height - 36, nameSize, rgb(1, 1, 1));
         t('FUKUMOTO ACUPUNCTURE CLINIC', 73, height - 53, 8, rgb(0.72, 0.62, 0.57));
         // 予約番号
         t('予約番号', width - 210, height - 34, 9, rgb(0.72, 0.62, 0.57));

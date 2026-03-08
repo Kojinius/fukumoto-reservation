@@ -84,6 +84,38 @@ body {
     top: 0;
     z-index: 100;
 }
+/* ── お知らせバナー ── */
+.announcement-banner {
+    padding: 11px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+.announcement-banner.info        { background:#D6EEFF; color:#0D3A6B; border-bottom:3px solid #2979CC; }
+.announcement-banner.warning     { background:#FFF0C2; color:#5C3A00; border-bottom:3px solid #E09800; }
+.announcement-banner.maintenance { background:#FFD6D6; color:#6B0000; border-bottom:3px solid #CC2222; }
+
+/* ロゴ画像表示 */
+.logo-icon img, .admin-logo-icon img, .login-logo-icon img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+    display: block;
+}
+/* ロゴプレビュー（設定モーダル） */
+.logo-preview-box {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: var(--orange);
+    color: var(--white);
+    font-size: 16px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; flex-shrink: 0;
+}
 .logo { display: flex; align-items: center; gap: 10px; }
 .logo-icon {
     width: 38px; height: 38px;
@@ -809,9 +841,12 @@ tr:hover td { background: var(--beige); }
     gap: 2px;
     margin-bottom: 20px;
     border-bottom: 2px solid var(--beige-mid);
+    flex-wrap: nowrap;
+    overflow-x: auto;
 }
 .settings-tab {
-    padding: 8px 18px;
+    padding: 8px 12px;
+    white-space: nowrap;
     border: none;
     background: transparent;
     color: var(--text-muted);

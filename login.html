@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>スタッフログイン | 福元鍼灸整骨院</title>
+    <title>スタッフログイン | 〇〇△△医院</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
@@ -82,7 +82,7 @@
             <div class="login-logo">
                 <div class="login-logo-icon">管</div>
                 <div class="login-logo-text">
-                    <h1 id="clinic-name-heading">福元鍼灸整骨院</h1>
+                    <h1 id="clinic-name-heading">〇〇△△医院</h1>
                     <span>スタッフ専用ログイン</span>
                 </div>
             </div>
@@ -120,15 +120,24 @@
         import { login, sendPasswordReset } from "./js/auth.js";
         import { db } from "./js/firebase.js";
         import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+        import { applyTheme } from "./js/utils.js";
 
-        // 院名をヘッダー・タイトルに反映
+        // 院名・ロゴをヘッダーに反映
         (async () => {
             const snap = await getDoc(doc(db, 'settings', 'clinic'));
             if (snap.exists()) {
-                const name = snap.data().clinicName;
-                if (name) {
-                    document.getElementById('clinic-name-heading').textContent = name;
-                    document.title = document.title.replace(/ [^|]+$/, ` ${name}`);
+                const data = snap.data();
+                if (data.clinicName) {
+                    document.getElementById('clinic-name-heading').textContent = data.clinicName;
+                    document.title = document.title.replace(/ [^|]+$/, ` ${data.clinicName}`);
+                }
+                if (data.colorTheme) applyTheme(data.colorTheme);
+                if (data.clinicLogo) {
+                    const logoIcon = document.querySelector('.login-logo-icon');
+                    if (logoIcon) {
+                        logoIcon.innerHTML = `<img src="${data.clinicLogo}" alt="ロゴ">`;
+                        logoIcon.style.background = 'transparent';
+                    }
                 }
             }
         })();

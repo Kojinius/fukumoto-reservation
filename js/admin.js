@@ -4,7 +4,7 @@ import {
     collection, doc, updateDoc, onSnapshot,
     query, orderBy, writeBatch, getDoc, setDoc,
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-import { esc, DAY_NAMES, formatDateTimeJa } from "./utils.js";
+import { esc, DAY_NAMES, formatDateTimeJa, THEMES, applyTheme } from "./utils.js";
 
 /* ===========================
    福元鍼灸整骨院 管理側ロジック
@@ -15,6 +15,9 @@ await requireAdmin();
 
 // ── システム設定 ──
 let currentSettings = {};
+let pendingLogoBase64 = null;
+let cropper = null;
+let pendingTheme = null;
 
 async function loadSettings() {
     const snap = await getDoc(doc(db, 'settings', 'clinic'));
@@ -27,6 +30,18 @@ async function loadSettings() {
             if (el) el.textContent = `予約管理ダッシュボード — ${name}`;
             document.title = document.title.replace(/ [^|]+$/, ` ${name}`);
         }
+        // テーマ適用
+        if (currentSettings.colorTheme) applyTheme(currentSettings.colorTheme);
+        // ロゴをヘッダーに反映
+        applyLogoToIcon(document.querySelector('.admin-logo-icon'), currentSettings.clinicLogo);
+    }
+}
+
+function applyLogoToIcon(el, logoBase64) {
+    if (!el) return;
+    if (logoBase64) {
+        el.innerHTML = `<img src="${logoBase64}" alt="ロゴ">`;
+        el.style.background = 'transparent';
     }
 }
 
@@ -38,6 +53,28 @@ function openSettings() {
     document.getElementById('settingClinicAddress').value = currentSettings.clinicAddress || '';
     document.getElementById('zipFetchMsg').textContent    = '';
     document.getElementById('settingBookingCutoff').value = currentSettings.bookingCutoffMinutes ?? '';
+    // ロゴプレビュー初期化
+    pendingLogoBase64 = null;
+    const prev = document.getElementById('logoCurrentPreview');
+    if (currentSettings.clinicLogo) {
+        prev.innerHTML = `<img src="${currentSettings.clinicLogo}" alt="ロゴ">`;
+        prev.style.background = 'transparent';
+    } else {
+        prev.textContent = '鍼';
+        prev.style.background = 'var(--orange)';
+    }
+    document.getElementById('logoCropArea').style.display = 'none';
+    // テーマピッカー初期化
+    pendingTheme = null;
+    renderThemePicker(currentSettings.colorTheme || 'warm');
+    // お知らせ初期化
+    const ann = currentSettings.announcement || {};
+    document.getElementById('annActive').checked    = ann.active    || false;
+    document.getElementById('annType').value        = ann.type      || 'info';
+    document.getElementById('annMessage').value     = ann.message   || '';
+    document.getElementById('annStartDate').value   = ann.startDate || '';
+    document.getElementById('annEndDate').value     = ann.endDate   || '';
+    // プログラムからのセットは input イベントが発火しないため手動で通知
     document.getElementById('settingCancelCutoff').value  = currentSettings.cancelCutoffMinutes  ?? '';
     document.getElementById('settingPrivacyPolicy').value = currentSettings.privacyPolicy  || '';
     pendingHolidays     = [...(currentSettings.holidays     || [])];
@@ -76,6 +113,18 @@ function validateBizHours() {
     return null;
 }
 
+function validateAnnouncement() {
+    const active = document.getElementById('annActive').checked;
+    if (!active) return null;
+    const msg   = document.getElementById('annMessage').value.trim();
+    const start = document.getElementById('annStartDate').value;
+    const end   = document.getElementById('annEndDate').value;
+    if (!msg) return 'お知らせがONの場合、メッセージは必須です。';
+    const fmt = (v) => v.replace('T', ' ');
+    if (start && end && start >= end) return `表示期間の開始日時（${fmt(start)}）が終了日時（${fmt(end)}）以降になっています。`;
+    return null;
+}
+
 async function saveSettings() {
     const btn = document.getElementById('saveSettingsBtn');
 
@@ -93,6 +142,8 @@ async function saveSettings() {
     }
     const bizErr = validateBizHours();
     if (bizErr) { alert(`【営業時間エラー】\n${bizErr}`); return; }
+    const annErr = validateAnnouncement();
+    if (annErr) { alert(`【お知らせエラー】\n${annErr}`); return; }
 
     btn.disabled = true; btn.textContent = '保存中...';
     try {
@@ -108,6 +159,15 @@ async function saveSettings() {
             holidays:              pendingHolidays,
             holidayNames:          pendingHolidayNames,
             businessHours:         getBizHoursFromForm(),
+            clinicLogo:            pendingLogoBase64 ?? currentSettings.clinicLogo ?? null,
+            colorTheme:            pendingTheme ?? currentSettings.colorTheme ?? 'warm',
+            announcement: {
+                active:    document.getElementById('annActive').checked,
+                type:      document.getElementById('annType').value,
+                message:   document.getElementById('annMessage').value.trim(),
+                startDate: document.getElementById('annStartDate').value || null,
+                endDate:   document.getElementById('annEndDate').value   || null,
+            },
             updatedAt:             new Date().toISOString(),
         };
         await setDoc(doc(db, 'settings', 'clinic'), data, { merge: true });
@@ -116,6 +176,8 @@ async function saveSettings() {
         const el = document.getElementById('clinic-name-heading');
         if (el) el.textContent = `予約管理ダッシュボード — ${clinicName}`;
         document.title = document.title.replace(/ [^|]+$/, ` ${clinicName}`);
+        // ロゴをヘッダーに即時反映
+        applyLogoToIcon(document.querySelector('.admin-logo-icon'), data.clinicLogo);
         closeModal('settingsModal');
         alert('設定を保存しました。');
     } catch (err) {
@@ -618,6 +680,83 @@ Object.assign(window, {
     openSettings, saveSettings, switchSettingsTab,
     prevHolidayCal, nextHolidayCal, fetchHolidays, toggleHoliday, clearAllHolidays, fetchAddressFromZip,
     toggleBizDay, toggleBizAmPm,
+});
+
+// ── テーマピッカー ──
+function renderThemePicker(selectedId) {
+    const picker = document.getElementById('themePicker');
+    if (!picker) return;
+    picker.innerHTML = '';
+    Object.entries(THEMES).forEach(([id, theme]) => {
+        const isSel = id === selectedId;
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'cursor:pointer;text-align:center;user-select:none;';
+        wrap.innerHTML = `
+            <div style="width:48px;height:48px;border-radius:12px;
+                background:linear-gradient(135deg,${theme.accent1} 50%,${theme.accent2} 50%);
+                border:3px solid ${isSel ? theme.accent1 : 'transparent'};
+                box-shadow:${isSel ? `0 0 0 2px ${theme.accent1}` : '0 2px 6px rgba(0,0,0,.12)'};
+                margin:0 auto 5px;transition:box-shadow .15s;"></div>
+            <span style="font-size:10px;color:var(--text-muted);font-weight:${isSel ? 700 : 400};">${theme.label}</span>`;
+        wrap.addEventListener('click', () => {
+            pendingTheme = id;
+            applyTheme(id);
+            renderThemePicker(id);
+        });
+        picker.appendChild(wrap);
+    });
+}
+
+// ── ロゴアップロード・クロップ ──
+const MAX_LOGO_BYTES = 2 * 1024 * 1024; // 2MB
+
+document.getElementById('logoFileInput').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+        alert('画像ファイルを選択してください。');
+        e.target.value = '';
+        return;
+    }
+    if (file.size > MAX_LOGO_BYTES) {
+        alert('ファイルサイズが2MBを超えています。');
+        e.target.value = '';
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        const cropImg  = document.getElementById('logoCropImage');
+        const cropArea = document.getElementById('logoCropArea');
+        cropArea.style.display = 'block';
+        if (cropper) { cropper.destroy(); cropper = null; }
+        cropImg.onload = () => {
+            cropper = new window.Cropper(cropImg, {
+                aspectRatio: 1,
+                viewMode: 1,
+                autoCropArea: 0.8,
+            });
+        };
+        cropImg.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+});
+
+document.getElementById('logoCropConfirmBtn').addEventListener('click', () => {
+    if (!cropper) return;
+    const canvas = cropper.getCroppedCanvas({ width: 80, height: 80 });
+    pendingLogoBase64 = canvas.toDataURL('image/png');
+    const prev = document.getElementById('logoCurrentPreview');
+    prev.innerHTML = `<img src="${pendingLogoBase64}" alt="ロゴ">`;
+    prev.style.background = 'transparent';
+    document.getElementById('logoCropArea').style.display = 'none';
+    cropper.destroy();
+    cropper = null;
+});
+
+document.getElementById('logoCropCancelBtn').addEventListener('click', () => {
+    document.getElementById('logoCropArea').style.display = 'none';
+    if (cropper) { cropper.destroy(); cropper = null; }
 });
 
 // 初期化
