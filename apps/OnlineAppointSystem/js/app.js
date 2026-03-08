@@ -533,6 +533,20 @@ async function loadJapaneseFont(pdfDoc) {
     return { fontJp, fontLatin: fontJp };
 }
 
+// ── PDF テキスト折り返し（CJK/ASCII 文字幅推定）──
+function wrapPdfText(text, maxWidth, fontSize) {
+    const lines = [];
+    let line = '', w = 0;
+    for (const ch of String(text ?? '')) {
+        const cp = ch.codePointAt(0);
+        const cw = (cp >= 0x3000 || (cp >= 0xFF00 && cp <= 0xFFEF)) ? fontSize : fontSize * 0.58;
+        if (w + cw > maxWidth && line) { lines.push(line); line = ch; w = cw; }
+        else { line += ch; w += cw; }
+    }
+    if (line) lines.push(line);
+    return lines.length ? lines : [''];
+}
+
 // ── PDF出力 ──
 async function exportPdf() {
     const booking = window._lastBooking;
@@ -637,15 +651,22 @@ async function exportPdf() {
         sec('診療情報', CR, yR); yR -= 26;
         yR = row('初・再診',  booking.visitType,     CR, yR);
         yR = row('保険証',    booking.insurance,     CR, yR);
+        // 症状（全文折り返し表示）
         const sympText = String(booking.symptoms || '');
-        yR = row('症状', clip(sympText, 13), CR, yR);
-        if (sympText.length > 13) {
-            t(clip(sympText.slice(13), 13), CR + LBL_W, yR, 11, rgb(0.15, 0.10, 0.06));
-            yR -= 24;
-        }
+        const sympLines = sympText ? wrapPdfText(sympText, 182, 10) : ['-'];
+        t('症状', CR, yR, 9, rgb(0.60, 0.50, 0.42));
+        sympLines.forEach((ln, i) => { t(ln, CR + LBL_W, yR - i * 18, 10, rgb(0.15, 0.10, 0.06)); });
+        yR -= sympLines.length * 18 + 6;
+
         yR = row('連絡方法',  booking.contactMethod, CR, yR);
+
+        // 伝達事項（全文折り返し表示）
         if (booking.notes) {
-            yR = row('伝達事項', clip(booking.notes, 22), CR, yR);
+            const noteText = String(booking.notes || '');
+            const noteLines = wrapPdfText(noteText, 182, 10);
+            t('伝達事項', CR, yR, 9, rgb(0.60, 0.50, 0.42));
+            noteLines.forEach((ln, i) => { t(ln, CR + LBL_W, yR - i * 18, 10, rgb(0.15, 0.10, 0.06)); });
+            yR -= noteLines.length * 18 + 6;
         }
 
         // ── フッター ──
