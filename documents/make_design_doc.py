@@ -859,6 +859,6 @@ for pt in summary_points:
 
 
 # ── 保存 ──
-out = r"C:\Users\SM7B\Workspace\apps\fukumoto-reservation\documents\福元鍼灸整骨院_詳細設計書.pptx"
+out = r"C:\Users\SM7B\Workspace\apps\fukumoto-reservation\documents\OnlineAppointSystem_詳細設計書.pptx"
 prs.save(out)
-print(f"✅ 保存完了: {out}")
+print(f"保存完了: {out}")
