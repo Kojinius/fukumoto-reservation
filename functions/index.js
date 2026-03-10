@@ -11,7 +11,6 @@ initializeApp();
 setGlobalOptions({ maxInstances: 10 });
 
 const resendApiKey = defineSecret("RESEND_API_KEY");
-const ADMIN_EMAIL  = "admin@kojinius.jp";
 
 // ── HTMLエスケープ（メール本文のインジェクション対策）──
 function escHtml(s) {
@@ -37,8 +36,8 @@ function setCorsHeaders(req, res) {
   const allowed = ["https://kojinius.jp"];
   const origin  = req.headers.origin;
   res.set("Access-Control-Allow-Origin",  allowed.includes(origin) ? origin : "https://kojinius.jp");
-  res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.set("Access-Control-Allow-Headers", "Content-Type");
+  res.set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
+  res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
 }
 
 /**
@@ -141,11 +140,18 @@ exports.notifyAdminOnReservation = onRequest(
     }
 
     const resend  = new Resend(resendApiKey.value());
-    const { clinicName: cn = '院名未設定' } = await getClinicSettings();
+    const [{ clinicName: cn = '院名未設定' }, adminEmails] = await Promise.all([
+      getClinicSettings(),
+      getAdminEmails(),
+    ]);
+    if (adminEmails.length === 0) {
+      res.status(200).json({ success: true, skipped: true, reason: "通知先管理者なし" });
+      return;
+    }
     try {
-      const data = await sendMail(resend, {
+      await Promise.all(adminEmails.map(to => sendMail(resend, {
         from:    `${escHtml(cn)} <noreply@kojinius.jp>`,
-        to:      ADMIN_EMAIL,
+        to,
         subject: `【新規予約】${escHtml(name)} 様 - ${escHtml(date)} ${escHtml(time)}〜`,
         html: `
           <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#333;">
@@ -193,11 +199,138 @@ exports.notifyAdminOnReservation = onRequest(
             </div>
           </div>
         `,
-      });
-      res.status(200).json({ success: true, id: data.id });
+      })));
+      res.status(200).json({ success: true, count: adminEmails.length });
     } catch (err) {
       console.error("管理者通知メール送信エラー:", err);
       res.status(500).json({ error: "メール送信に失敗しました" });
+    }
+  }
+);
+
+// ── 共通：admin クレームを持つユーザーのメール一覧を取得 ──
+async function getAdminEmails() {
+  const result = await getAuth().listUsers(100);
+  return result.users
+    .filter(u => u.customClaims?.admin && u.email && !u.email.endsWith('@ams.local'))
+    .map(u => u.email);
+}
+
+// ── 共通：IDトークン検証・admin クレーム確認 ──
+async function verifyAdmin(req) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith("Bearer ")) {
+    const err = new Error("認証が必要です"); err.httpCode = 401; throw err;
+  }
+  const decoded = await getAuth().verifyIdToken(authHeader.split("Bearer ")[1]);
+  if (!decoded.admin) {
+    const err = new Error("管理者権限が必要です"); err.httpCode = 403; throw err;
+  }
+  return decoded;
+}
+
+/**
+ * 【3-4】管理者によるユーザー作成
+ * POST /createAdminUser
+ * Body: { email, password, isAdmin }
+ * Headers: Authorization: Bearer <idToken>
+ */
+exports.createAdminUser = onRequest(
+  { invoker: "public" },
+  async (req, res) => {
+    setCorsHeaders(req, res);
+    if (req.method === "OPTIONS") { res.status(204).send(""); return; }
+    if (req.method !== "POST") { res.status(405).json({ error: "Method Not Allowed" }); return; }
+
+    try {
+      await verifyAdmin(req);
+
+      const { email, password, isAdmin = false } = req.body;
+      if (!email || !password) {
+        res.status(400).json({ error: "メールアドレスとパスワードは必須です" }); return;
+      }
+      if (password.length < 8) {
+        res.status(400).json({ error: "パスワードは8文字以上必要です" }); return;
+      }
+
+      // 管理者上限チェック（最大2人）
+      const adminEmails = await getAdminEmails();
+      if (adminEmails.length >= 2) {
+        res.status(400).json({ error: "管理者は最大2名までです" }); return;
+      }
+
+      const userRecord = await getAuth().createUser({ email, password });
+      if (isAdmin) {
+        await getAuth().setCustomUserClaims(userRecord.uid, { admin: true });
+      }
+      res.status(200).json({ success: true, uid: userRecord.uid, email: userRecord.email });
+    } catch (err) {
+      if (err.httpCode) { res.status(err.httpCode).json({ error: err.message }); return; }
+      const msgs = {
+        "auth/email-already-exists": "そのメールアドレスはすでに使用されています",
+        "auth/invalid-email":        "メールアドレスの形式が正しくありません",
+        "auth/weak-password":        "パスワードが脆弱です",
+      };
+      res.status(400).json({ error: msgs[err.code] || err.message || "ユーザー作成に失敗しました" });
+    }
+  }
+);
+
+/**
+ * 【3-5】管理者によるユーザー一覧取得
+ * GET /listUsers
+ * Headers: Authorization: Bearer <idToken>
+ */
+exports.listUsers = onRequest(
+  { invoker: "public" },
+  async (req, res) => {
+    setCorsHeaders(req, res);
+    if (req.method === "OPTIONS") { res.status(204).send(""); return; }
+    if (req.method !== "GET") { res.status(405).json({ error: "Method Not Allowed" }); return; }
+
+    try {
+      await verifyAdmin(req);
+      const result = await getAuth().listUsers(100);
+      const users  = result.users.map(u => ({
+        uid:        u.uid,
+        email:      u.email,
+        isAdmin:    !!(u.customClaims?.admin),
+        createdAt:  u.metadata.creationTime,
+        lastSignIn: u.metadata.lastSignInTime,
+        disabled:   u.disabled,
+      }));
+      res.status(200).json({ users });
+    } catch (err) {
+      if (err.httpCode) { res.status(err.httpCode).json({ error: err.message }); return; }
+      res.status(500).json({ error: err.message || "ユーザー一覧の取得に失敗しました" });
+    }
+  }
+);
+
+/**
+ * 【3-6】管理者によるユーザー削除
+ * DELETE /deleteUser
+ * Body: { uid }
+ * Headers: Authorization: Bearer <idToken>
+ */
+exports.deleteUser = onRequest(
+  { invoker: "public" },
+  async (req, res) => {
+    setCorsHeaders(req, res);
+    if (req.method === "OPTIONS") { res.status(204).send(""); return; }
+    if (req.method !== "DELETE") { res.status(405).json({ error: "Method Not Allowed" }); return; }
+
+    try {
+      const decoded = await verifyAdmin(req);
+      const { uid } = req.body;
+      if (!uid) { res.status(400).json({ error: "uid は必須です" }); return; }
+      if (uid === decoded.uid) { res.status(400).json({ error: "自分自身は削除できません" }); return; }
+
+      await getAuth().deleteUser(uid);
+      res.status(200).json({ success: true });
+    } catch (err) {
+      if (err.httpCode) { res.status(err.httpCode).json({ error: err.message }); return; }
+      res.status(400).json({ error: err.message || "ユーザー削除に失敗しました" });
     }
   }
 );

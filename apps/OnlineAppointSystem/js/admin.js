@@ -228,6 +228,7 @@ function switchSettingsTab(name, btn) {
     document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('tab' + name).classList.add('active');
+    if (name === 'UserMgmt') loadUserList();
 }
 
 // ── 休日カレンダー ──
@@ -727,6 +728,138 @@ function adminCopyId(btn, id) {
     }).catch(() => {});
 }
 
+// ── ユーザー管理 ──
+const FN_URL = (name) => `https://${name.toLowerCase()}-po3aztuimq-uc.a.run.app`;
+
+async function getIdToken() {
+    return await currentUser.getIdToken();
+}
+
+function switchSettingsTabUserMgmt() {
+    loadUserList();
+}
+
+async function loadUserList() {
+    const container = document.getElementById('userListContainer');
+    if (!container) return;
+    container.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:24px;text-align:center;">読み込み中...</div>';
+    try {
+        const token = await getIdToken();
+        const res   = await fetch(FN_URL('listUsers'), {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        const json  = await res.json();
+        if (!res.ok) throw new Error(json.error || '取得に失敗しました');
+
+        const users = (json.users || []).filter(u => !u.email?.endsWith('@ams.local'));
+        if (users.length === 0) {
+            container.innerHTML = '<p style="font-size:12px;color:var(--text-muted);">ユーザーが登録されていません。</p>';
+            return;
+        }
+
+        container.innerHTML = `
+            <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                <thead>
+                    <tr style="border-bottom:2px solid var(--border,#EDE3D8);">
+                        <th style="text-align:left;padding:8px 12px;color:var(--text-muted);font-weight:600;">メールアドレス</th>
+                        <th style="text-align:center;padding:8px 12px;color:var(--text-muted);font-weight:600;">権限</th>
+                        <th style="text-align:left;padding:8px 12px;color:var(--text-muted);font-weight:600;">作成日</th>
+                        <th style="text-align:center;padding:8px 12px;color:var(--text-muted);font-weight:600;">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${users.map(u => `
+                        <tr style="border-bottom:1px solid var(--border,#EDE3D8);" data-uid="${esc(u.uid)}">
+                            <td style="padding:10px 12px;">${esc(u.email || '-')}</td>
+                            <td style="padding:10px 12px;text-align:center;">
+                                ${u.isAdmin
+                                    ? '<span style="background:var(--brown);color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">管理者</span>'
+                                    : '<span style="background:#ddd;color:#666;padding:2px 8px;border-radius:4px;font-size:11px;">一般</span>'}
+                            </td>
+                            <td style="padding:10px 12px;color:var(--text-muted);font-size:12px;">${u.createdAt ? new Date(u.createdAt).toLocaleDateString('ja-JP') : '-'}</td>
+                            <td style="padding:10px 12px;text-align:center;">
+                                ${u.uid === currentUser.uid
+                                    ? '<span style="font-size:11px;color:var(--text-muted);">（自分）</span>'
+                                    : `<button onclick="deleteUserByUid('${esc(u.uid)}','${esc(u.email)}')" style="height:28px;padding:0 10px;font-size:11px;font-weight:600;border:1.5px solid #ddd;border-radius:6px;background:#fff;color:#c0392b;cursor:pointer;font-family:var(--font-main);">削除</button>`}
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    } catch (err) {
+        container.innerHTML = `<p style="font-size:12px;color:var(--red,#c0392b);">エラー: ${esc(err.message)}</p>`;
+    }
+}
+
+function openAddUserForm() {
+    document.getElementById('newUserEmail').value    = '';
+    document.getElementById('newUserPassword').value = '';
+    const msgEl = document.getElementById('addUserMsg');
+    msgEl.style.display = 'none';
+    document.getElementById('addUserForm').style.display = 'block';
+}
+
+function closeAddUserForm() {
+    document.getElementById('addUserForm').style.display = 'none';
+}
+
+async function submitAddUser() {
+    const btn     = document.getElementById('addUserBtn');
+    const msgEl   = document.getElementById('addUserMsg');
+    const email   = document.getElementById('newUserEmail').value.trim();
+    const password = document.getElementById('newUserPassword').value;
+
+    const showMsg = (msg, isErr) => {
+        msgEl.textContent   = msg;
+        msgEl.style.display = 'block';
+        msgEl.style.background = isErr ? '#FFF0F0' : '#F0FFF4';
+        msgEl.style.border     = isErr ? '1px solid #F5C6C6' : '1px solid #9AE6B4';
+        msgEl.style.color      = isErr ? 'var(--red,#c0392b)' : '#276749';
+    };
+
+    if (!email)              { showMsg('メールアドレスを入力してください。', true); return; }
+    if (password.length < 8) { showMsg('パスワードは8文字以上で入力してください。', true); return; }
+
+    btn.disabled = true; btn.textContent = '追加中...';
+    msgEl.style.display = 'none';
+    try {
+        const token = await getIdToken();
+        const res   = await fetch(FN_URL('createAdminUser'), {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body:    JSON.stringify({ email, password, isAdmin: true }),
+        });
+        const json = await res.json();
+        if (!res.ok) { showMsg(json.error || 'ユーザーの作成に失敗しました。', true); return; }
+        showMsg(`${esc(json.email)} を追加しました。`, false);
+        document.getElementById('newUserEmail').value    = '';
+        document.getElementById('newUserPassword').value = '';
+        await loadUserList();
+    } catch (err) {
+        showMsg(err.message || 'エラーが発生しました。', true);
+    } finally {
+        btn.disabled = false; btn.textContent = '追加する';
+    }
+}
+
+async function deleteUserByUid(uid, email) {
+    if (!confirm(`${email} を削除しますか？\nこの操作は取り消せません。`)) return;
+    try {
+        const token = await getIdToken();
+        const res   = await fetch(FN_URL('deleteUser'), {
+            method:  'DELETE',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body:    JSON.stringify({ uid }),
+        });
+        const json = await res.json();
+        if (!res.ok) { alert(json.error || '削除に失敗しました。'); return; }
+        await loadUserList();
+    } catch (err) {
+        alert(err.message || 'エラーが発生しました。');
+    }
+}
+
 // onclick から呼べるようにグローバル公開
 Object.assign(window, {
     applyFilter, setStatusFilter, clearFilter,
@@ -736,6 +869,7 @@ Object.assign(window, {
     prevHolidayCal, nextHolidayCal, fetchHolidays, toggleHoliday, clearAllHolidays, fetchAddressFromZip,
     toggleBizDay, toggleBizAmPm,
     adminCopyId, togglePw,
+    openAddUserForm, closeAddUserForm, submitAddUser, deleteUserByUid,
 });
 
 // ── テーマピッカー ──

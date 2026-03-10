@@ -906,7 +906,8 @@ tr:hover td { background: var(--beige); }
     overflow-x: auto;
 }
 .settings-tab {
-    padding: 8px 12px;
+    padding: 8px 10px;
+    font-size: 12px;
     white-space: nowrap;
     border: none;
     background: transparent;
