@@ -1,0 +1,878 @@
+/* ===========================
+   ResumeCreator — kojinius.jp スタイル
+   ウォームベージュ × ブラウン × オレンジ
+   =========================== */
+
+:root {
+    /* Surface */
+    --bg:          #FCF0DE;
+    --surface:     #FFFFFF;
+    --surface-2:   #F5E8D0;
+    --border:      #EDE3D8;
+    --border-subtle: #F5E8D0;
+
+    /* Accent */
+    --accent:      #F79321;
+    --accent-dim:  rgba(247, 147, 33, .12);
+    --accent-glow: 0 0 0 2.5px rgba(247, 147, 33, .22);
+    --accent-hover: #e07d10;
+
+    /* Text */
+    --text-1:      #3D2B1F;
+    --text-2:      #8B7355;
+    --text-3:      #b5a090;
+
+    /* Danger */
+    --red:         #c0392b;
+    --red-dim:     rgba(192, 57, 43, .10);
+
+    /* Preview */
+    --white:       #FFFFFF;
+    --preview-bg:  #EDE3D8;
+
+    /* Layout */
+    --editor-w:    460px;
+    --header-h:    60px;
+
+    /* Shape */
+    --r:           10px;
+    --r-sm:        7px;
+    --r-xs:        5px;
+
+    /* Motion */
+    --ease:        all .18s cubic-bezier(.4, 0, .2, 1);
+
+    /* Font */
+    --font:        'Inter', 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', sans-serif;
+
+    /* Shadow */
+    --card-shadow: 0 2px 16px rgba(115, 87, 99, .07);
+    --card-shadow-hover: 0 8px 32px rgba(115, 87, 99, .15);
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text-1);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─────────────────────────────────────
+   Header
+───────────────────────────────────── */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+    height: var(--header-h);
+    background: var(--surface);
+    border-bottom: 1.5px solid var(--border);
+    flex-shrink: 0;
+    z-index: 10;
+    box-shadow: 0 2px 12px rgba(115, 87, 99, .06);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #F79321, #735763);
+    color: #FFFFFF;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Noto Sans JP', sans-serif;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(247, 147, 33, .35);
+}
+
+.logo-text h1 {
+    font-size: .9rem;
+    font-weight: 700;
+    color: var(--text-1);
+    line-height: 1.1;
+    letter-spacing: -.01em;
+}
+
+.logo-text span {
+    font-size: .6rem;
+    font-weight: 700;
+    color: var(--text-2);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* ─────────────────────────────────────
+   Buttons
+───────────────────────────────────── */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 8px 16px;
+    border-radius: 40px;
+    cursor: pointer;
+    font-family: var(--font);
+    font-size: .76rem;
+    font-weight: 600;
+    transition: var(--ease);
+    white-space: nowrap;
+    line-height: 1;
+    border: 1.5px solid transparent;
+}
+
+.btn-dark-outline {
+    background: transparent;
+    color: var(--text-2);
+    border-color: var(--border);
+}
+.btn-dark-outline:hover {
+    background: var(--surface-2);
+    color: var(--text-1);
+    border-color: var(--text-3);
+}
+
+.btn-red {
+    background: var(--accent);
+    color: #FFFFFF;
+    border-color: var(--accent);
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(247, 147, 33, .3);
+}
+.btn-red:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    box-shadow: 0 4px 14px rgba(247, 147, 33, .4);
+    transform: translateY(-1px);
+}
+
+.btn-ghost {
+    background: transparent;
+    border: 1.5px dashed var(--border);
+    color: var(--text-2);
+    width: 100%;
+    padding: 9px;
+    border-radius: var(--r-sm);
+    font-size: .74rem;
+}
+.btn-ghost:hover {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    border-style: solid;
+    color: var(--accent);
+}
+
+.btn-add { gap: 5px; }
+
+/* ─────────────────────────────────────
+   Layout
+───────────────────────────────────── */
+.app-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* ─────────────────────────────────────
+   Editor Pane
+───────────────────────────────────── */
+#editor-pane {
+    width: var(--editor-w);
+    background: var(--bg);
+    border-right: 1.5px solid var(--border);
+    overflow-y: auto;
+    padding: 16px;
+    flex-shrink: 0;
+    /* display: block !important は削除。モバイルタブ切替でdisplay:noneが効かなくなるため */
+    display: block;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+}
+#editor-pane::-webkit-scrollbar { width: 3px; }
+#editor-pane::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 2px;
+}
+
+.glass-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* ─────────────────────────────────────
+   Preview Pane
+───────────────────────────────────── */
+#preview-pane {
+    flex: 1;
+    background: var(--preview-bg);
+    overflow-y: auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 32px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+}
+
+/* ─────────────────────────────────────
+   Accordion
+───────────────────────────────────── */
+.accordion {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r);
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    transition: box-shadow .2s ease;
+}
+.accordion:hover {
+    box-shadow: var(--card-shadow-hover);
+}
+
+.accordion summary {
+    padding: 12px 14px;
+    font-weight: 600;
+    font-size: .8rem;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+    color: var(--text-2);
+    transition: var(--ease);
+}
+.accordion summary::-webkit-details-marker { display: none; }
+.accordion[open] summary {
+    color: var(--text-1);
+    border-bottom: 1.5px solid var(--border);
+}
+
+.sec-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    color: var(--text-3);
+    font-size: .62rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+}
+.accordion[open] .sec-num {
+    background: rgba(247, 147, 33, .15);
+    color: var(--accent);
+}
+
+.accordion summary svg {
+    margin-left: auto;
+    color: var(--text-3);
+    flex-shrink: 0;
+    transition: transform .2s ease;
+}
+.accordion[open] summary svg {
+    color: var(--text-2);
+    transform: rotate(180deg);
+}
+
+.accordion-content {
+    padding: 14px;
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Section labels (standalone, not in form-group) */
+.accordion-content > label {
+    font-size: .67rem;
+    font-weight: 700;
+    color: var(--text-2);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: -2px;
+}
+
+/* ─────────────────────────────────────
+   Form
+───────────────────────────────────── */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.form-group label {
+    font-size: .68rem;
+    font-weight: 700;
+    color: var(--text-2);
+    letter-spacing: .05em;
+    text-transform: uppercase;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 8px 11px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-sm);
+    font-family: var(--font);
+    font-size: .83rem;
+    color: var(--text-1);
+    background: var(--surface-2);
+    transition: var(--ease);
+    appearance: none;
+    -webkit-appearance: none;
+}
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: var(--text-3);
+}
+.form-group select option {
+    background: var(--surface);
+    color: var(--text-1);
+}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: var(--accent-glow);
+    background: var(--white);
+}
+
+.form-group.row {
+    flex-direction: row;
+    gap: 10px;
+}
+.form-group.row .col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.form-group.row .col.small-col { flex: 0 0 76px; }
+.form-group.row .col.age-display-col { flex: 0 0 66px; }
+.form-group.row .col.col-phone { flex: 0 0 152px; }
+.form-group.row .col.col-zip  { flex: 0 0 200px; }
+
+.readonly-value {
+    padding: 8px 0;
+    font-weight: 700;
+    color: var(--accent);
+    font-size: .83rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.divider {
+    height: 1.5px;
+    background: var(--border);
+    margin: 2px 0;
+}
+
+/* 郵便番号 */
+.zip-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.zip-mark {
+    font-size: .83rem;
+    color: var(--text-2);
+    flex-shrink: 0;
+}
+.zip-input-wrap input {
+    flex: 1;
+    width: auto;
+}
+.zip-status {
+    font-size: .72rem;
+    font-weight: 700;
+    min-width: 52px;
+    text-align: center;
+    flex-shrink: 0;
+}
+.zip-status.loading { color: var(--text-2); }
+.zip-status.success { color: #2a9d5c; }
+.zip-status.error   { color: var(--red); }
+
+/* ─────────────────────────────────────
+   Dropzone
+───────────────────────────────────── */
+.dropzone {
+    border: 1.5px dashed var(--border);
+    border-radius: var(--r-sm);
+    padding: 18px 14px;
+    text-align: center;
+    cursor: pointer;
+    background: var(--surface-2);
+    transition: var(--ease);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+    position: relative;
+    overflow: hidden;
+}
+.dropzone:hover {
+    border-color: var(--accent);
+    background: rgba(247, 147, 33, .07);
+}
+.dropzone svg { color: var(--text-3); transition: var(--ease); }
+.dropzone:hover svg { color: var(--accent); }
+
+#photo-preview {
+    max-width: 100%;
+    max-height: 140px;
+    object-fit: contain;
+    border-radius: var(--r-xs);
+    display: block;
+    margin: 0 auto;
+}
+
+.dropzone-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.dropzone-content p {
+    font-size: .76rem;
+    font-weight: 500;
+    color: var(--text-2);
+}
+
+.sub-text {
+    font-size: .65rem;
+    color: var(--text-3);
+}
+
+/* ─────────────────────────────────────
+   Dynamic List
+───────────────────────────────────── */
+.dynamic-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.dynamic-item {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.dynamic-item .year-input  { flex: 0 0 62px; max-width: 62px; text-align: center; }
+.dynamic-item .month-input { flex: 0 0 46px; max-width: 46px; text-align: center; }
+
+.dynamic-item input {
+    padding: 8px 8px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-sm);
+    font-family: var(--font);
+    font-size: .81rem;
+    color: var(--text-1);
+    background: var(--surface-2);
+    transition: var(--ease);
+    flex: 1;
+}
+.dynamic-item input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: var(--accent-glow);
+    background: var(--white);
+}
+
+.btn-remove {
+    background: transparent;
+    color: var(--text-3);
+    border: none;
+    border-radius: var(--r-xs);
+    width: 26px;
+    height: 26px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: var(--ease);
+    flex-shrink: 0;
+}
+.btn-remove:hover {
+    background: var(--red-dim);
+    color: var(--red);
+}
+
+/* ─────────────────────────────────────
+   A4 Preview
+───────────────────────────────────── */
+.a4-wrapper {
+    width: 100%;
+    max-width: 794px;
+    container-type: inline-size;
+}
+
+.a4-sheet {
+    background: var(--white);
+    width: 100%;
+    min-height: 141.4cqi;
+    box-shadow:
+        0 0 0 1px rgba(115, 87, 99, .1),
+        0 24px 80px rgba(115, 87, 99, .18),
+        0 8px 24px rgba(115, 87, 99, .12);
+    border-radius: 4px;
+    padding: 5.5%;
+    position: relative;
+    font-family: 'Noto Sans JP', sans-serif;
+    color: #000;
+    line-height: 1.4;
+}
+
+/* ─────────────────────────────────────
+   Resume 内部スタイル（A4コンテンツ）
+───────────────────────────────────── */
+.resume-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 2%;
+}
+.resume-title {
+    font-size: 2.2vw;
+    font-weight: 700;
+    letter-spacing: .8em;
+    padding-left: .4em;
+}
+.resume-date { font-size: 1vw; }
+
+.resume-top-section {
+    display: flex;
+    border: 1.5px solid #000;
+    margin-bottom: -1.5px;
+}
+.resume-basic-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-right: 1.5px solid #000;
+}
+.name-box { flex: 1; border-bottom: 1.5px solid #000; }
+.furigana-row {
+    display: flex;
+    border-bottom: 1px dotted #666;
+    min-height: 2vw;
+    align-items: stretch;
+}
+.name-row {
+    display: flex;
+    flex: 1;
+    align-items: stretch;
+    min-height: 5.5vw;
+}
+.label {
+    width: 60px;
+    font-size: .8vw;
+    padding: 0 1%;
+    border-right: 1px dotted #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.1;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.value {
+    flex: 1;
+    padding: .5% 2%;
+    font-size: 1.2vw;
+    word-break: break-all;
+    white-space: pre-wrap;
+    display: flex;
+    align-items: center;
+}
+.gender-box .value {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    font-size: 1.2vw;
+}
+.name-row .value {
+    font-size: 2.2vw;
+    font-weight: bold;
+    letter-spacing: .1em;
+}
+.birth-box {
+    font-size: 1.1vw;
+    display: flex;
+    align-items: stretch;
+    height: 3vw;
+    border-bottom: 1.5px solid #000;
+}
+.gender-box {
+    width: 18.75%;
+    display: flex;
+    align-items: stretch;
+    border-left: 1.5px solid #000;
+}
+.birth-value {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding-left: 2%;
+    font-size: 1.1vw;
+}
+.address-row .value {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 6vw;
+    font-size: 0.85vw;
+}
+.resume-contact-section .furigana-row .value {
+    font-size: 0.78vw;
+}
+.email-row .value {
+    font-size: 1vw;
+    word-break: break-all;
+    line-height: 1.1;
+    display: flex;
+    align-items: center;
+}
+.email-row .value:not(:empty) {
+    font-size: clamp(.6vw, 1vw, 1vw);
+}
+.resume-photo-container {
+    width: 20%;
+    aspect-ratio: 3/4;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1%;
+    overflow: hidden;
+}
+.photo-placeholder {
+    border: 1px dashed #aaa;
+    width: 90%;
+    height: 94%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: .8vw;
+    color: #999;
+    text-align: center;
+    border-radius: 2px;
+}
+#prev-photo {
+    position: absolute;
+    width: 90%;
+    height: 94%;
+    object-fit: cover;
+    z-index: 2;
+    top: 3%;
+    left: 5%;
+}
+.resume-contact-section {
+    display: flex;
+    border: 1.5px solid #000;
+    margin-bottom: 2%;
+    align-items: stretch;
+}
+.address-box {
+    flex: 1;
+    border-right: 1.5px solid #000;
+    display: flex;
+    flex-direction: column;
+}
+.address-row {
+    display: flex;
+    min-height: 6vw;
+    align-items: stretch;
+    flex: 1;
+}
+.phone-email-box {
+    width: 35%;
+    display: flex;
+    flex-direction: column;
+}
+.phone-row, .email-row {
+    flex: 1;
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1.5px solid #000;
+}
+.email-row { border-bottom: none; }
+.history-table, .cert-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2%;
+    box-shadow: 0 0 0 1.5px #000;
+    table-layout: fixed;
+}
+.history-table th, .history-table td,
+.cert-table th, .cert-table td {
+    border: 1px solid #000;
+    font-size: 1.1vw;
+    text-align: center;
+    height: 2.2vw;
+    overflow: hidden;
+}
+.col-year { width: 11%; white-space: nowrap; }
+.col-month { width: 8%; white-space: nowrap; }
+.history-table th, .cert-table th {
+    background-color: rgba(0, 0, 0, .02);
+}
+th.col-content { text-align: center; }
+td.col-content { text-align: left; padding-left: 2%; }
+.resume-pr-section, .resume-requests-section {
+    border: 1.5px solid #000;
+    margin-bottom: 2%;
+    min-height: 12vw;
+    display: flex;
+    flex-direction: column;
+}
+.section-title {
+    font-size: .9vw;
+    padding: .8%;
+    border-bottom: 1px dotted #999;
+    background: rgba(0, 0, 0, .02);
+}
+.section-content {
+    flex: 1;
+    padding: 1.5%;
+    font-size: 1.1vw;
+    white-space: pre-wrap;
+}
+
+/* ─────────────────────────────────────
+   Loading Overlay
+───────────────────────────────────── */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(252, 240, 222, .88);
+    backdrop-filter: blur(14px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity .25s ease;
+}
+.overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.spinner {
+    border: 2px solid var(--border);
+    border-top: 2px solid var(--accent);
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    animation: spin .75s linear infinite;
+    margin-bottom: 13px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.overlay p {
+    font-family: var(--font);
+    font-weight: 600;
+    color: var(--text-2);
+    font-size: .83rem;
+}
+
+/* ─────────────────────────────────────
+   Mobile Tabs
+───────────────────────────────────── */
+.mobile-tabs {
+    display: none;
+    background: var(--surface);
+    border-bottom: 1.5px solid var(--border);
+}
+.tab-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    background: none;
+    font-family: var(--font);
+    font-weight: 600;
+    font-size: .8rem;
+    color: var(--text-3);
+    cursor: pointer;
+    transition: var(--ease);
+}
+.tab-btn.active {
+    color: var(--accent);
+    border-bottom: 2.5px solid var(--accent);
+}
+
+/* ─────────────────────────────────────
+   Mobile
+───────────────────────────────────── */
+@media (max-width: 768px) {
+    /* body・app-container の overflow:hidden を解除してネイティブスクロールに委ねる */
+    body { height: auto; overflow: auto; }
+    .app-container { flex-direction: column; overflow: visible; height: auto; }
+    .app-header { padding: 0 20px; }
+    .mobile-tabs { display: flex; }
+    #editor-pane { width: 100%; border-right: none; }
+    .pane { display: none !important; }
+    .pane.active {
+        display: block !important;
+        height: auto;       /* 高さ制限を外してコンテンツ全体を表示 */
+        overflow: visible;  /* ネイティブスクロールに任せる */
+    }
+    #preview-pane.active { display: flex !important; justify-content: flex-start; }
+    #preview-pane { padding: 18px 14px; }
+    /* モバイルでvwベースの文字サイズが小さすぎる問題を緩和 */
+    .resume-title { font-size: 5.5vw; }
+    .resume-date { font-size: 2.5vw; }
+    .label { font-size: 2vw; width: 40px; }
+    .value { font-size: 3vw; }
+    .name-row .value { font-size: 5.5vw; }
+    .birth-box { font-size: 2.5vw; height: 7vw; }
+    .birth-value { font-size: 2.5vw; }
+    .address-row .value { font-size: 2.2vw; }
+    .history-table th, .history-table td,
+    .cert-table th, .cert-table td { font-size: 2.5vw; height: 5.5vw; }
+    .section-title { font-size: 2.2vw; }
+    .section-content { font-size: 2.8vw; }
+}

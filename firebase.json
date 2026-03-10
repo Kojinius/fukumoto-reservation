@@ -19,25 +19,50 @@
       ]
     }
   ],
-  "hosting": {
-    "public": ".",
-    "ignore": [
-      "firebase.json",
-      "firestore.rules",
-      "firestore.indexes.json",
-      "README.md",
-      "functions/**",
-      "documents/**",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "rewrites": [
-      {
-        "source": "/apps/OnlineAppointSystem",
-        "destination": "/apps/OnlineAppointSystem/index.html"
-      }
-    ]
-  },
+  "hosting": [
+    {
+      "target": "portfolio",
+      "public": ".",
+      "ignore": [
+        "firebase.json",
+        "firestore.rules",
+        "firestore.indexes.json",
+        "README.md",
+        "functions/**",
+        "documents/**",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "/apps/OnlineAppointSystem",
+          "destination": "/apps/OnlineAppointSystem/index.html"
+        },
+        {
+          "source": "/apps/ResumeCreator",
+          "destination": "/apps/ResumeCreator/index.html"
+        },
+        {
+          "source": "/apps/CVCreator",
+          "destination": "/apps/CVCreator/index.html"
+        }
+      ]
+    },
+    {
+      "target": "oas",
+      "public": "apps/OnlineAppointSystem",
+      "ignore": [
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ]
+    }
+  ],
   "emulators": {
     "auth": {
       "port": 9099

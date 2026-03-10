@@ -526,7 +526,7 @@ function newReservation() {
 let _fontCache = null;
 async function loadJapaneseFont(pdfDoc) {
     if (!_fontCache) {
-        _fontCache = await fetch('/apps/OnlineAppointSystem/fonts/NotoSansJP-Regular.ttf').then(r => r.arrayBuffer());
+        _fontCache = await fetch(new URL('../fonts/NotoSansJP-Regular.ttf', import.meta.url).href).then(r => r.arrayBuffer());
     }
     pdfDoc.registerFontkit(fontkit);
     const fontJp = await pdfDoc.embedFont(_fontCache);

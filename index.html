@@ -123,6 +123,9 @@
             max-width: 860px;
             margin: 0 auto 80px;
             padding: 0 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
         .section-title {
             font-size: 13px;
@@ -230,7 +233,7 @@
 
     <div class="projects">
         <p class="section-title">Projects</p>
-        <a class="project-card" href="/apps/OnlineAppointSystem/">
+        <a class="project-card" href="https://oas.kojinius.jp" target="_blank" rel="noopener">
             <div class="project-icon">🏥</div>
             <div class="project-info">
                 <div class="project-name">医療業界特化型オンライン予約システム</div>
@@ -243,6 +246,55 @@
                     <span class="stack-tag">Cloud Functions</span>
                     <span class="stack-tag">Resend</span>
                     <span class="stack-tag">pdf-lib</span>
+                </div>
+            </div>
+            <span class="project-arrow">→</span>
+        </a>
+        <a class="project-card" href="/apps/CVCreator/" target="_blank" rel="noopener">
+            <div class="project-icon">📋</div>
+            <div class="project-info">
+                <div class="project-name">職務経歴書作成ツール</div>
+                <div class="project-desc">
+                    ブラウザだけで動作する日本語職務経歴書メーカー。リアルタイム A4 プレビュー・証明写真ドラッグ＆ドロップ・PDF ダウンロードをサーバー不要で実現。郵便番号からの住所自動入力にも対応。
+                </div>
+                <div class="project-stack">
+                    <span class="stack-tag">Vanilla JS</span>
+                    <span class="stack-tag">pdf-lib</span>
+                    <span class="stack-tag">LocalStorage</span>
+                    <span class="stack-tag">Firebase Hosting</span>
+                </div>
+            </div>
+            <span class="project-arrow">→</span>
+        </a>
+        <a class="project-card" href="https://ams.kojinius.jp" target="_blank" rel="noopener">
+            <div class="project-icon">🕐</div>
+            <div class="project-info">
+                <div class="project-name">勤怠管理システム</div>
+                <div class="project-desc">
+                    社員の勤怠打刻・照会・修正をオンラインで完結する業務 Web アプリ。管理者によるユーザー管理・全社員の勤怠検索・CSV／PDF 出力に対応。Firebase Auth のカスタムクレームでロールベースアクセス制御を実装。
+                </div>
+                <div class="project-stack">
+                    <span class="stack-tag">Firebase Auth</span>
+                    <span class="stack-tag">Firestore</span>
+                    <span class="stack-tag">Cloud Functions</span>
+                    <span class="stack-tag">pdf-lib</span>
+                    <span class="stack-tag">ES Modules</span>
+                </div>
+            </div>
+            <span class="project-arrow">→</span>
+        </a>
+        <a class="project-card" href="/apps/ResumeCreator/" target="_blank" rel="noopener">
+            <div class="project-icon">📄</div>
+            <div class="project-info">
+                <div class="project-name">履歴書作成ツール</div>
+                <div class="project-desc">
+                    ブラウザだけで動作する日本語履歴書メーカー。リアルタイム A4 プレビュー・証明写真ドラッグ＆ドロップ・PDF ダウンロードをサーバー不要で実現。
+                </div>
+                <div class="project-stack">
+                    <span class="stack-tag">Vanilla JS</span>
+                    <span class="stack-tag">pdf-lib</span>
+                    <span class="stack-tag">LocalStorage</span>
+                    <span class="stack-tag">Firebase Hosting</span>
                 </div>
             </div>
             <span class="project-arrow">→</span>

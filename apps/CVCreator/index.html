@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>職務経歴書作成アプリ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
+</head>
+
+<body>
+    <header class="app-header">
+        <div class="logo">
+            <div class="logo-icon">職</div>
+            <div class="logo-text">
+                <h1>職務経歴書作成</h1>
+                <span>CV BUILDER</span>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button id="btn-reset" class="btn btn-outline" type="button">リセット</button>
+            <button id="btn-save-pdf" class="btn btn-primary" type="button">⬇ PDF保存</button>
+        </div>
+    </header>
+
+    <div class="mobile-tabs">
+        <button class="tab-btn active" data-target="editor-pane">編集</button>
+        <button class="tab-btn" data-target="preview-pane">プレビュー</button>
+    </div>
+
+    <main class="app-container">
+        <!-- 左側：入力フォーム -->
+        <section id="editor-pane" class="pane active">
+            <form id="cv-form" class="glass-panel">
+
+                <!-- 基本情報 -->
+                <details class="accordion" open>
+                    <summary>
+                        <span class="sec-num">01</span> 基本情報
+                        <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </summary>
+                    <div class="accordion-content">
+                        <!-- 氏名 + 証明写真 -->
+                        <div class="basic-info-grid">
+                            <div class="basic-info-fields">
+                                <div class="form-group row">
+                                    <div class="col">
+                                        <label for="name">氏名</label>
+                                        <input type="text" id="name" name="name" placeholder="山田 太郎">
+                                    </div>
+                                    <div class="col">
+                                        <label for="furigana">ふりがな</label>
+                                        <input type="text" id="furigana" name="furigana" placeholder="やまだ たろう">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col">
+                                        <label for="birthdate">生年月日</label>
+                                        <input type="date" id="birthdate" name="birthdate">
+                                    </div>
+                                    <div class="col">
+                                        <label for="gender">性別</label>
+                                        <select id="gender" name="gender">
+                                            <option value="">選択してください</option>
+                                            <option value="男性">男性</option>
+                                            <option value="女性">女性</option>
+                                            <option value="その他">その他</option>
+                                            <option value="回答しない">回答しない</option>
+                                        </select>
+                                    </div>
+                                    <div class="col col-small">
+                                        <label>年齢</label>
+                                        <input type="text" id="age-display" readonly placeholder="--歳" class="readonly-field">
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 証明写真 -->
+                            <div class="photo-upload-wrap">
+                                <label class="photo-label">証明写真</label>
+                                <div class="photo-upload" id="photo-upload-area" title="クリックまたはドラッグ&amp;ドロップで写真を追加">
+                                    <img id="photo-preview" src="" alt="証明写真" style="display:none;">
+                                    <div class="photo-placeholder" id="photo-placeholder">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                        <span>写真を追加</span>
+                                    </div>
+                                </div>
+                                <input type="file" id="photo-input" accept="image/*" style="display:none;">
+                                <button type="button" class="btn-photo-remove hidden" id="btn-photo-remove">削除</button>
+                            </div>
+                        </div>
+
+                        <!-- 郵便番号 + 住所 -->
+                        <div class="form-group">
+                            <label for="zipcode">郵便番号</label>
+                            <div class="zipcode-row">
+                                <span class="zip-prefix">〒</span>
+                                <input type="text" id="zipcode" name="zipcode" placeholder="123-4567" maxlength="8" class="zip-input">
+                                <span class="zip-status" id="zip-status"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="address-furigana">住所（ふりがな）</label>
+                            <input type="text" id="address-furigana" name="address_furigana" placeholder="とうきょうとしぶやく〇〇">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">現住所</label>
+                            <textarea id="address" name="address" rows="2" placeholder="東京都渋谷区〇〇1-2-3&#10;マンション名 101号室"></textarea>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col">
+                                <label for="phone">電話番号</label>
+                                <input type="tel" id="phone" name="phone" placeholder="090-1234-5678">
+                            </div>
+                            <div class="col">
+                                <label for="email">Eメール</label>
+                                <input type="email" id="email" name="email" placeholder="example@email.com">
+                            </div>
+                        </div>
+                    </div>
+                </details>
+
+                <!-- 職務要約 -->
+                <details class="accordion">
+                    <summary>
+                        <span class="sec-num">02</span> 職務要約
+                        <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </summary>
+                    <div class="accordion-content">
+                        <div class="form-group">
+                            <textarea id="summary" name="summary" rows="5"
+                                placeholder="IT業界にて約10年の実務経験があります。主にWebアプリケーション開発のプロジェクトマネージャーおよびシステムエンジニアとして、要件定義から設計・開発・テスト・運用まで一貫して携わってまいりました。"></textarea>
+                        </div>
+                    </div>
+                </details>
+
+                <!-- 職務経歴 -->
+                <details class="accordion">
+                    <summary>
+                        <span class="sec-num">03</span> 職務経歴
+                        <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </summary>
+                    <div class="accordion-content">
+                        <div id="career-list" class="dynamic-list"></div>
+                        <button type="button" class="btn btn-ghost btn-add" id="btn-add-career">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            会社を追加
+                        </button>
+                    </div>
+                </details>
+
+                <!-- 活かせるスキル・知識・資格 -->
+                <details class="accordion">
+                    <summary>
+                        <span class="sec-num">04</span> 活かせるスキル・知識・資格
+                        <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </summary>
+                    <div class="accordion-content">
+                        <div class="skill-header-labels">
+                            <span>カテゴリ</span>
+                            <span>内容</span>
+                        </div>
+                        <div id="skill-list" class="dynamic-list"></div>
+                        <button type="button" class="btn btn-ghost btn-add" id="btn-add-skill">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            スキルを追加
+                        </button>
+                    </div>
+                </details>
+
+                <!-- 自己PR -->
+                <details class="accordion">
+                    <summary>
+                        <span class="sec-num">05</span> 自己PR
+                        <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </summary>
+                    <div class="accordion-content">
+                        <div class="form-group">
+                            <textarea id="pr" name="pr" rows="6"
+                                placeholder="私の強みは、チームを率いてプロジェクトを成功に導くリーダーシップです。..."></textarea>
+                        </div>
+                    </div>
+                </details>
+            </form>
+        </section>
+
+        <!-- 右側：A4プレビュー -->
+        <section id="preview-pane" class="pane">
+            <div class="a4-wrapper">
+                <div class="a4-sheet" id="cv-preview">
+
+                    <div class="cv-header">
+                        <div class="cv-title">職 務 経 歴 書</div>
+                        <div class="cv-date" id="preview-date">年 月 日現在</div>
+                    </div>
+
+                    <!-- 個人情報 + 写真 -->
+                    <div class="cv-personal-section">
+                        <div class="cv-personal-fields">
+                            <div class="cv-info-row furigana-row">
+                                <span class="cv-info-label">ふりがな</span>
+                                <span class="cv-info-value" id="prev-furigana"></span>
+                            </div>
+                            <div class="cv-info-row name-row">
+                                <span class="cv-info-label">氏名</span>
+                                <span class="cv-info-value name-value" id="prev-name"></span>
+                                <span class="prev-age-badge" id="prev-age-badge"></span>
+                            </div>
+                            <div class="cv-info-row">
+                                <span class="cv-info-label">生年月日</span>
+                                <span class="cv-info-value" id="prev-birthdate"></span>
+                                <span class="prev-gender" id="prev-gender"></span>
+                            </div>
+                            <div class="cv-info-row">
+                                <span class="cv-info-label">〒</span>
+                                <span class="cv-info-value" id="prev-zipcode"></span>
+                            </div>
+                            <div class="cv-info-row">
+                                <span class="cv-info-label">住所</span>
+                                <span class="cv-info-value" id="prev-address"></span>
+                            </div>
+                            <div class="cv-info-row">
+                                <span class="cv-info-label">TEL</span>
+                                <span class="cv-info-value" id="prev-phone"></span>
+                            </div>
+                            <div class="cv-info-row" id="prev-email-row" style="display:none;">
+                                <span class="cv-info-label">Email</span>
+                                <span class="cv-info-value" id="prev-email"></span>
+                            </div>
+                        </div>
+                        <div class="cv-photo-section">
+                            <img id="prev-photo-img" src="" alt="証明写真" style="display:none;">
+                            <div id="prev-photo-placeholder" class="cv-photo-placeholder">写真</div>
+                        </div>
+                    </div>
+
+                    <div class="cv-section">
+                        <div class="section-title-bar">■ 職務要約</div>
+                        <div class="section-body" id="prev-summary"></div>
+                    </div>
+
+                    <div class="cv-section">
+                        <div class="section-title-bar">■ 職務経歴</div>
+                        <div id="prev-career-list"></div>
+                    </div>
+
+                    <div class="cv-section">
+                        <div class="section-title-bar">■ 活かせるスキル・知識・資格</div>
+                        <div class="section-body" id="prev-skills"></div>
+                    </div>
+
+                    <div class="cv-section">
+                        <div class="section-title-bar">■ 自己PR</div>
+                        <div class="section-body" id="prev-pr"></div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="loading-overlay" class="overlay hidden">
+        <div class="spinner"></div>
+        <p>PDFを生成しています...</p>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

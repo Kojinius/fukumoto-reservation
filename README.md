@@ -10,8 +10,10 @@
 | ページ | URL |
 |---|---|
 | ポートフォリオ（ルート） | `https://kojinius.jp/` |
-| 予約ページ（患者側） | `https://kojinius.jp/apps/FukumotoGroup/OnlineAppointSystem/` |
-| 管理画面（スタッフ側） | `https://kojinius.jp/apps/FukumotoGroup/OnlineAppointSystem/admin.html` |
+| 予約ページ（患者側） | `https://oas.kojinius.jp/` |
+| 管理画面（スタッフ側） | `https://oas.kojinius.jp/admin.html` |
+| 履歴書作成ツール | `https://kojinius.jp/apps/ResumeCreator/` |
+| 職務経歴書作成ツール | `https://kojinius.jp/apps/CVCreator/` |
 
 ---
 
@@ -80,7 +82,7 @@ const BUSINESS_HOURS = {
 | 項目 | 内容 |
 |------|------|
 | 構成 | 静的HTML/CSS/Vanilla JS + Firebase |
-| ホスティング | Firebase Hosting（カスタムドメイン: kojinius.jp）|
+| ホスティング | Firebase Hosting マルチサイト（portfolio: kojinius.jp / oas: oas.kojinius.jp）|
 | データ永続化 | Firebase Firestore |
 | メール送信 | Firebase Functions + Resend（`noreply@kojinius.jp`）患者確認・管理者通知・前日リマインダー |
 | シークレット管理 | Firebase Secret Manager |
@@ -141,35 +143,33 @@ python -m http.server 8080
 ```
 fukumoto-reservation/
 ├── index.html                        # ポートフォリオページ（kojinius.jp/）
-├── firebase.json                     # Firebase設定
+├── firebase.json                     # Firebase設定（マルチサイト: portfolio / oas）
+├── .firebaserc                       # ターゲット設定
 ├── firestore.rules                   # Firestoreセキュリティルール
 ├── firestore.indexes.json
 ├── functions/
 │   ├── index.js                      # Cloud Functions（メール・リマインダー等）
 │   └── package.json
 ├── apps/
-│   └── FukumotoGroup/
-│       └── OnlineAppointSystem/      # 予約システム本体（/apps/FukumotoGroup/OnlineAppointSystem/）
-│           ├── index.html            # 患者側：予約フロー（4ステップ）
-│           ├── admin.html            # 管理側：予約管理ダッシュボード（認証必須）
-│           ├── login.html            # 管理者ログイン
-│           ├── cancel.html           # 患者側：予約キャンセル
-│           ├── maintenance.html      # メンテナンスページ
-│           ├── privacy-policy.html   # プライバシーポリシー
-│           ├── reset-password-done.html
-│           ├── 404.html
-│           ├── fonts/
-│           │   └── NotoSansJP-Regular.ttf  # PDF用日本語フォント
-│           ├── css/
-│           │   └── style.css
-│           └── js/
-│               ├── config.js
-│               ├── firebase.js
-│               ├── auth.js
-│               ├── utils.js
-│               ├── app.js
-│               ├── admin.js
-│               └── cancel.js
+│   ├── OnlineAppointSystem/          # 予約システム本体（oas.kojinius.jp）
+│   │   ├── index.html                # 患者側：予約フロー（4ステップ）
+│   │   ├── admin.html                # 管理側：予約管理ダッシュボード
+│   │   ├── login.html                # 管理者ログイン
+│   │   ├── cancel.html               # 患者側：予約キャンセル
+│   │   ├── fonts/
+│   │   │   └── NotoSansJP-Regular.ttf
+│   │   ├── css/style.css
+│   │   └── js/
+│   │       ├── app.js, auth.js, admin.js, utils.js, firebase.js, config.js, cancel.js
+│   ├── ResumeCreator/                # 履歴書作成ツール（kojinius.jp/apps/ResumeCreator/）
+│   └── CVCreator/                    # 職務経歴書作成ツール（kojinius.jp/apps/CVCreator/）
+├── documents/
+│   ├── capture_screenshots.py        # Playwright スクリーンショット撮影スクリプト
+│   ├── make_user_manual.py           # ユーザーマニュアル pptx 生成スクリプト
+│   ├── make_design_doc.py            # 詳細設計書 pptx 生成スクリプト
+│   ├── screenshots/                  # 撮影済みスクリーンショット
+│   ├── manuals/                      # ユーザーマニュアル (.pptx)
+│   └── specs/                        # 詳細設計書 (.pptx)
 └── README.md
 ```
 

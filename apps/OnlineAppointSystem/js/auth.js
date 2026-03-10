@@ -54,7 +54,7 @@ export async function login(email, password) {
 export async function sendPasswordReset(email) {
     try {
         const actionCodeSettings = {
-            url: `${window.location.origin}/apps/OnlineAppointSystem/auth-action.html`,
+            url: new URL('../auth-action.html', import.meta.url).href,
         };
         await sendPasswordResetEmail(auth, email, actionCodeSettings);
     } catch (err) {
