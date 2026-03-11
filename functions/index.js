@@ -33,7 +33,7 @@ async function sendMail(resend, { from, to, subject, html }) {
 
 // ── 共通：CORSヘッダー設定 ──
 function setCorsHeaders(req, res) {
-  const allowed = ["https://kojinius.jp"];
+  const allowed = ["https://kojinius.jp", "https://oas.kojinius.jp"];
   const origin  = req.headers.origin;
   res.set("Access-Control-Allow-Origin",  allowed.includes(origin) ? origin : "https://kojinius.jp");
   res.set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
