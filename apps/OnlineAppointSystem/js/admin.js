@@ -104,7 +104,14 @@ function openSettings() {
     renderHolidayCal();
     updateHolidayCount();
     renderHolidayList();
-    switchSettingsTab('Clinic', document.querySelector('.settings-tab'));
+    // 強制パスワード変更チェック
+    if (new URLSearchParams(location.search).get('forcePasswordChange') === '1') {
+        const accountTab = document.querySelector('.settings-tab[onclick*="Account"]');
+        switchSettingsTab('Account', accountTab);
+        document.getElementById('forcePasswordBanner').style.display = 'block';
+    } else {
+        switchSettingsTab('Clinic', document.querySelector('.settings-tab'));
+    }
     // アカウント設定初期化
     document.getElementById('currentEmailDisplay').value = currentUser.email || '';
     document.getElementById('newEmailInput').value = '';
@@ -224,6 +231,8 @@ async function saveSettings() {
 }
 
 function switchSettingsTab(name, btn) {
+    // 強制パスワード変更中はアカウント設定タブ以外に移動させない
+    if (isForcePasswordChange() && name !== 'Account') return;
     document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
@@ -685,9 +694,21 @@ async function updateStatus(id, status) {
 
 // ── モーダル開閉 ──
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function isForcePasswordChange() {
+    return new URLSearchParams(location.search).get('forcePasswordChange') === '1' &&
+           document.getElementById('forcePasswordBanner')?.style.display !== 'none';
+}
+function closeModal(id) {
+    // 強制パスワード変更中は settingsModal を閉じない
+    if (id === 'settingsModal' && isForcePasswordChange()) return;
+    document.getElementById(id).classList.remove('open');
+}
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
-    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+    overlay.addEventListener('click', e => {
+        if (e.target !== overlay) return;
+        if (overlay.id === 'settingsModal' && isForcePasswordChange()) return;
+        overlay.classList.remove('open');
+    });
 });
 
 // ── CSV出力 ──
@@ -996,6 +1017,9 @@ window.saveAccount = async function () {
         if (newPwd) {
             await updatePassword(currentUser, newPwd);
             results.push('パスワードを変更しました。');
+            // 初期パスワード強制変更フラグをクリア
+            await updateDoc(doc(db, 'users', currentUser.uid), { mustChangePassword: false });
+            document.getElementById('forcePasswordBanner').style.display = 'none';
         }
         showMsg(results.join('\n'), false);
         document.getElementById('newEmailInput').value = '';
@@ -1019,3 +1043,8 @@ window.saveAccount = async function () {
 // 初期化
 await loadSettings();
 startListening();
+
+// 初期パスワード強制変更：設定モーダルを自動で開く
+if (new URLSearchParams(location.search).get('forcePasswordChange') === '1') {
+    openSettings();
+}

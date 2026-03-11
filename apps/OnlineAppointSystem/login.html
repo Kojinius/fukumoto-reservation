@@ -178,8 +178,14 @@
             const password = document.getElementById('loginPassword').value;
 
             try {
-                await login(email, password);
-                window.location.href = 'admin.html';
+                const user = await login(email, password);
+                // 初期パスワード強制変更チェック
+                const userSnap = await getDoc(doc(db, 'users', user.uid));
+                if (userSnap.exists() && userSnap.data().mustChangePassword === true) {
+                    window.location.href = 'admin.html?forcePasswordChange=1';
+                } else {
+                    window.location.href = 'admin.html';
+                }
             } catch (err) {
                 showError(err.message);
                 loginBtn.disabled    = false;

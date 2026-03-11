@@ -263,6 +263,12 @@ exports.createAdminUser = onRequest(
       if (isAdmin) {
         await getAuth().setCustomUserClaims(userRecord.uid, { admin: true });
       }
+      // 初期パスワード強制変更フラグをFirestoreに記録（失敗してもユーザー作成は成功扱い）
+      try {
+        await getFirestore().collection('users').doc(userRecord.uid).set({ mustChangePassword: true });
+      } catch (fsErr) {
+        console.error('mustChangePassword フラグ設定失敗:', fsErr);
+      }
       res.status(200).json({ success: true, uid: userRecord.uid, email: userRecord.email });
     } catch (err) {
       if (err.httpCode) { res.status(err.httpCode).json({ error: err.message }); return; }
