@@ -1,4 +1,5 @@
-import { db } from "./firebase.js";
+import { db, auth } from "./firebase.js";
+import { getIdTokenResult, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 import {
     doc, setDoc, getDocs, getDoc,
     collection, query, where, runTransaction,
@@ -79,8 +80,16 @@ function buildBizHoursText() {
 // ── クリニック設定 ──
 let clinicSettings = {};
 
-function checkMaintenancePeriod(maint) {
+async function checkMaintenancePeriod(maint) {
     if (!maint || (!maint.startDate && !maint.endDate)) return;
+    // Auth 初期化完了を待ってから管理者チェック
+    const user = await new Promise(resolve => {
+        const unsub = onAuthStateChanged(auth, u => { unsub(); resolve(u); });
+    });
+    if (user) {
+        const token = await getIdTokenResult(user);
+        if (token.claims.admin) return;
+    }
     const d = new Date(), p = (n) => String(n).padStart(2, '0');
     const now = `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
     const inRange = (!maint.startDate || now >= maint.startDate) && (!maint.endDate || now <= maint.endDate);
@@ -120,8 +129,8 @@ async function loadClinicSettings() {
         }
         // テーマ適用
         if (clinicSettings.colorTheme) applyTheme(clinicSettings.colorTheme);
-        // メンテナンス期間チェック
-        checkMaintenancePeriod(clinicSettings.maintenance);
+        // メンテナンス期間チェック（管理者は除外）
+        await checkMaintenancePeriod(clinicSettings.maintenance);
         // お知らせバナー表示
         showAnnouncementBanner(clinicSettings.announcement);
         // ロゴをヘッダーに反映
