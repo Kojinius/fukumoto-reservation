@@ -326,11 +326,19 @@ exports.cancelReservation = onRequest(
         return;
       }
 
-      // ── トランザクションで予約+スロットを同時キャンセル ──
+      // ── [SEC-8] トランザクションで予約+スロットを同時キャンセル（TOCTOU防止のため内部で再確認）──
       const slotId = `${booking.date}_${booking.time.replace(":", "")}`;
       await db.runTransaction(async (tx) => {
-        const slotRef  = db.collection("slots").doc(slotId);
-        const slotSnap = await tx.get(slotRef);
+        const slotRef   = db.collection("slots").doc(slotId);
+        // トランザクション内で予約ステータスを再確認（並行キャンセル多重実行防止）
+        const resSnap2  = await tx.get(resRef);
+        const slotSnap  = await tx.get(slotRef);
+
+        if (!resSnap2.exists || resSnap2.data().status === "cancelled") {
+          const alreadyCancelled = new Error("ALREADY_CANCELLED");
+          alreadyCancelled.isExpected = true;
+          throw alreadyCancelled;
+        }
 
         tx.update(resRef, { status: "cancelled" });
 
@@ -341,6 +349,10 @@ exports.cancelReservation = onRequest(
 
       res.status(200).json({ success: true, message: "予約をキャンセルしました" });
     } catch (err) {
+      if (err.message === "ALREADY_CANCELLED") {
+        res.status(400).json({ error: "この予約はすでにキャンセル済みです" });
+        return;
+      }
       console.error("[cancelReservation] エラー:", err);
       res.status(500).json({ error: "キャンセル処理に失敗しました" });
     }
@@ -527,6 +539,27 @@ exports.notifyAdminOnReservation = onRequest(
   }
 );
 
+// ── [SEC-19] 入力バリデーション（Input-Validation スキル準拠）──
+
+/** パスワード複雑性チェック: 8文字以上 + 英大文字・小文字・数字・記号をすべて含む */
+function validatePasswordComplexity(password) {
+  if (typeof password !== "string" || password.length < 8) return "パスワードは8文字以上必要です";
+  if (password.length > 128) return "パスワードは128文字以内で入力してください";
+  if (!/[A-Z]/.test(password)) return "パスワードに英大文字を含めてください";
+  if (!/[a-z]/.test(password)) return "パスワードに英小文字を含めてください";
+  if (!/[0-9]/.test(password)) return "パスワードに数字を含めてください";
+  if (!/[^A-Za-z0-9]/.test(password)) return "パスワードに記号（!@#$など）を含めてください";
+  return null;
+}
+
+/** メールアドレス形式チェック: 連続ドット・末尾ドット・TLD不正を拒否 */
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9]([a-zA-Z0-9.-]*[a-zA-Z0-9])?\.[a-zA-Z]{2,}$/;
+function validateEmail(email) {
+  if (typeof email !== "string" || email.length > 254) return "メールアドレスの形式が不正です";
+  if (!EMAIL_REGEX.test(email) || /\.\./.test(email)) return "メールアドレスの形式が不正です";
+  return null;
+}
+
 // ── 共通：admin クレームを持つユーザーのメール一覧を取得 ──
 async function getAdminEmails() {
   const result = await getAuth().listUsers(100);
@@ -574,9 +607,12 @@ exports.createAdminUser = onRequest(
       if (!email || !password) {
         res.status(400).json({ error: "メールアドレスとパスワードは必須です" }); return;
       }
-      if (password.length < 8) {
-        res.status(400).json({ error: "パスワードは8文字以上必要です" }); return;
-      }
+      // [SEC-19] メールアドレス形式チェック
+      const emailErr = validateEmail(email);
+      if (emailErr) { res.status(400).json({ error: emailErr }); return; }
+      // [SEC-19] パスワード複雑性チェック
+      const pwErr = validatePasswordComplexity(password);
+      if (pwErr) { res.status(400).json({ error: pwErr }); return; }
 
       // 管理者上限チェック（最大2人）
       const adminEmails = await getAdminEmails();

@@ -754,6 +754,32 @@ const FN_URL = (name) => location.hostname === 'localhost'
     ? `http://127.0.0.1:5001/project-3040e21e-879f-4c66-a7d/us-central1/${name}`
     : `https://${name.toLowerCase()}-po3aztuimq-uc.a.run.app`;
 
+// ── [SEC-19] Input-Validation スキル準拠ヘルパー ──
+const toHankaku = (str) => String(str ?? '').replace(/[！-～]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).trim();
+const isValidEmail = (str) => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9]([a-zA-Z0-9.-]*[a-zA-Z0-9])?\.[a-zA-Z]{2,}$/.test(str) && !/\.\./.test(str);
+const checkPasswordComplexity = (pw) => {
+    if (typeof pw !== 'string' || pw.length < 8)  return 'パスワードは8文字以上必要です。';
+    if (pw.length > 128)                           return 'パスワードは128文字以内で入力してください。';
+    if (!/[A-Z]/.test(pw))        return 'パスワードに英大文字を含めてください。';
+    if (!/[a-z]/.test(pw))        return 'パスワードに英小文字を含めてください。';
+    if (!/[0-9]/.test(pw))        return 'パスワードに数字を含めてください。';
+    if (!/[^A-Za-z0-9]/.test(pw)) return 'パスワードに記号（!@#$など）を含めてください。';
+    return null;
+};
+/** フォーム外のメッセージ表示（追加/削除共用） */
+function showUserMgmtMsg(msg, isErr) {
+    const el = document.getElementById('userMgmtMsg');
+    el.textContent   = msg;
+    el.style.display = 'block';
+    el.style.background = isErr ? '#FFF0F0' : '#F0FFF4';
+    el.style.border     = isErr ? '1px solid #F5C6C6' : '1px solid #9AE6B4';
+    el.style.color      = isErr ? 'var(--red,#c0392b)' : '#276749';
+}
+function hideUserMgmtMsg(delayMs = 0) {
+    if (delayMs) { setTimeout(() => { document.getElementById('userMgmtMsg').style.display = 'none'; }, delayMs); }
+    else         { document.getElementById('userMgmtMsg').style.display = 'none'; }
+}
+
 async function getIdToken() {
     return await currentUser.getIdToken();
 }
@@ -838,24 +864,28 @@ function closeAddUserForm() {
 }
 
 async function submitAddUser() {
-    const btn     = document.getElementById('addUserBtn');
-    const msgEl   = document.getElementById('addUserMsg');
-    const email   = document.getElementById('newUserEmail').value.trim();
+    const btn      = document.getElementById('addUserBtn');
+    const formMsg  = document.getElementById('addUserMsg');
+    const email    = toHankaku(document.getElementById('newUserEmail').value);
     const password = document.getElementById('newUserPassword').value;
 
-    const showMsg = (msg, isErr) => {
-        msgEl.textContent   = msg;
-        msgEl.style.display = 'block';
-        msgEl.style.background = isErr ? '#FFF0F0' : '#F0FFF4';
-        msgEl.style.border     = isErr ? '1px solid #F5C6C6' : '1px solid #9AE6B4';
-        msgEl.style.color      = isErr ? 'var(--red,#c0392b)' : '#276749';
+    // フォーム内エラーメッセージ表示
+    const showFormErr = (msg) => {
+        formMsg.textContent   = msg;
+        formMsg.style.display = 'block';
+        formMsg.style.background = '#FFF0F0';
+        formMsg.style.border     = '1px solid #F5C6C6';
+        formMsg.style.color      = 'var(--red,#c0392b)';
     };
 
-    if (!email)              { showMsg('メールアドレスを入力してください。', true); return; }
-    if (password.length < 8) { showMsg('パスワードは8文字以上で入力してください。', true); return; }
+    // [SEC-19] Input-Validation スキル準拠バリデーション
+    if (!email) { showFormErr('メールアドレスを入力してください。'); return; }
+    if (!isValidEmail(email)) { showFormErr('メールアドレスの形式が正しくありません。'); return; }
+    const pwErr = checkPasswordComplexity(password);
+    if (pwErr) { showFormErr(pwErr); return; }
 
     btn.disabled = true; btn.textContent = '追加中...';
-    msgEl.style.display = 'none';
+    formMsg.style.display = 'none';
     try {
         const token = await getIdToken();
         const res   = await fetch(FN_URL('createAdminUser'), {
@@ -864,13 +894,17 @@ async function submitAddUser() {
             body:    JSON.stringify({ email, password, isAdmin: true }),
         });
         const json = await res.json();
-        if (!res.ok) { showMsg(json.error || 'ユーザーの作成に失敗しました。', true); return; }
-        showMsg(`${esc(json.email)} を追加しました。`, false);
+        if (!res.ok) { showFormErr(json.error || 'ユーザーの作成に失敗しました。'); return; }
+        // 成功 → フォームを閉じてフォーム外メッセージ表示
         document.getElementById('newUserEmail').value    = '';
         document.getElementById('newUserPassword').value = '';
+        document.getElementById('addUserForm').style.display = 'none';
+        formMsg.style.display = 'none';
         await loadUserList();
+        showUserMgmtMsg(`${esc(json.email)} を追加しました。`, false);
+        hideUserMgmtMsg(3000);
     } catch (err) {
-        showMsg(err.message || 'エラーが発生しました。', true);
+        showFormErr(err.message || 'エラーが発生しました。');
     } finally {
         btn.disabled = false; btn.textContent = '追加する';
     }
@@ -886,10 +920,12 @@ async function deleteUserByUid(uid, email) {
             body:    JSON.stringify({ uid }),
         });
         const json = await res.json();
-        if (!res.ok) { alert(json.error || '削除に失敗しました。'); return; }
+        if (!res.ok) { showUserMgmtMsg(json.error || '削除に失敗しました。', true); return; }
         await loadUserList();
+        showUserMgmtMsg(`${email} を削除しました。`, false);
+        hideUserMgmtMsg(3000);
     } catch (err) {
-        alert(err.message || 'エラーが発生しました。');
+        showUserMgmtMsg(err.message || 'エラーが発生しました。', true);
     }
 }
 
@@ -990,7 +1026,7 @@ document.getElementById('logoCropCancelBtn').addEventListener('click', () => {
 window.saveAccount = async function () {
     const btn         = document.getElementById('saveAccountBtn');
     const msgEl       = document.getElementById('accountMsg');
-    const newEmail    = document.getElementById('newEmailInput').value.trim();
+    const newEmail    = toHankaku(document.getElementById('newEmailInput').value);
     const newPwd      = document.getElementById('newPasswordInput').value;
     const newPwdConf  = document.getElementById('newPasswordConfirm').value;
     const currentPwd  = document.getElementById('currentPasswordInput').value;
@@ -1005,11 +1041,13 @@ window.saveAccount = async function () {
 
     if (!newEmail && !newPwd) { showMsg('変更内容を入力してください。', true); return; }
     if (!currentPwd) { showMsg('現在のパスワードを入力してください。', true); return; }
-    if (newPwd && newPwd.length < 8) { showMsg('新しいパスワードは8文字以上で入力してください。', true); return; }
-    if (newPwd && newPwd !== newPwdConf) { showMsg('新しいパスワードが一致しません。', true); return; }
-    if (newEmail) {
-        try { new URL(`mailto:${newEmail}`); } catch { showMsg('新しいメールアドレスの形式が正しくありません。', true); return; }
+    // [SEC-19] Input-Validation スキル準拠
+    if (newPwd) {
+        const pwErr = checkPasswordComplexity(newPwd);
+        if (pwErr) { showMsg(pwErr, true); return; }
     }
+    if (newPwd && newPwd !== newPwdConf) { showMsg('新しいパスワードが一致しません。', true); return; }
+    if (newEmail && !isValidEmail(newEmail)) { showMsg('新しいメールアドレスの形式が正しくありません。', true); return; }
 
     btn.disabled = true; btn.textContent = '処理中...';
     msgEl.style.display = 'none';

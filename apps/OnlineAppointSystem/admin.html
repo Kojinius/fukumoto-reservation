@@ -280,7 +280,7 @@
                     <div class="form-group" style="border-top:1px solid var(--border,#EDE3D8);padding-top:16px;">
                         <label>パスワードを変更する（任意）</label>
                         <div class="pw-wrap">
-                            <input type="password" id="newPasswordInput" placeholder="新しいパスワード（8文字以上）" autocomplete="new-password">
+                            <input type="password" id="newPasswordInput" placeholder="大小文字・数字・記号をすべて含む8文字以上" autocomplete="new-password">
                             <button type="button" class="pw-toggle" onclick="togglePw('newPasswordInput',this)" tabindex="-1" aria-label="パスワードを表示"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
                         </div>
                         <div class="pw-wrap" style="margin-top:8px;">
@@ -314,9 +314,9 @@
                             <input type="email" id="newUserEmail" placeholder="user@example.com" autocomplete="off">
                         </div>
                         <div class="form-group" style="margin-bottom:10px;">
-                            <label>パスワード <span style="color:var(--red,#c0392b);font-size:11px;">必須（8文字以上）</span></label>
+                            <label>パスワード <span style="color:var(--red,#c0392b);font-size:11px;">必須</span></label>
                             <div class="pw-wrap">
-                                <input type="password" id="newUserPassword" placeholder="8文字以上" autocomplete="new-password">
+                                <input type="password" id="newUserPassword" placeholder="大小文字・数字・記号をすべて含む8文字以上" autocomplete="new-password">
                                 <button type="button" class="pw-toggle" onclick="togglePw('newUserPassword',this)" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
                             </div>
                         </div>
@@ -326,6 +326,9 @@
                             <button style="height:34px;padding:0 14px;font-size:13px;font-weight:600;border:1.5px solid var(--beige-mid);border-radius:7px;background:var(--white);color:var(--text-secondary);cursor:pointer;font-family:var(--font-main);" onclick="closeAddUserForm()">キャンセル</button>
                         </div>
                     </div>
+
+                    <!-- ユーザー管理メッセージ（フォーム外） -->
+                    <div id="userMgmtMsg" style="display:none;padding:8px 12px;border-radius:7px;font-size:12px;margin-bottom:10px;"></div>
 
                     <!-- ユーザー一覧 -->
                     <div id="userListContainer">

@@ -709,3 +709,27 @@
 - **Fix**: Email masked display (e.g. `a*****@test.com`), removed `data-uid` attribute, replaced `onclick` with `addEventListener` using closure-managed UID
 - **Changed file**: `apps/OnlineAppointSystem/js/admin.js` `loadUserList()`
 - Also fixed: `FN_URL` helper now supports localhost for emulator testing
+
+---
+
+## 2026-03-12 Work Log (2)
+
+### Tasks Completed
+
+#### [SEC-8] Security Fix: Cancel Reservation TOCTOU Race Condition
+
+- **Problem**: `cancelReservation` read reservation status outside Firestore transaction — TOCTOU race condition on concurrent cancel requests
+- **Fix**: Added `tx.get(resRef)` inside transaction to re-verify status atomically; throws `ALREADY_CANCELLED` on stale status
+- **Changed file**: `functions/index.js` (`cancelReservation`)
+
+#### [SEC-19] Security Fix: Password Complexity + Email Validation (Input-Validation Skill)
+
+- **Problem**: Only `password.length < 8` was checked; weak passwords accepted. Email validation too permissive (`test@test.com......` accepted)
+- **Fix**: All 4 character categories required (uppercase + lowercase + digit + symbol), 8–128 chars. Stricter email regex rejecting consecutive/trailing dots and missing TLD
+- **Server-side**: `validatePasswordComplexity()` + `validateEmail()` in `functions/index.js`, applied to `createAdminUser`
+- **Client-side**: `checkPasswordComplexity()`, `isValidEmail()`, `toHankaku()` helpers in `apps/OnlineAppointSystem/js/admin.js`
+- **UX fixes**:
+  - Added `userMgmtMsg` div outside add-user form for persistent feedback (delete/add success messages)
+  - Add-user form auto-closes on success
+  - Placeholders updated to reflect complexity requirements
+- **Skill updated**: `skills/input-validation/SKILL.md` — added `password()` validator, improved `email()` regex, added client-side helpers section
