@@ -6,9 +6,26 @@ const { Resend }             = require("resend");
 const { getAuth }            = require("firebase-admin/auth");
 const { getFirestore }       = require("firebase-admin/firestore");
 const { initializeApp }      = require("firebase-admin/app");
+const crypto                 = require("crypto");
 
 initializeApp();
 setGlobalOptions({ maxInstances: 10 });
+
+// ── レート制限（インメモリ・IPベース）──
+const _rateMap = new Map();
+const RATE_LIMIT_WINDOW_MS = 60_000; // 1分
+const RATE_LIMIT_MAX       = 5;      // 1分あたり最大5リクエスト
+
+function isRateLimited(ip) {
+  const now = Date.now();
+  const entry = _rateMap.get(ip);
+  if (!entry || now - entry.start > RATE_LIMIT_WINDOW_MS) {
+    _rateMap.set(ip, { start: now, count: 1 });
+    return false;
+  }
+  entry.count++;
+  return entry.count > RATE_LIMIT_MAX;
+}
 
 const resendApiKey = defineSecret("RESEND_API_KEY");
 
@@ -39,6 +56,127 @@ function setCorsHeaders(req, res) {
   res.set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
   res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
 }
+
+/**
+ * 【SEC-18】予約作成（スロット確保 + 予約登録のトランザクション）
+ * POST /createReservation
+ * Body: { date, time, name, furigana, birthdate, zip, address,
+ *         phone, email, gender, visitType, insurance, symptoms,
+ *         notes, contactMethod }
+ * レート制限: IP あたり 5回/分
+ */
+exports.createReservation = onRequest(
+  { invoker: "public" },
+  async (req, res) => {
+    setCorsHeaders(req, res);
+
+    if (req.method === "OPTIONS") { res.status(204).send(""); return; }
+    if (req.method !== "POST")    { res.status(405).json({ error: "Method Not Allowed" }); return; }
+
+    // レート制限チェック
+    const clientIp = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.ip;
+    if (isRateLimited(clientIp)) {
+      res.status(429).json({ error: "リクエストが多すぎます。しばらくお待ちください。" });
+      return;
+    }
+
+    const d = req.body;
+
+    // ── 必須フィールド検証 ──
+    if (!d.date || !d.time || !d.name || !d.furigana || !d.phone) {
+      res.status(400).json({ error: "必須パラメータが不足しています" });
+      return;
+    }
+
+    // ── 型・長さバリデーション（Firestore Rules の isValidReservation と同等）──
+    const checks = [
+      [typeof d.name     === "string" && d.name.length     <= 50,  "name"],
+      [typeof d.furigana === "string" && d.furigana.length <= 50,  "furigana"],
+      [typeof d.phone    === "string" && d.phone.length    <= 20,  "phone"],
+      [typeof d.date     === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d.date), "date"],
+      [typeof d.time     === "string" && d.time.length     <= 10,  "time"],
+    ];
+    const failed = checks.find(([ok]) => !ok);
+    if (failed) {
+      res.status(400).json({ error: `パラメータが不正です: ${failed[1]}` });
+      return;
+    }
+
+    // ── オプションフィールド長さ制限 ──
+    const optLimits = {
+      email: 200, zip: 8, address: 200, symptoms: 1000,
+      notes: 500, visitType: 50, insurance: 50, gender: 20,
+      birthdate: 10, contactMethod: 50,
+    };
+    for (const [key, max] of Object.entries(optLimits)) {
+      if (d[key] != null && (typeof d[key] !== "string" || d[key].length > max)) {
+        res.status(400).json({ error: `パラメータが不正です: ${key}` });
+        return;
+      }
+    }
+
+    // ── 日付の妥当性チェック（過去日付を拒否）──
+    const bookingDate = new Date(d.date + "T00:00:00+09:00");
+    const todayJst    = new Date(Date.now() + 9 * 3600000);
+    todayJst.setUTCHours(0, 0, 0, 0);
+    if (bookingDate < todayJst) {
+      res.status(400).json({ error: "過去の日付は予約できません" });
+      return;
+    }
+
+    const db        = getFirestore();
+    const bookingId = crypto.randomUUID();
+    const slotId    = `${d.date}_${d.time.replace(":", "")}`;
+
+    try {
+      await db.runTransaction(async (tx) => {
+        const slotRef = db.collection("slots").doc(slotId);
+        const slotSnap = await tx.get(slotRef);
+
+        if (slotSnap.exists && slotSnap.data().status !== "cancelled") {
+          throw new Error("SLOT_TAKEN");
+        }
+
+        tx.set(slotRef, {
+          date: d.date,
+          time: d.time,
+          reservationId: bookingId,
+          status: "pending",
+        });
+
+        tx.set(db.collection("reservations").doc(bookingId), {
+          id:            bookingId,
+          date:          d.date,
+          time:          d.time,
+          name:          d.name,
+          furigana:      d.furigana,
+          birthdate:     d.birthdate || "",
+          zip:           d.zip || "",
+          address:       d.address || "",
+          phone:         d.phone,
+          email:         d.email || "",
+          gender:        d.gender || "",
+          visitType:     d.visitType || "",
+          insurance:     d.insurance || "",
+          symptoms:      d.symptoms || "",
+          notes:         d.notes || "",
+          contactMethod: d.contactMethod || "",
+          status:        "pending",
+          createdAt:     new Date().toISOString(),
+        });
+      });
+
+      res.status(200).json({ success: true, reservationId: bookingId });
+    } catch (err) {
+      if (err.message === "SLOT_TAKEN") {
+        res.status(409).json({ error: "SLOT_TAKEN", message: "この時間はすでに予約が入っています" });
+      } else {
+        console.error("予約作成エラー:", err);
+        res.status(500).json({ error: "予約の作成に失敗しました" });
+      }
+    }
+  }
+);
 
 /**
  * 【3-1】患者への予約確認メールを送信する

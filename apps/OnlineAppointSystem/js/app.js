@@ -1,9 +1,17 @@
 import { db, auth } from "./firebase.js";
 import { getIdTokenResult, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 import {
-    doc, setDoc, getDocs, getDoc,
-    collection, query, where, runTransaction,
+    doc, getDocs, getDoc,
+    collection, query, where,
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+// ── Cloud Functions URL 解決 ──
+function getFunctionUrl(name) {
+    if (location.hostname === "localhost") {
+        return `http://127.0.0.1:5001/project-3040e21e-879f-4c66-a7d/us-central1/${name}`;
+    }
+    return `https://${name.toLowerCase()}-po3aztuimq-uc.a.run.app`;
+}
 import { esc, DAY_NAMES, formatDate, formatDateJa, applyTheme } from "./utils.js";
 
 /* ===========================
@@ -405,22 +413,13 @@ function toHankaku(str) {
     return String(str ?? '').replace(/[！-～]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).trim();
 }
 
-// ── 予約番号生成（UUID v4、エントロピー強化）──
-function generateBookingId() {
-    return crypto.randomUUID();
-}
-
-// ── 予約確定（Firestore + トランザクションで二重予約防止）──
+// ── 予約確定（Cloud Function 経由でサーバーサイドトランザクション）──
 async function submitReservation() {
     const overlay = document.getElementById('loadingOverlay');
     overlay.classList.remove('hidden');
 
-    const dateStr    = formatDate(selectedDate);
-    const slotId     = `${dateStr}_${selectedTime.replace(':', '')}`;
-    const bookingId  = generateBookingId();
-    const reservationRef = doc(db, 'reservations', bookingId);
+    const dateStr = formatDate(selectedDate);
     const booking = {
-        id:            bookingId,
         date:          dateStr,
         time:          selectedTime,
         name:          document.getElementById('name').value,
@@ -436,44 +435,45 @@ async function submitReservation() {
         symptoms:      document.getElementById('symptoms').value || '',
         notes:         document.getElementById('notes').value || '',
         contactMethod: document.querySelector('input[name="contactMethod"]:checked')?.value || '',
-        status:        'pending',
-        createdAt:     new Date().toISOString(),
     };
 
     try {
-        const slotRef = doc(db, 'slots', slotId);
-        await runTransaction(db, async (tx) => {
-            const slotSnap = await tx.get(slotRef);
-            if (slotSnap.exists() && slotSnap.data().status !== 'cancelled') {
-                throw new Error('SLOT_TAKEN');
-            }
-            tx.set(slotRef, {
-                date: dateStr, time: selectedTime,
-                reservationId: reservationRef.id, status: 'pending',
-            });
-            tx.set(reservationRef, booking);
+        // Cloud Function でスロット確保 + 予約作成（サーバーサイドトランザクション）
+        const resp = await fetch(getFunctionUrl('createReservation'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(booking),
         });
+        const result = await resp.json();
+
+        if (!resp.ok) {
+            if (result.error === 'SLOT_TAKEN') throw new Error('SLOT_TAKEN');
+            throw new Error(result.error || '予約の作成に失敗しました');
+        }
+
+        const bookingId = result.reservationId;
+        booking.id = bookingId;
 
         // 患者への確認メール（非同期・失敗しても予約は完了扱い）
         if (booking.email) {
-            fetch('https://sendreservationemail-po3aztuimq-uc.a.run.app', {
+            fetch(getFunctionUrl('sendReservationEmail'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     to: booking.email, name: booking.name,
                     date: booking.date, time: booking.time,
                     menu: booking.visitType || '診療',
-                    id: booking.id,
+                    id: bookingId,
                 }),
             }).catch(e => console.warn('患者メール送信エラー:', e));
         }
 
         // 管理者への新着通知（非同期・失敗しても予約は完了扱い）
-        fetch('https://notifyadminonreservation-po3aztuimq-uc.a.run.app', {
+        fetch(getFunctionUrl('notifyAdminOnReservation'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                id:            booking.id,
+                id:            bookingId,
                 name:          booking.name,
                 furigana:      booking.furigana,
                 date:          booking.date,
@@ -486,12 +486,12 @@ async function submitReservation() {
             }),
         }).catch(e => console.warn('管理者通知メール送信エラー:', e));
 
-        window._lastBooking = booking; // PDF出力用
+        window._lastBooking = { ...booking, status: 'pending', createdAt: new Date().toISOString() }; // PDF出力用
         overlay.classList.add('hidden');
 
         const dow      = selectedDate.getDay();
         const dayLabel = `${selectedDate.getMonth()+1}月${selectedDate.getDate()}日（${DAY_NAMES[dow]}）`;
-        document.getElementById('bookingIdText').textContent = booking.id;
+        document.getElementById('bookingIdText').textContent = bookingId;
         document.getElementById('bookingSummaryDisplay').textContent = `${dayLabel} ${booking.time}〜 / ${booking.name}様`;
         setStep(4);
         selectedDate = null; selectedTime = null; cachedBookedSlots = [];
@@ -503,8 +503,10 @@ async function submitReservation() {
             cachedBookedSlots = await fetchBookedSlots(dateStr);
             renderTimeSlots();
             setStep(1);
+        } else if (err.message?.includes('リクエストが多すぎます')) {
+            alert('リクエストが多すぎます。しばらくお待ちください。');
         } else {
-            console.error('予約エラー:', err.code, err.message, err);
+            console.error('予約エラー:', err.message, err);
             alert('予約の送信に失敗しました。もう一度お試しください。');
         }
     }
