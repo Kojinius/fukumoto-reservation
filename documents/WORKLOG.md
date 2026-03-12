@@ -652,3 +652,37 @@
     - Disables close (×) button, cancel button, outside-modal click, and other tab switching during forced change (determined by `isForcePasswordChange()`)
   - `firestore.rules`: Added rules for `users/{userId}` collection (read by self / update only `mustChangePassword` field)
 - Separated try-catch so that Firestore write failures are not treated as user creation failures
+
+---
+
+## 2026-03-12 Work Log (2)
+
+### Completed Tasks
+
+#### [SEC-11] Security Fix: Cloud Functions Rate Limiting
+
+- **Problem**: All 5 public Cloud Functions (`sendReservationEmail`, `notifyAdminOnReservation`, `createAdminUser`, `listUsers`, `deleteUser`) had no rate limiting, enabling DoS and billing abuse
+- **Fix**: Added IP-based rate limiting (5 req/min per IP, in-memory Map with 60-second sliding window) to all functions
+- **Changed files**:
+  - `functions/index.js`: Added `[SEC-11]` rate limiting block to each of the 5 functions
+
+#### [SEC-5] Security Fix: Cancel Authentication — Server-Side Phone Verification
+
+- **Problem**: Reservation cancellation was performed via client-side `writeBatch` with phone verification only on Firestore rules (`_cancelVerify`). Slot cancellation had no phone verification at all — anyone knowing the `date_time` slot ID could cancel any slot
+- **Solution**: Moved cancellation to a new `cancelReservation` Cloud Function with server-side verification; removed all unauthenticated `allow update` rules from Firestore
+- **Changed files**:
+  - `functions/index.js`: Added `cancelReservation` Cloud Function
+    - Server-side phone number verification (normalized comparison)
+    - Unified error message for not-found and phone-mismatch (enumeration attack prevention)
+    - Cancel cutoff check using `settings/clinic.cancelCutoffMinutes`
+    - Firestore transaction for atomic reservation + slot cancellation
+    - IP-based rate limiting
+  - `apps/OnlineAppointSystem/js/cancel.js`: Replaced `writeBatch` with `fetch(cancelReservation)`; added `getFunctionUrl()` helper; removed `writeBatch` import
+  - `firestore.rules` (OAS): Removed unauthenticated `allow update` from both `reservations` and `slots`
+- **Test results** (all PASS):
+  - Normal cancel: 200 + success
+  - Wrong phone number: 404 "予約が見つかりません" (enumeration prevention)
+  - Nonexistent booking: 404
+  - Double cancel: 400 "すでにキャンセル済み"
+  - Missing params: 400
+  - Browser cancel.html: Confirmed working after hard refresh

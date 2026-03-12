@@ -1,8 +1,16 @@
 import { db } from "./firebase.js";
 import {
-    doc, getDoc, writeBatch,
+    doc, getDoc,
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import { esc, DAY_NAMES, applyTheme } from "./utils.js";
+
+// ── Cloud Functions URL 解決 ──
+function getFunctionUrl(name) {
+    if (location.hostname === "localhost") {
+        return `http://127.0.0.1:5001/project-3040e21e-879f-4c66-a7d/us-central1/${name}`;
+    }
+    return `https://${name.toLowerCase()}-po3aztuimq-uc.a.run.app`;
+}
 
 /* ===========================
    予約キャンセル ロジック
@@ -168,7 +176,7 @@ function showDetail(booking) {
     document.getElementById('detailPanel').style.display = 'block';
 }
 
-// ── キャンセル実行 ──
+// ── キャンセル実行（Cloud Function経由）──
 async function execCancel() {
     if (!foundBooking) return;
     if (!confirm('この予約をキャンセルしてもよろしいですか？')) return;
@@ -177,16 +185,26 @@ async function execCancel() {
     btn.disabled = true; btn.textContent = '処理中...';
 
     try {
-        const batch  = writeBatch(db);
-        const resRef = doc(db, 'reservations', foundBooking.id);
-        // _cancelVerify: Firestoreルール側でサーバーサイド電話番号照合
-        batch.update(resRef, { status: 'cancelled', _cancelVerify: foundBooking.phone });
+        const resp = await fetch(getFunctionUrl('cancelReservation'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                reservationId: foundBooking.id,
+                phone: document.getElementById('inputPhone').value.trim(),
+            }),
+        });
 
-        const slotId  = `${foundBooking.date}_${foundBooking.time.replace(':', '')}`;
-        const slotRef = doc(db, 'slots', slotId);
-        batch.update(slotRef, { status: 'cancelled' });
+        const result = await resp.json();
 
-        await batch.commit();
+        if (!resp.ok) {
+            if (resp.status === 429) {
+                alert('リクエストが多すぎます。しばらくお待ちください。');
+            } else {
+                alert(result.error || 'キャンセルに失敗しました。');
+            }
+            btn.disabled = false; btn.textContent = 'この予約をキャンセルする';
+            return;
+        }
 
         document.getElementById('detailPanel').style.display = 'none';
         document.getElementById('donePanel').style.display   = 'block';

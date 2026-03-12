@@ -34,28 +34,19 @@ service cloud.firestore {
         && (!data.keys().hasAny(['contactMethod']) || (data.contactMethod is string && data.contactMethod.size() <= 50));
     }
 
-    // [SEC-18] 予約コレクション — create は Cloud Function (createReservation) 経由のみ
+    // [SEC-18] create は Cloud Function (createReservation) 経由のみ
+    // [SEC-5]  cancel も Cloud Function (cancelReservation) 経由のみ
     match /reservations/{reservationId} {
-      // 患者：予約番号（ドキュメントID）による1件読み取り可（IDが事実上のアクセストークン）
+      // 患者：予約番号（ドキュメントID）による1件読み取り可
       allow get: if request.auth == null;
-      // 患者：statusをcancelledに変更するのみ許可（_cancelVerifyで電話番号サーバーサイド検証）
-      allow update: if request.auth == null
-        && resource.data.status != 'cancelled'
-        && request.resource.data.status == 'cancelled'
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', '_cancelVerify'])
-        && request.resource.data._cancelVerify == resource.data.phone;
       // 管理者：読み書きすべて可
       allow read, write: if isAdmin();
     }
 
-    // [SEC-18] スロットコレクション — create 削除、キャンセル時の update のみ許可
+    // [SEC-18] create は Cloud Function 経由のみ
+    // [SEC-5]  cancel も Cloud Function 経由のみ（未認証 update 廃止）
     match /slots/{slotId} {
       allow read: if true;
-      // 患者：予約キャンセル時のスロット開放（* → cancelled、status変更のみ）
-      allow update: if request.auth == null
-        && resource.data.status != 'cancelled'
-        && request.resource.data.status == 'cancelled'
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']);
       // 管理者：読み書きすべて可
       allow read, write: if isAdmin();
     }

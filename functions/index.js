@@ -180,6 +180,104 @@ exports.createReservation = onRequest(
 );
 
 /**
+ * 【SEC-5】予約キャンセル（サーバーサイド電話番号検証 + スロット開放）
+ * POST /cancelReservation
+ * Body: { reservationId, phone }
+ * レート制限: IP あたり 5回/分
+ */
+exports.cancelReservation = onRequest(
+  { invoker: "public" },
+  async (req, res) => {
+    setCorsHeaders(req, res);
+
+    if (req.method === "OPTIONS") { res.status(204).send(""); return; }
+    if (req.method !== "POST")    { res.status(405).json({ error: "Method Not Allowed" }); return; }
+
+    // レート制限チェック
+    const clientIp = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.ip;
+    if (isRateLimited(clientIp)) {
+      res.status(429).json({ error: "リクエストが多すぎます。しばらくお待ちください。" });
+      return;
+    }
+
+    const { reservationId, phone } = req.body;
+
+    // ── 必須フィールド検証 ──
+    if (!reservationId || typeof reservationId !== "string" || reservationId.length > 100) {
+      res.status(400).json({ error: "予約番号が不正です" });
+      return;
+    }
+    if (!phone || typeof phone !== "string" || phone.length > 20) {
+      res.status(400).json({ error: "電話番号が不正です" });
+      return;
+    }
+
+    const db = getFirestore();
+
+    try {
+      // ── 予約ドキュメント取得 ──
+      const resRef  = db.collection("reservations").doc(reservationId);
+      const resSnap = await resRef.get();
+
+      if (!resSnap.exists) {
+        // 存在しない場合も「見つからない」で統一（情報漏洩防止）
+        res.status(404).json({ error: "予約が見つかりません" });
+        return;
+      }
+
+      const booking = resSnap.data();
+
+      // ── 電話番号照合（サーバーサイド検証）──
+      const normalize = (p) => p.replace(/[-\s]/g, "");
+      if (normalize(booking.phone) !== normalize(phone)) {
+        // 電話番号不一致でも同じエラーメッセージ（列挙攻撃防止）
+        res.status(404).json({ error: "予約が見つかりません" });
+        return;
+      }
+
+      // ── キャンセル済みチェック ──
+      if (booking.status === "cancelled") {
+        res.status(400).json({ error: "この予約はすでにキャンセル済みです" });
+        return;
+      }
+
+      // ── キャンセル期限チェック（settings/clinic の cancelCutoffMinutes）──
+      const settings       = await getClinicSettings();
+      const cutoffMinutes  = settings.cancelCutoffMinutes ?? 60;
+      const [bY, bM, bD]  = booking.date.split("-").map(Number);
+      const [bH, bMin]    = booking.time.split(":").map(Number);
+      const bookingMs      = new Date(bY, bM - 1, bD, bH, bMin).getTime();
+      const cutoffMs       = cutoffMinutes * 60 * 1000;
+
+      if (Date.now() >= bookingMs - cutoffMs) {
+        res.status(400).json({
+          error: `予約時刻の${cutoffMinutes}分前を過ぎているため、オンラインではキャンセルできません。お電話にてご連絡ください。`,
+        });
+        return;
+      }
+
+      // ── トランザクションで予約+スロットを同時キャンセル ──
+      const slotId = `${booking.date}_${booking.time.replace(":", "")}`;
+      await db.runTransaction(async (tx) => {
+        const slotRef  = db.collection("slots").doc(slotId);
+        const slotSnap = await tx.get(slotRef);
+
+        tx.update(resRef, { status: "cancelled" });
+
+        if (slotSnap.exists && slotSnap.data().status !== "cancelled") {
+          tx.update(slotRef, { status: "cancelled" });
+        }
+      });
+
+      res.status(200).json({ success: true, message: "予約をキャンセルしました" });
+    } catch (err) {
+      console.error("[cancelReservation] エラー:", err);
+      res.status(500).json({ error: "キャンセル処理に失敗しました" });
+    }
+  }
+);
+
+/**
  * 【3-1】患者への予約確認メールを送信する
  * POST /sendReservationEmail
  * Body: { to, name, date, time, menu, id }
@@ -191,6 +289,12 @@ exports.sendReservationEmail = onRequest(
 
     if (req.method === "OPTIONS") { res.status(204).send(""); return; }
     if (req.method !== "POST")    { res.status(405).json({ error: "Method Not Allowed" }); return; }
+
+    // [SEC-11] レート制限
+    const clientIp = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.ip;
+    if (isRateLimited(clientIp)) {
+      res.status(429).json({ error: "リクエストが多すぎます。しばらくお待ちください。" }); return;
+    }
 
     const { to, name, date, time, menu, id } = req.body;
     if (!to || !name || !date || !time || !menu) {
@@ -271,6 +375,12 @@ exports.notifyAdminOnReservation = onRequest(
 
     if (req.method === "OPTIONS") { res.status(204).send(""); return; }
     if (req.method !== "POST")    { res.status(405).json({ error: "Method Not Allowed" }); return; }
+
+    // [SEC-11] レート制限
+    const clientIp = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.ip;
+    if (isRateLimited(clientIp)) {
+      res.status(429).json({ error: "リクエストが多すぎます。しばらくお待ちください。" }); return;
+    }
 
     const { id, name, furigana, date, time, visitType, insurance, phone, symptoms, contactMethod } = req.body;
     if (!name || !date || !time || !phone) {
@@ -381,6 +491,12 @@ exports.createAdminUser = onRequest(
     if (req.method === "OPTIONS") { res.status(204).send(""); return; }
     if (req.method !== "POST") { res.status(405).json({ error: "Method Not Allowed" }); return; }
 
+    // [SEC-11] レート制限
+    const clientIp = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.ip;
+    if (isRateLimited(clientIp)) {
+      res.status(429).json({ error: "リクエストが多すぎます。しばらくお待ちください。" }); return;
+    }
+
     try {
       await verifyAdmin(req);
 
@@ -433,6 +549,12 @@ exports.listUsers = onRequest(
     if (req.method === "OPTIONS") { res.status(204).send(""); return; }
     if (req.method !== "GET") { res.status(405).json({ error: "Method Not Allowed" }); return; }
 
+    // [SEC-11] レート制限
+    const clientIp = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.ip;
+    if (isRateLimited(clientIp)) {
+      res.status(429).json({ error: "リクエストが多すぎます。しばらくお待ちください。" }); return;
+    }
+
     try {
       await verifyAdmin(req);
       const result = await getAuth().listUsers(100);
@@ -464,6 +586,12 @@ exports.deleteUser = onRequest(
     setCorsHeaders(req, res);
     if (req.method === "OPTIONS") { res.status(204).send(""); return; }
     if (req.method !== "DELETE") { res.status(405).json({ error: "Method Not Allowed" }); return; }
+
+    // [SEC-11] レート制限
+    const clientIp = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.ip;
+    if (isRateLimited(clientIp)) {
+      res.status(429).json({ error: "リクエストが多すぎます。しばらくお待ちください。" }); return;
+    }
 
     try {
       const decoded = await verifyAdmin(req);
