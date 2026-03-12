@@ -344,12 +344,16 @@ async function fetchAddressFromZip() {
     try {
         const res  = await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${zip}`);
         const json = await res.json();
-        if (!json.results) {
+        // [SEC-12] 応答バリデーション: 型・長さを検証してから使用
+        if (!Array.isArray(json.results) || json.results.length === 0) {
             msg.textContent = '住所が見つかりませんでした';
             msg.style.color = 'var(--red, #c0392b)';
             return;
         }
-        const { address1, address2, address3 } = json.results[0];
+        const r = json.results[0];
+        const address1 = typeof r.address1 === 'string' ? r.address1.slice(0, 50) : '';
+        const address2 = typeof r.address2 === 'string' ? r.address2.slice(0, 50) : '';
+        const address3 = typeof r.address3 === 'string' ? r.address3.slice(0, 50) : '';
         document.getElementById('addressMain').value = `${address1}${address2}${address3}`;
         document.getElementById('addressMain').focus();
         msg.textContent = '住所を取得しました。番地・建物名を入力してください。';

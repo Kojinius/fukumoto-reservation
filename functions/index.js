@@ -29,6 +29,12 @@ function isRateLimited(ip) {
 
 const resendApiKey = defineSecret("RESEND_API_KEY");
 
+// ── [SEC-14] 監査ログ（Cloud Logging へ構造化ログ出力）──
+function auditLog(event, data = {}) {
+  // 個人情報を含まない構造化ログ。Cloud Functions は console.log を GCP Cloud Logging に転送する
+  console.log(JSON.stringify({ severity: "INFO", event, ...data, timestamp: new Date().toISOString() }));
+}
+
 // ── HTMLエスケープ（メール本文のインジェクション対策）──
 function escHtml(s) {
   return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -77,6 +83,7 @@ exports.createReservation = onRequest(
     // レート制限チェック
     const clientIp = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.ip;
     if (isRateLimited(clientIp)) {
+      auditLog("rate_limit.exceeded", { endpoint: "createReservation", ip: clientIp });
       res.status(429).json({ error: "リクエストが多すぎます。しばらくお待ちください。" });
       return;
     }
@@ -167,9 +174,11 @@ exports.createReservation = onRequest(
         });
       });
 
+      auditLog("reservation.created", { reservationId: bookingId, date: d.date, time: d.time });
       res.status(200).json({ success: true, reservationId: bookingId });
     } catch (err) {
       if (err.message === "SLOT_TAKEN") {
+        auditLog("reservation.slot_taken", { date: d.date, time: d.time, ip: clientIp });
         res.status(409).json({ error: "SLOT_TAKEN", message: "この時間はすでに予約が入っています" });
       } else {
         console.error("予約作成エラー:", err);
@@ -347,6 +356,7 @@ exports.cancelReservation = onRequest(
         }
       });
 
+      auditLog("reservation.cancelled", { reservationId });
       res.status(200).json({ success: true, message: "予約をキャンセルしました" });
     } catch (err) {
       if (err.message === "ALREADY_CANCELLED") {
@@ -633,6 +643,7 @@ exports.createAdminUser = onRequest(
         res.status(500).json({ error: "ユーザー作成に失敗しました。再度お試しください。" });
         return;
       }
+      auditLog("user.created", { uid: userRecord.uid, isAdmin, emailDomain: email.split("@")[1] ?? "" });
       res.status(200).json({ success: true, uid: userRecord.uid, email: userRecord.email });
     } catch (err) {
       if (err.httpCode) { res.status(err.httpCode).json({ error: err.message }); return; }
@@ -709,6 +720,7 @@ exports.deleteUser = onRequest(
       if (uid === decoded.uid) { res.status(400).json({ error: "自分自身は削除できません" }); return; }
 
       await getAuth().deleteUser(uid);
+      auditLog("user.deleted", { uid, deletedBy: decoded.uid });
       res.status(200).json({ success: true });
     } catch (err) {
       if (err.httpCode) { res.status(err.httpCode).json({ error: err.message }); return; }

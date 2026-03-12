@@ -488,12 +488,16 @@ async function fetchAddressFromZip() {
     try {
         const res  = await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${zip}`);
         const json = await res.json();
-        if (!json.results) {
+        // [SEC-12] 応答バリデーション: 型・長さを検証してから使用
+        if (!Array.isArray(json.results) || json.results.length === 0) {
             msg.textContent = '住所が見つかりませんでした';
             msg.style.color = 'var(--red, #c0392b)';
             return;
         }
-        const { address1, address2, address3 } = json.results[0];
+        const r = json.results[0];
+        const address1 = typeof r.address1 === 'string' ? r.address1.slice(0, 50) : '';
+        const address2 = typeof r.address2 === 'string' ? r.address2.slice(0, 50) : '';
+        const address3 = typeof r.address3 === 'string' ? r.address3.slice(0, 50) : '';
         document.getElementById('settingClinicAddress').value = `${address1}${address2}${address3}`;
         msg.textContent = '住所を取得しました（番地・建物名を追記してください）';
         msg.style.color = 'green';
@@ -1023,7 +1027,8 @@ document.getElementById('logoCropCancelBtn').addEventListener('click', () => {
 });
 
 // アカウント設定保存（メールアドレス・パスワード変更）
-window.saveAccount = async function () {
+// [SEC-10] window 公開を廃止。DOM 準備後に addEventListener でバインド
+async function saveAccount() {
     const btn         = document.getElementById('saveAccountBtn');
     const msgEl       = document.getElementById('accountMsg');
     const newEmail    = toHankaku(document.getElementById('newEmailInput').value);
@@ -1093,6 +1098,9 @@ window.saveAccount = async function () {
 // 初期化
 await loadSettings();
 startListening();
+
+// [SEC-10] saveAccount を addEventListener でバインド（window 公開の代替）
+document.getElementById('saveAccountBtn').addEventListener('click', saveAccount);
 
 // 初期パスワード強制変更：設定モーダルを自動で開く
 if (new URLSearchParams(location.search).get('forcePasswordChange') === '1') {

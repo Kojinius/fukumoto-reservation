@@ -733,3 +733,52 @@
   - Add-user form auto-closes on success
   - Placeholders updated to reflect complexity requirements
 - **Skill updated**: `skills/input-validation/SKILL.md` — added `password()` validator, improved `email()` regex, added client-side helpers section
+
+#### Security Task Inventory Verification
+
+- Verified all 22 SEC tasks in Notion "AMS,OASにおける既知の課題点" database
+- **Completed: 12 tasks** (SEC-1, 2, 3, 4, 5, 6, 7, 8, 11, 17, 18, 19)
+- **Remaining: 10 tasks** (confirmed):
+  | Priority | ID | Task | Severity | Effort |
+  |---|---|---|---|---|
+  | 7 | SEC-22 | [共通] settingsコレクションのlist許可 | P2-Medium | S |
+  | 8 | SEC-20 | [AMS] admin.htmlグローバル関数公開+onclick | P3-Low | M |
+  | 9 | SEC-9 | [AMS] sessionStorageに勤務情報保存 | P2-Medium | M |
+  | 9 | SEC-21 | [共通] CDNスクリプトにSRIハッシュなし | P3-Low | S |
+  | 10 | SEC-10 | [OAS] グローバル関数のwindow公開 | P2-Medium | M |
+  | 12 | SEC-12 | [OAS] 郵便番号API呼び出しの検証不足 | P2-Medium | S |
+  | 13 | SEC-13 | [共通] Firebase APIキーのハードコード | P2-Medium | M |
+  | 14 | SEC-14 | [OAS] 監査ログの欠如 | P3-Low | M |
+  | 15 | SEC-15 | [共通] CSPヘッダー不完全 | P3-Low | S |
+  | 16 | SEC-16 | [AMS] console.logデバッグコード残存 | P3-Low | S |
+
+---
+
+## 2026-03-12 Work Log (3)
+
+### Tasks Completed
+
+#### Security Hardening: OAS-Related SEC Tasks Completed
+
+##### [SEC-10] window global function exposure removed
+- **Problem**: `window.saveAccount` in `js/admin.js` exposed module-scoped function globally
+- **Fix**: Changed to regular function `saveAccount()`; bound via `addEventListener('click', saveAccount)` at init; removed `onclick` from `admin.html`
+- **Changed files**: `apps/OnlineAppointSystem/js/admin.js`, `apps/OnlineAppointSystem/admin.html`
+
+##### [SEC-12] zipcloud API response validation
+- **Problem**: `json.results[0]` accessed without array/length check; address fields used without type or length validation
+- **Fix**: Added `Array.isArray(json.results) && json.results.length > 0` guard; each address field validated with `typeof === 'string' ? .slice(0, 50) : ''`
+- **Changed files**: `apps/OnlineAppointSystem/js/admin.js`, `apps/OnlineAppointSystem/js/app.js`
+
+##### [SEC-14] Audit logging added to Cloud Functions
+- **Problem**: No structured logging for security-critical events
+- **Fix**: Added `auditLog(event, data)` helper; logs to GCP Cloud Logging as JSON with severity `INFO`
+  - Events: `reservation.created`, `reservation.slot_taken`, `reservation.cancelled`, `user.created` (emailDomain only), `user.deleted`, `rate_limit.exceeded`
+- **Changed file**: `functions/index.js`
+
+##### [SEC-15] CSP headers — full implementation via firebase.json
+- **Fix**: Added complete security header set to both `portfolio` and `oas` targets in `firebase.json`
+  - `frame-src https://www.google.com https://maps.google.com` (Google Maps embed support)
+  - `connect-src` includes `*.a.run.app`, `zipcloud.ibsnet.co.jp`, `holidays-jp.github.io`
+  - `X-Frame-Options: SAMEORIGIN` (DENY avoided due to Google Maps iframe)
+- **Changed file**: `firebase.json`
