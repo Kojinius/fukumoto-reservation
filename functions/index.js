@@ -51,8 +51,9 @@ async function sendMail(resend, { from, to, subject, html }) {
 // ── 共通：CORSヘッダー設定 ──
 function setCorsHeaders(req, res) {
   const allowed = ["https://kojinius.jp", "https://oas.kojinius.jp"];
-  const origin  = req.headers.origin;
-  res.set("Access-Control-Allow-Origin",  allowed.includes(origin) ? origin : "https://kojinius.jp");
+  const origin  = req.headers.origin || "";
+  const isLocal = origin.startsWith("http://localhost:") || origin.startsWith("http://127.0.0.1:");
+  res.set("Access-Control-Allow-Origin",  allowed.includes(origin) || isLocal ? origin : "https://kojinius.jp");
   res.set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
   res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
 }

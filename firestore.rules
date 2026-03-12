@@ -62,9 +62,9 @@ service cloud.firestore {
 
     // ユーザー設定コレクション（初期パスワード強制変更フラグ等）
     match /users/{userId} {
-      // 本人のみ読み取り可
       allow read: if request.auth != null && request.auth.uid == userId;
-      // 本人のみ mustChangePassword フィールドの更新可（Cloud Functionsが作成）
+      allow write: if isAdmin();
+      // 本人のみ mustChangePassword フィールドの更新可
       allow update: if request.auth != null
         && request.auth.uid == userId
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['mustChangePassword']);
