@@ -85,20 +85,24 @@ async function searchBooking() {
     btn.disabled = true; btn.textContent = '確認中...';
 
     try {
-        const snap = await getDoc(doc(db, 'reservations', id));
-        if (!snap.exists()) {
-            showSearchError('予約が見つかりません。予約番号をご確認ください。');
+        // [SEC-3] サーバーサイド電話番号検証で予約データ取得
+        const resp = await fetch(getFunctionUrl('verifyReservation'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reservationId: id, phone }),
+        });
+
+        if (resp.status === 429) {
+            showSearchError('リクエストが多すぎます。しばらくお待ちください。');
             return;
         }
-        const booking = snap.data();
-
-        // 電話番号照合（クライアント側検証）
-        const normalizePhone = (p) => p.replace(/[-\s]/g, '');
-        if (normalizePhone(booking.phone) !== normalizePhone(phone)) {
-            showSearchError('電話番号が一致しません。ご登録の電話番号をご確認ください。');
+        if (!resp.ok) {
+            const err = await resp.json().catch(() => ({}));
+            showSearchError(err.error || '予約が見つかりません。予約番号と電話番号をご確認ください。');
             return;
         }
 
+        const { reservation: booking } = await resp.json();
         foundBooking = booking;
         showDetail(booking);
     } catch (err) {

@@ -180,6 +180,76 @@ exports.createReservation = onRequest(
 );
 
 /**
+ * 【SEC-3】予約照会（サーバーサイド電話番号検証後にデータ返却）
+ * POST /verifyReservation
+ * Body: { reservationId, phone }
+ * レート制限: IP あたり 5回/分
+ */
+exports.verifyReservation = onRequest(
+  { invoker: "public" },
+  async (req, res) => {
+    setCorsHeaders(req, res);
+
+    if (req.method === "OPTIONS") { res.status(204).send(""); return; }
+    if (req.method !== "POST")    { res.status(405).json({ error: "Method Not Allowed" }); return; }
+
+    // レート制限チェック
+    const clientIp = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.ip;
+    if (isRateLimited(clientIp)) {
+      res.status(429).json({ error: "リクエストが多すぎます。しばらくお待ちください。" });
+      return;
+    }
+
+    const { reservationId, phone } = req.body;
+
+    if (!reservationId || typeof reservationId !== "string" || reservationId.length > 100) {
+      res.status(400).json({ error: "予約番号が不正です" });
+      return;
+    }
+    if (!phone || typeof phone !== "string" || phone.length > 20) {
+      res.status(400).json({ error: "電話番号が不正です" });
+      return;
+    }
+
+    try {
+      const db      = getFirestore();
+      const resSnap = await db.collection("reservations").doc(reservationId).get();
+
+      if (!resSnap.exists) {
+        res.status(404).json({ error: "予約が見つかりません" });
+        return;
+      }
+
+      const booking   = resSnap.data();
+      const normalize = (p) => p.replace(/[-\s]/g, "");
+      if (normalize(booking.phone) !== normalize(phone)) {
+        // 電話番号不一致でも同じエラー（列挙攻撃防止）
+        res.status(404).json({ error: "予約が見つかりません" });
+        return;
+      }
+
+      // 返却するフィールドを明示的に絞る（個人情報最小化）
+      res.status(200).json({
+        success: true,
+        reservation: {
+          id:        booking.id,
+          date:      booking.date,
+          time:      booking.time,
+          name:      booking.name,
+          phone:     booking.phone,
+          visitType: booking.visitType || "",
+          symptoms:  booking.symptoms || "",
+          status:    booking.status,
+        },
+      });
+    } catch (err) {
+      console.error("[verifyReservation] エラー:", err);
+      res.status(500).json({ error: "予約の照会に失敗しました" });
+    }
+  }
+);
+
+/**
  * 【SEC-5】予約キャンセル（サーバーサイド電話番号検証 + スロット開放）
  * POST /cancelReservation
  * Body: { reservationId, phone }
@@ -518,11 +588,14 @@ exports.createAdminUser = onRequest(
       if (isAdmin) {
         await getAuth().setCustomUserClaims(userRecord.uid, { admin: true });
       }
-      // 初期パスワード強制変更フラグをFirestoreに記録（失敗してもユーザー作成は成功扱い）
+      // [SEC-4] 初期パスワード強制変更フラグ — 失敗時はAuthユーザーを削除してロールバック
       try {
         await getFirestore().collection('users').doc(userRecord.uid).set({ mustChangePassword: true });
       } catch (fsErr) {
-        console.error('mustChangePassword フラグ設定失敗:', fsErr);
+        console.error('mustChangePassword フラグ設定失敗、ユーザーをロールバック:', fsErr);
+        await getAuth().deleteUser(userRecord.uid).catch(() => {});
+        res.status(500).json({ error: "ユーザー作成に失敗しました。再度お試しください。" });
+        return;
       }
       res.status(200).json({ success: true, uid: userRecord.uid, email: userRecord.email });
     } catch (err) {

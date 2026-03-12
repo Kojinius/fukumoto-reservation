@@ -36,9 +36,8 @@ service cloud.firestore {
 
     // [SEC-18] create は Cloud Function (createReservation) 経由のみ
     // [SEC-5]  cancel も Cloud Function (cancelReservation) 経由のみ
+    // [SEC-3]  get も Cloud Function (verifyReservation) 経由のみ — 未認証アクセス完全廃止
     match /reservations/{reservationId} {
-      // 患者：予約番号（ドキュメントID）による1件読み取り可
-      allow get: if request.auth == null;
       // 管理者：読み書きすべて可
       allow read, write: if isAdmin();
     }

@@ -686,3 +686,26 @@
   - Double cancel: 400 "すでにキャンセル済み"
   - Missing params: 400
   - Browser cancel.html: Confirmed working after hard refresh
+
+#### [SEC-3] Security Fix: Unauthenticated Reservation Read Access
+
+- **Problem**: `allow get: if request.auth == null;` in Firestore rules allowed anyone with a reservation ID to read full reservation data without authentication
+- **Solution**: Created `verifyReservation` Cloud Function that requires phone number verification before returning reservation data; removed unauthenticated `allow get` from rules
+- **Changed files**:
+  - `functions/index.js`: Added `verifyReservation` Cloud Function (phone verification + field filtering + rate limiting)
+  - `apps/OnlineAppointSystem/js/cancel.js`: Replaced `getDoc()` with `fetch(verifyReservation)` in `searchBooking()`
+  - `firestore.rules` (OAS + AMS): Removed `allow get: if request.auth == null` from reservations
+- **Test results**: Normal verify OK, wrong phone → 404 (enumeration prevention), nonexistent ID → 404
+
+#### [SEC-4] Security Fix: mustChangePassword Flag Write Failure Rollback
+
+- **Problem**: If Firestore write of `mustChangePassword` flag failed after Auth user creation, user was created without the forced password change flag (silent failure)
+- **Fix**: On Firestore write failure, delete the Auth user and return error (rollback)
+- **Changed file**: `functions/index.js` `createAdminUser`
+
+#### [SEC-6] Security Fix: Email Address Full Exposure in Admin Panel
+
+- **Problem**: User management table displayed full email addresses and exposed UIDs in `data-uid` attributes and `onclick` handlers
+- **Fix**: Email masked display (e.g. `a*****@test.com`), removed `data-uid` attribute, replaced `onclick` with `addEventListener` using closure-managed UID
+- **Changed file**: `apps/OnlineAppointSystem/js/admin.js` `loadUserList()`
+- Also fixed: `FN_URL` helper now supports localhost for emulator testing

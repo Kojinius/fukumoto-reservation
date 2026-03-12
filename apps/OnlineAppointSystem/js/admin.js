@@ -750,7 +750,9 @@ function adminCopyId(btn, id) {
 }
 
 // ── ユーザー管理 ──
-const FN_URL = (name) => `https://${name.toLowerCase()}-po3aztuimq-uc.a.run.app`;
+const FN_URL = (name) => location.hostname === 'localhost'
+    ? `http://127.0.0.1:5001/project-3040e21e-879f-4c66-a7d/us-central1/${name}`
+    : `https://${name.toLowerCase()}-po3aztuimq-uc.a.run.app`;
 
 async function getIdToken() {
     return await currentUser.getIdToken();
@@ -789,9 +791,13 @@ async function loadUserList() {
                     </tr>
                 </thead>
                 <tbody>
-                    ${users.map(u => `
-                        <tr style="border-bottom:1px solid var(--border,#EDE3D8);" data-uid="${esc(u.uid)}">
-                            <td style="padding:10px 12px;">${esc(u.email || '-')}</td>
+                    ${users.map(u => {
+                        // [SEC-6] メールアドレスをマスク表示（例: a***@example.com）
+                        const masked = u.email ? u.email.replace(/^(.)(.*)(@.+)$/, (_, first, mid, domain) => first + '*'.repeat(Math.min(mid.length, 5)) + domain) : '-';
+                        const isSelf = u.uid === currentUser.uid;
+                        return `
+                        <tr style="border-bottom:1px solid var(--border,#EDE3D8);">
+                            <td style="padding:10px 12px;">${esc(masked)}</td>
                             <td style="padding:10px 12px;text-align:center;">
                                 ${u.isAdmin
                                     ? '<span style="background:var(--brown);color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">管理者</span>'
@@ -799,15 +805,21 @@ async function loadUserList() {
                             </td>
                             <td style="padding:10px 12px;color:var(--text-muted);font-size:12px;">${u.createdAt ? new Date(u.createdAt).toLocaleDateString('ja-JP') : '-'}</td>
                             <td style="padding:10px 12px;text-align:center;">
-                                ${u.uid === currentUser.uid
+                                ${isSelf
                                     ? '<span style="font-size:11px;color:var(--text-muted);">（自分）</span>'
-                                    : `<button onclick="deleteUserByUid('${esc(u.uid)}','${esc(u.email)}')" style="height:28px;padding:0 10px;font-size:11px;font-weight:600;border:1.5px solid #ddd;border-radius:6px;background:#fff;color:#c0392b;cursor:pointer;font-family:var(--font-main);">削除</button>`}
+                                    : `<button class="btn-delete-user" data-idx="${esc(String(users.indexOf(u)))}" style="height:28px;padding:0 10px;font-size:11px;font-weight:600;border:1.5px solid #ddd;border-radius:6px;background:#fff;color:#c0392b;cursor:pointer;font-family:var(--font-main);">削除</button>`}
                             </td>
-                        </tr>
-                    `).join('')}
+                        </tr>`;
+                    }).join('')}
                 </tbody>
             </table>
         `;
+        // [SEC-6] onclick属性廃止 → addEventListenerでUID/Emailをクロージャ管理
+        container.querySelectorAll('.btn-delete-user').forEach(btn => {
+            const idx = parseInt(btn.dataset.idx, 10);
+            const u   = users[idx];
+            if (u) btn.addEventListener('click', () => deleteUserByUid(u.uid, u.email));
+        });
     } catch (err) {
         container.innerHTML = `<p style="font-size:12px;color:var(--red,#c0392b);">エラー: ${esc(err.message)}</p>`;
     }
