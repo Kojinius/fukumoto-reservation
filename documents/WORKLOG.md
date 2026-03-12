@@ -776,6 +776,13 @@
   - Events: `reservation.created`, `reservation.slot_taken`, `reservation.cancelled`, `user.created` (emailDomain only), `user.deleted`, `rate_limit.exceeded`
 - **Changed file**: `functions/index.js`
 
+##### [SEC-13] Firebase API Key Hardcoding — Won't Fix (By Design)
+
+- **Analysis**: Firebase Web API key is a client-side identifier, not a secret (per Firebase official docs)
+- **Protections verified**: Domain restriction (3 domains only) + 25 API restriction + private repos + hardened Firestore Rules + rate limiting
+- **Action taken**: Added rationale comment to `apps/OnlineAppointSystem/js/config.js`
+- **Decision**: Closed as Won't Fix
+
 ##### [SEC-15] CSP headers — full implementation via firebase.json
 - **Fix**: Added complete security header set to both `portfolio` and `oas` targets in `firebase.json`
   - `frame-src https://www.google.com https://maps.google.com` (Google Maps embed support)
