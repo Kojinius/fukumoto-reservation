@@ -1,0 +1,203 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Zen+Maru+Gothic:wght@400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-body text-lien-900 bg-lien-50 dark:text-lien-100 dark:bg-lien-900;
+    @apply transition-theme duration-theme;
+  }
+
+  :focus-visible {
+    @apply outline-accent outline-2 outline-offset-2;
+  }
+
+  ::-webkit-scrollbar {
+    @apply w-1.5;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-lien-100 dark:bg-lien-800;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-lien-300 dark:bg-lien-600 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-lien-400 dark:bg-lien-500;
+  }
+}
+
+@layer components {
+  /* ======= 背景装飾 — 暖色グラデーション Orbs ======= */
+  .bg-warm-scene {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(160deg, #FFF8EE 0%, #F7F5F3 40%, #FFEFD4 100%);
+  }
+  .dark .bg-warm-scene {
+    background: linear-gradient(160deg, #1A1118 0%, #3D2B36 50%, #1A1118 100%);
+  }
+  .bg-warm-scene::before,
+  .bg-warm-scene::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  /* 大きなオレンジ orb — 右上 */
+  .bg-warm-scene::before {
+    width: 600px;
+    height: 600px;
+    top: -200px;
+    right: -150px;
+    background: radial-gradient(circle, rgba(247, 147, 33, 0.12) 0%, transparent 70%);
+  }
+  /* ピンク/パープル orb — 左下 */
+  .bg-warm-scene::after {
+    width: 500px;
+    height: 500px;
+    bottom: -100px;
+    left: -150px;
+    background: radial-gradient(circle, rgba(115, 87, 99, 0.08) 0%, transparent 70%);
+  }
+  .dark .bg-warm-scene::before {
+    background: radial-gradient(circle, rgba(247, 147, 33, 0.08) 0%, transparent 70%);
+  }
+  .dark .bg-warm-scene::after {
+    background: radial-gradient(circle, rgba(115, 87, 99, 0.06) 0%, transparent 70%);
+  }
+
+  /* 和紙テクスチャ */
+  .bg-washi {
+    position: relative;
+  }
+  .bg-washi > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ======= ヘッダーグラデーション ======= */
+  .header-gradient {
+    background: linear-gradient(135deg, #FFFFFF 0%, #FFF8EE 100%);
+  }
+  .dark .header-gradient {
+    background: linear-gradient(135deg, #3D2B36 0%, #1A1118 100%);
+  }
+
+  /* アクセントストライプ */
+  .accent-stripe {
+    background: linear-gradient(
+      90deg,
+      #F79321 0%,
+      #FFAD4D 30%,
+      #F79321 60%,
+      #D97B10 100%
+    );
+  }
+
+  /* ======= カード装飾 ======= */
+  .shadow-warm {
+    box-shadow:
+      0 1px 3px 0 rgba(90, 63, 78, 0.06),
+      0 4px 12px -2px rgba(90, 63, 78, 0.08);
+  }
+  .shadow-warm-lg {
+    box-shadow:
+      0 4px 6px -1px rgba(90, 63, 78, 0.07),
+      0 10px 24px -4px rgba(90, 63, 78, 0.1);
+  }
+  .dark .shadow-warm,
+  .dark .shadow-warm-lg {
+    box-shadow:
+      0 2px 8px 0 rgba(0, 0, 0, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.03);
+  }
+
+  /* セクションカード — 左ボーダーアクセント */
+  .card-section {
+    @apply bg-white dark:bg-lien-800 rounded-2xl border border-lien-200/60 dark:border-lien-600/40 p-6 shadow-warm;
+    @apply transition-all duration-300 hover:shadow-warm-lg;
+    border-left: 4px solid transparent;
+  }
+  .card-section-accent {
+    border-left-color: #F79321;
+  }
+  .card-section-teal {
+    border-left-color: #4CAF50;
+  }
+  .card-section-rose {
+    border-left-color: #735763;
+  }
+
+  /* セクションヘッダー装飾 */
+  .section-heading {
+    @apply text-sm font-heading font-bold text-lien-700 dark:text-lien-300 pb-2 mb-1;
+    @apply flex items-center gap-2;
+  }
+  .section-heading::before {
+    content: '';
+    @apply w-1 h-4 rounded-full bg-accent shrink-0;
+  }
+
+  /* ======= 紙吹雪アニメーション ======= */
+  @keyframes confetti-fall {
+    0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    animation: confetti-fall linear forwards;
+    pointer-events: none;
+  }
+
+  /* ======= ヒーローバナー（確認/完了画面） ======= */
+  .hero-banner {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #F79321 0%, #FFAD4D 50%, #FFC573 100%);
+    border-radius: 1.25rem;
+  }
+  .hero-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 15% 50%, rgba(255,255,255,0.2) 0%, transparent 50%),
+      radial-gradient(circle at 85% 20%, rgba(255,255,255,0.15) 0%, transparent 40%),
+      radial-gradient(circle at 50% 80%, rgba(255,255,255,0.1) 0%, transparent 40%);
+    pointer-events: none;
+  }
+  .hero-banner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.08;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='2' fill='white'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+
+  /* ======= ステップコネクタ ======= */
+  .step-connector {
+    background: linear-gradient(90deg, #F79321, #DDD5CC);
+  }
+  .step-connector-done {
+    background: linear-gradient(90deg, #F79321, #F79321);
+  }
+}

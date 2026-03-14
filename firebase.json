@@ -30,6 +30,8 @@
         "README.md",
         "functions/**",
         "documents/**",
+        "oas-spa/**",
+        "legacy/**",
         "**/.*",
         "**/node_modules/**"
       ],
@@ -64,12 +66,18 @@
     },
     {
       "target": "oas",
-      "public": "apps/OnlineAppointSystem",
+      "public": "oas-spa/dist",
       "ignore": [
         "**/.*",
         "**/node_modules/**"
       ],
       "headers": [
+        {
+          "source": "assets/**",
+          "headers": [
+            { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+          ]
+        },
         {
           "source": "**",
           "headers": [
@@ -79,7 +87,7 @@
             { "key": "X-XSS-Protection",          "value": "1; mode=block" },
             { "key": "Referrer-Policy",           "value": "strict-origin-when-cross-origin" },
             { "key": "Permissions-Policy",        "value": "camera=(), microphone=(), geolocation=()" },
-            { "key": "Content-Security-Policy",   "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://unpkg.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.a.run.app https://zipcloud.ibsnet.co.jp https://holidays-jp.github.io; frame-src https://www.google.com https://maps.google.com; frame-ancestors 'none'; object-src 'none';" }
+            { "key": "Content-Security-Policy",   "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.a.run.app https://zipcloud.ibsnet.co.jp https://holidays-jp.github.io; frame-ancestors 'none'; object-src 'none';" }
           ]
         }
       ],
