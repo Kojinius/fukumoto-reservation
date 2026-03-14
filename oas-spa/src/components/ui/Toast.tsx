@@ -9,10 +9,10 @@ const ICONS: Record<string, string> = {
 };
 
 const TYPE_STYLES: Record<string, string> = {
-  success: 'border-l-emerald-500 bg-emerald-50 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300',
-  error:   'border-l-red-500 bg-red-50 dark:bg-red-900/50 text-red-700 dark:text-red-300',
-  warning: 'border-l-amber-500 bg-amber-50 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300',
-  info:    'border-l-sky-500 bg-sky-50 dark:bg-sky-900/50 text-sky-700 dark:text-sky-300',
+  success: 'text-gold',
+  error:   'text-danger',
+  warning: 'text-amber-500',
+  info:    'text-info',
 };
 
 export function ToastContainer() {
@@ -26,13 +26,13 @@ export function ToastContainer() {
         <div
           key={toast.id}
           className={cn(
-            'flex items-center gap-3 px-4 py-3 rounded-lg border-l-4 shadow-lg',
+            'flex items-center gap-3 px-4 py-3 rounded-lg',
+            'bg-navy-800 text-cream shadow-float',
             'text-sm font-medium',
-            TYPE_STYLES[toast.type],
             toast.removing ? 'animate-toast-out' : 'animate-toast-in',
           )}
         >
-          <span className="text-base">{ICONS[toast.type]}</span>
+          <span className={cn('text-base', TYPE_STYLES[toast.type])}>{ICONS[toast.type]}</span>
           <span>{toast.message}</span>
         </div>
       ))}

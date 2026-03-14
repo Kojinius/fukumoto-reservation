@@ -11,17 +11,17 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<Variant, string> = {
-  primary:   'bg-gradient-to-b from-accent to-accent-dark text-white shadow-[0_2px_8px_-2px_rgba(247,147,33,0.4)] hover:shadow-[0_4px_16px_-2px_rgba(247,147,33,0.45)] hover:from-accent-light hover:to-accent active:from-accent-dark active:to-accent-700',
-  secondary: 'bg-lien-100 dark:bg-lien-700 text-lien-700 dark:text-lien-200 hover:bg-lien-200 dark:hover:bg-lien-600 border border-lien-200 dark:border-lien-600',
-  danger:    'bg-gradient-to-b from-red-500 to-red-600 text-white shadow-[0_2px_8px_-2px_rgba(224,82,82,0.35)] hover:shadow-[0_4px_16px_-2px_rgba(224,82,82,0.4)] hover:from-red-400 hover:to-red-500 active:from-red-600 active:to-red-700',
-  ghost:     'text-lien-600 dark:text-lien-300 hover:bg-lien-100 dark:hover:bg-lien-800',
-  muted:     'bg-lien-200 dark:bg-lien-700 text-lien-500 dark:text-lien-400 hover:bg-lien-300 dark:hover:bg-lien-600',
+  primary:   'bg-navy-700 text-cream hover:bg-navy-600 shadow-sm hover:shadow-md hover:-translate-y-px',
+  secondary: 'border border-cream-300 text-navy-700 hover:bg-cream-100 hover:-translate-y-px',
+  danger:    'bg-danger text-white hover:bg-danger/90',
+  ghost:     'text-navy-500 hover:text-navy-700 hover:bg-cream-100',
+  muted:     'bg-cream-200 text-navy-400 hover:bg-cream-300',
 };
 
 const sizeClasses: Record<Size, string> = {
-  sm: 'px-3 py-1.5 text-sm rounded-lg',
-  md: 'px-5 py-2.5 text-sm rounded-xl',
-  lg: 'px-7 py-3 text-base rounded-xl',
+  sm: 'px-3 py-1.5 text-sm rounded-md',
+  md: 'px-5 py-2.5 text-sm rounded-lg',
+  lg: 'px-7 py-3 text-base rounded-lg',
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -30,9 +30,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ref={ref}
       disabled={disabled || loading}
       className={cn(
-        'inline-flex items-center justify-center gap-2 font-heading font-medium',
-        'transition-all duration-200 hover:-translate-y-0.5',
-        'disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none',
+        'inline-flex items-center justify-center gap-2 font-body font-medium',
+        'transition-all duration-150',
+        'active:scale-[0.97]',
+        'disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100',
         variantClasses[variant],
         sizeClasses[size],
         className,

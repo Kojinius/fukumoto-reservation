@@ -44,38 +44,5 @@ export async function createReservation(
   return { bookingId: result.reservationId };
 }
 
-/** 患者確認メール送信（fire & forget） */
-export function sendConfirmationEmail(data: {
-  to: string; name: string; date: string; time: string;
-  visitType: string; bookingId: string;
-}): void {
-  callFunction('sendReservationEmail', {
-    to: data.to,
-    name: data.name,
-    date: data.date,
-    time: data.time,
-    menu: data.visitType || '診療',
-    id: data.bookingId,
-  }).catch(e => console.warn('患者メール送信エラー:', e));
-}
-
-/** 管理者通知メール送信（fire & forget） */
-export function notifyAdmin(data: {
-  bookingId: string; name: string; furigana: string;
-  date: string; time: string; visitType: string;
-  insurance: string; phone: string; symptoms: string;
-  contactMethod: string;
-}): void {
-  callFunction('notifyAdminOnReservation', {
-    id: data.bookingId,
-    name: data.name,
-    furigana: data.furigana,
-    date: data.date,
-    time: data.time,
-    visitType: data.visitType,
-    insurance: data.insurance,
-    phone: data.phone,
-    symptoms: data.symptoms,
-    contactMethod: data.contactMethod,
-  }).catch(e => console.warn('管理者通知メール送信エラー:', e));
-}
+// メール送信は createReservation 内部でサーバーサイド処理されるため、
+// クライアントからの個別呼び出しは不要（SEC脆弱性対応で廃止）

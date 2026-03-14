@@ -35,6 +35,7 @@ export interface ClinicSettings {
   clinicUrl: string;
   clinicZip: string;
   clinicAddress: string;
+  clinicAddressSub: string;
   clinicLogo: string;
   /** 営業時間 */
   businessHours: BusinessHours;

@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useClinic } from '@/hooks/useClinic';
 import { useToast } from '@/hooks/useToast';
 import { callFunction } from '@/lib/functions';
@@ -18,6 +18,7 @@ export default function Cancel() {
   const { clinic } = useClinic();
   const { showToast } = useToast();
   const location = useLocation();
+  const navigate = useNavigate();
   const passedBookingId = (location.state as { bookingId?: string } | null)?.bookingId ?? '';
   const [phase, setPhase] = useState<Phase>('search');
   const [reservationId, setReservationId] = useState(passedBookingId);
@@ -101,9 +102,16 @@ export default function Cancel() {
       <div className="animate-fade-in-up">
         <Card className="max-w-md mx-auto">
           <CardHeader>
-            <h2 className="text-lg font-heading font-bold text-lien-900 dark:text-lien-50">
-              予約キャンセル
-            </h2>
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-navy-100 flex items-center justify-center">
+                <svg className="w-5 h-5 text-navy-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+              </div>
+              <h2 className="text-lg font-heading font-semibold text-navy-700">
+                予約キャンセル
+              </h2>
+            </div>
           </CardHeader>
           <CardBody>
             {error && <Alert variant="error" className="mb-4">{error}</Alert>}
@@ -124,9 +132,17 @@ export default function Cancel() {
                 required
               />
               <Button type="submit" className="w-full" loading={loading}>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
                 予約を確認する
               </Button>
             </form>
+            <div className="text-center mt-3 pt-3 border-t border-cream-300/60">
+              <Link to="/" className="text-sm text-navy-400 hover:text-navy-600 transition-colors">
+                ← トップに戻る
+              </Link>
+            </div>
           </CardBody>
         </Card>
       </div>
@@ -142,7 +158,7 @@ export default function Cancel() {
       <div className="animate-fade-in-up space-y-4 max-w-md mx-auto">
         <Card>
           <CardHeader>
-            <h2 className="text-lg font-heading font-bold text-lien-900 dark:text-lien-50">
+            <h2 className="text-lg font-heading font-semibold text-navy-700">
               予約内容
             </h2>
           </CardHeader>
@@ -156,9 +172,9 @@ export default function Cancel() {
                 ['初診/再診', booking.visitType || '-'],
                 ['症状', booking.symptoms],
               ].map(([label, val]) => (
-                <div key={label} className="flex border-b border-lien-100 dark:border-lien-700 py-2">
-                  <dt className="w-24 shrink-0 text-lien-500 dark:text-lien-400">{label}</dt>
-                  <dd className="text-lien-900 dark:text-lien-100 break-all">{val}</dd>
+                <div key={label} className="flex border-b border-cream-200/80 py-2">
+                  <dt className="w-24 shrink-0 text-navy-400">{label}</dt>
+                  <dd className="text-navy-700 break-all">{val}</dd>
                 </div>
               ))}
             </dl>
@@ -171,19 +187,34 @@ export default function Cancel() {
           <Alert variant="warning">
             キャンセル受付期限（{cutoffMinutes}分前）を過ぎているため、オンラインでのキャンセルを受け付けられません。
             {clinic?.phone && (
-              <span>お電話（<a href={`tel:${clinic.phone}`} className="underline">{clinic.phone}</a>）でご連絡ください。</span>
+              <span>お電話（<a href={`tel:${clinic.phone}`} className="underline font-medium">{clinic.phone}</a>）でご連絡ください。</span>
             )}
           </Alert>
         ) : (
           <>
-            <Alert variant="info">キャンセル受付期限: {deadline} まで</Alert>
+            <Alert variant="info">
+              <span className="flex items-center gap-2">
+                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                キャンセル受付期限: {deadline} まで
+              </span>
+            </Alert>
             <Button variant="danger" className="w-full" onClick={() => setConfirmOpen(true)} loading={cancelling}>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
               この予約をキャンセルする
             </Button>
           </>
         )}
 
-        <Button variant="ghost" className="w-full" onClick={reset}>別の予約を確認する</Button>
+        <Button variant="ghost" className="w-full" onClick={reset}>
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          </svg>
+          別の予約を確認する
+        </Button>
 
         <ConfirmDialog
           open={confirmOpen}
@@ -202,19 +233,29 @@ export default function Cancel() {
   return (
     <div className="animate-fade-in-up">
       <Card className="max-w-md mx-auto text-center">
-        <CardBody className="py-8">
-          <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        <CardBody className="py-10">
+          <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M5 13l4 4L19 7"
+                className="check-draw"
+              />
             </svg>
           </div>
-          <h2 className="text-xl font-heading font-bold text-lien-900 dark:text-lien-50 mb-2">
+          <h2 className="text-xl font-heading font-semibold text-navy-700 mb-2">
             キャンセルが完了しました
           </h2>
-          <p className="text-sm text-lien-500 dark:text-lien-400 mb-6">
+          <p className="text-sm text-navy-400 mb-6">
             ご不明な点がございましたらお電話ください。
           </p>
-          <Button variant="secondary" onClick={reset}>トップに戻る</Button>
+          <Button variant="secondary" onClick={() => navigate('/')}>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+            </svg>
+            トップに戻る
+          </Button>
         </CardBody>
       </Card>
     </div>

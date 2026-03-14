@@ -1,9 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Zen+Maru+Gothic:wght@400;500;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   BASE — raw CSSで記述（@apply + @importの順序競合を回避）
+   ============================================================ */
 @layer base {
   *,
   *::before,
@@ -18,186 +19,175 @@
   }
 
   body {
-    @apply font-body text-lien-900 bg-lien-50 dark:text-lien-100 dark:bg-lien-900;
-    @apply transition-theme duration-theme;
+    font-family: 'DM Sans', sans-serif;
+    color: #1B2B4B;
+    background-color: #EDE9E0;
   }
 
   :focus-visible {
-    @apply outline-accent outline-2 outline-offset-2;
+    outline: 2px solid #C9A96E;
+    outline-offset: 2px;
   }
 
-  ::-webkit-scrollbar {
-    @apply w-1.5;
-  }
-  ::-webkit-scrollbar-track {
-    @apply bg-lien-100 dark:bg-lien-800;
-  }
-  ::-webkit-scrollbar-thumb {
-    @apply bg-lien-300 dark:bg-lien-600 rounded-full;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-lien-400 dark:bg-lien-500;
-  }
+  /* スクロールバー */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #F4F6FA; }
+  ::-webkit-scrollbar-thumb { background: #C7D2E8; border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #9AADD0; }
 }
 
+/* ============================================================
+   COMPONENTS — raw CSS（@applyのopacity修飾子/カスタムshadow非対応回避）
+   ============================================================ */
 @layer components {
-  /* ======= 背景装飾 — 暖色グラデーション Orbs ======= */
-  .bg-warm-scene {
-    position: relative;
-    overflow: hidden;
-    background: linear-gradient(160deg, #FFF8EE 0%, #F7F5F3 40%, #FFEFD4 100%);
+
+  /* ── キャンバス背景 — グレイン + メッシュグラデーション ── */
+  .bg-canvas {
+    background-color: #EDE9E0;
+    background-image:
+      radial-gradient(ellipse at 15% 10%, rgba(201,169,110,0.04) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 80%, rgba(27,43,75,0.03) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(245,236,204,0.06) 0%, transparent 60%);
   }
-  .dark .bg-warm-scene {
-    background: linear-gradient(160deg, #1A1118 0%, #3D2B36 50%, #1A1118 100%);
-  }
-  .bg-warm-scene::before,
-  .bg-warm-scene::after {
+  .bg-canvas::after {
     content: '';
-    position: absolute;
-    border-radius: 50%;
+    position: fixed;
+    inset: 0;
     pointer-events: none;
-    z-index: 0;
-  }
-  /* 大きなオレンジ orb — 右上 */
-  .bg-warm-scene::before {
-    width: 600px;
-    height: 600px;
-    top: -200px;
-    right: -150px;
-    background: radial-gradient(circle, rgba(247, 147, 33, 0.12) 0%, transparent 70%);
-  }
-  /* ピンク/パープル orb — 左下 */
-  .bg-warm-scene::after {
-    width: 500px;
-    height: 500px;
-    bottom: -100px;
-    left: -150px;
-    background: radial-gradient(circle, rgba(115, 87, 99, 0.08) 0%, transparent 70%);
-  }
-  .dark .bg-warm-scene::before {
-    background: radial-gradient(circle, rgba(247, 147, 33, 0.08) 0%, transparent 70%);
-  }
-  .dark .bg-warm-scene::after {
-    background: radial-gradient(circle, rgba(115, 87, 99, 0.06) 0%, transparent 70%);
+    z-index: 50;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 180px 180px;
   }
 
-  /* 和紙テクスチャ */
-  .bg-washi {
-    position: relative;
-  }
-  .bg-washi > * {
-    position: relative;
-    z-index: 1;
-  }
-
-  /* ======= ヘッダーグラデーション ======= */
-  .header-gradient {
-    background: linear-gradient(135deg, #FFFFFF 0%, #FFF8EE 100%);
-  }
-  .dark .header-gradient {
-    background: linear-gradient(135deg, #3D2B36 0%, #1A1118 100%);
-  }
-
-  /* アクセントストライプ */
-  .accent-stripe {
-    background: linear-gradient(
+  /* ── ピンストライプ — 極薄縦縞 ── */
+  .pinstripe {
+    background-image: repeating-linear-gradient(
       90deg,
-      #F79321 0%,
-      #FFAD4D 30%,
-      #F79321 60%,
-      #D97B10 100%
+      transparent,
+      transparent 3px,
+      rgba(27,43,75,0.015) 3px,
+      rgba(27,43,75,0.015) 4px
     );
   }
 
-  /* ======= カード装飾 ======= */
-  .shadow-warm {
-    box-shadow:
-      0 1px 3px 0 rgba(90, 63, 78, 0.06),
-      0 4px 12px -2px rgba(90, 63, 78, 0.08);
-  }
-  .shadow-warm-lg {
-    box-shadow:
-      0 4px 6px -1px rgba(90, 63, 78, 0.07),
-      0 10px 24px -4px rgba(90, 63, 78, 0.1);
-  }
-  .dark .shadow-warm,
-  .dark .shadow-warm-lg {
-    box-shadow:
-      0 2px 8px 0 rgba(0, 0, 0, 0.3),
-      0 0 0 1px rgba(255, 255, 255, 0.03);
-  }
-
-  /* セクションカード — 左ボーダーアクセント */
+  /* ── セクションカード ── */
   .card-section {
-    @apply bg-white dark:bg-lien-800 rounded-2xl border border-lien-200/60 dark:border-lien-600/40 p-6 shadow-warm;
-    @apply transition-all duration-300 hover:shadow-warm-lg;
-    border-left: 4px solid transparent;
-  }
-  .card-section-accent {
-    border-left-color: #F79321;
-  }
-  .card-section-teal {
-    border-left-color: #4CAF50;
-  }
-  .card-section-rose {
-    border-left-color: #735763;
+    background-color: #fff;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(212,207,202,0.6);
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(27,43,75,0.04), 0 4px 12px rgba(27,43,75,0.02);
   }
 
-  /* セクションヘッダー装飾 */
+  /* ── セクションヘッダー — Shippori Mincho + gold thin-bar ── */
   .section-heading {
-    @apply text-sm font-heading font-bold text-lien-700 dark:text-lien-300 pb-2 mb-1;
-    @apply flex items-center gap-2;
+    font-size: 0.875rem;
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 600;
+    color: #1B2B4B;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
   .section-heading::before {
     content: '';
-    @apply w-1 h-4 rounded-full bg-accent shrink-0;
+    width: 2px;
+    height: 1rem;
+    background-color: #C9A96E;
+    border-radius: 9999px;
+    flex-shrink: 0;
   }
 
-  /* ======= 紙吹雪アニメーション ======= */
-  @keyframes confetti-fall {
-    0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-  }
-  .confetti-piece {
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    border-radius: 2px;
-    animation: confetti-fall linear forwards;
-    pointer-events: none;
-  }
-
-  /* ======= ヒーローバナー（確認/完了画面） ======= */
-  .hero-banner {
-    position: relative;
-    overflow: hidden;
-    background: linear-gradient(135deg, #F79321 0%, #FFAD4D 50%, #FFC573 100%);
-    border-radius: 1.25rem;
-  }
-  .hero-banner::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(circle at 15% 50%, rgba(255,255,255,0.2) 0%, transparent 50%),
-      radial-gradient(circle at 85% 20%, rgba(255,255,255,0.15) 0%, transparent 40%),
-      radial-gradient(circle at 50% 80%, rgba(255,255,255,0.1) 0%, transparent 40%);
-    pointer-events: none;
-  }
-  .hero-banner::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    opacity: 0.08;
-    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='2' fill='white'/%3E%3C/svg%3E");
-    pointer-events: none;
-  }
-
-  /* ======= ステップコネクタ ======= */
+  /* ── ステップコネクタ ── */
   .step-connector {
-    background: linear-gradient(90deg, #F79321, #DDD5CC);
+    height: 1px;
+    background-color: #D4CFCA;
   }
   .step-connector-done {
-    background: linear-gradient(90deg, #F79321, #F79321);
+    height: 1px;
+    background-color: #1B2B4B;
   }
+
+  /* ── マイクロインタラクション ── */
+
+  /* ボタン press — 触感フィードバック */
+  .btn-press:active:not(:disabled) {
+    transform: scale(0.97);
+    transition: transform 60ms ease-out;
+  }
+
+  /* カード lift — hover 時の浮遊感 */
+  .card-lift {
+    transition: all 0.2s;
+  }
+  .card-lift:hover {
+    box-shadow: 0 4px 16px rgba(27,43,75,0.06), 0 1px 3px rgba(27,43,75,0.04);
+    transform: translateY(-1px);
+  }
+
+  /* gold下線リンク — hover時スライドイン */
+  .link-gold-underline {
+    background-image: linear-gradient(#C9A96E, #C9A96E);
+    background-size: 0% 1px;
+    background-position: left bottom;
+    background-repeat: no-repeat;
+    transition: background-size 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    text-decoration: none;
+  }
+  .link-gold-underline:hover {
+    background-size: 100% 1px;
+  }
+
+  /* ゴールドシマー — 予約番号カード等 */
+  .shimmer-gold {
+    background-image: linear-gradient(
+      110deg,
+      transparent 30%,
+      rgba(201,169,110,0.08) 45%,
+      rgba(201,169,110,0.14) 50%,
+      rgba(201,169,110,0.08) 55%,
+      transparent 70%
+    );
+    background-size: 200% 100%;
+    animation: shimmerGold 3s ease-in-out infinite;
+  }
+
+  /* チェック描画アニメーション */
+  .check-draw {
+    stroke-dasharray: 24;
+    stroke-dashoffset: 24;
+    animation: checkDraw 0.6s cubic-bezier(0.65, 0, 0.35, 1) 0.3s both;
+  }
+
+  /* 管理者ヘッダー — ダーク差別化 */
+  .admin-header {
+    background-color: #12203A;
+    color: #FAFAF8;
+    border-bottom: 1px solid rgba(27,43,75,0.5);
+  }
+
+  /* stagger-in — 子要素の段階表示 */
+  .stagger-in > *:nth-child(1)  { animation-delay: 0.04s; }
+  .stagger-in > *:nth-child(2)  { animation-delay: 0.08s; }
+  .stagger-in > *:nth-child(3)  { animation-delay: 0.12s; }
+  .stagger-in > *:nth-child(4)  { animation-delay: 0.16s; }
+  .stagger-in > *:nth-child(5)  { animation-delay: 0.20s; }
+  .stagger-in > *:nth-child(6)  { animation-delay: 0.24s; }
+  .stagger-in > *:nth-child(7)  { animation-delay: 0.28s; }
+  .stagger-in > *:nth-child(8)  { animation-delay: 0.32s; }
+  .stagger-in > *:nth-child(n+9){ animation-delay: 0.36s; }
+}
+
+/* keyframes — @layer外 */
+@keyframes shimmerGold {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes checkDraw {
+  0%   { stroke-dashoffset: 24; }
+  100% { stroke-dashoffset: 0; }
 }

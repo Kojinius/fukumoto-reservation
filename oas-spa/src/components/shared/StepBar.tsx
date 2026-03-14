@@ -23,22 +23,30 @@ export function StepBar({ steps, current }: StepBarProps) {
               {/* ステップ */}
               <div className="flex flex-col items-center gap-1.5">
                 <div className={cn(
-                  'w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300',
-                  isDone && 'bg-gradient-accent text-white shadow-[0_2px_8px_-2px_rgba(247,147,33,0.5)]',
-                  isActive && 'bg-gradient-accent text-white shadow-[0_2px_12px_-2px_rgba(247,147,33,0.5)] ring-[3px] ring-accent/20 scale-110',
-                  !isDone && !isActive && 'bg-lien-100 dark:bg-lien-700/60 text-lien-400 dark:text-lien-500 border border-lien-200 dark:border-lien-600',
+                  'w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300',
+                  isDone && 'bg-navy-700 text-white border border-navy-700',
+                  isActive && 'border-2 border-gold text-gold animate-gold-pulse',
+                  !isDone && !isActive && 'border border-cream-300 text-navy-400',
                 )}>
                   {isDone ? (
-                    <svg className="w-4 h-4 animate-check-pop" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    /* check-draw SVGアニメーション */
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3}>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5 13l4 4L19 7"
+                        className="check-draw"
+                      />
                     </svg>
-                  ) : stepNum}
+                  ) : (
+                    <span className="font-display text-sm font-medium">{stepNum}</span>
+                  )}
                 </div>
                 <span className={cn(
-                  'text-xs whitespace-nowrap transition-colors duration-300',
-                  isActive && 'text-accent font-bold',
-                  isDone && 'text-lien-600 dark:text-lien-300 font-medium',
-                  !isDone && !isActive && 'text-lien-400 dark:text-lien-500',
+                  'text-[11px] whitespace-nowrap font-body transition-colors duration-300',
+                  isActive && 'text-navy-700 font-medium',
+                  isDone && 'text-navy-500 font-medium',
+                  !isDone && !isActive && 'text-navy-400',
                 )}>
                   {step.label}
                 </span>
@@ -47,12 +55,10 @@ export function StepBar({ steps, current }: StepBarProps) {
               {/* コネクタ */}
               {i < steps.length - 1 && (
                 <div className="relative w-10 sm:w-14 mx-1 mt-[-1.25rem]">
-                  {/* 背景線 */}
-                  <div className="h-[2px] bg-lien-200 dark:bg-lien-700 rounded-full" />
-                  {/* 完了済み線 */}
+                  <div className="h-px bg-cream-300" />
                   <div className={cn(
-                    'absolute top-0 left-0 h-[2px] rounded-full transition-all duration-500',
-                    isDone ? 'w-full bg-accent' : 'w-0 bg-accent',
+                    'absolute top-0 left-0 h-px transition-all duration-500 ease-out',
+                    isDone ? 'w-full bg-navy-700' : 'w-0 bg-navy-700',
                   )} />
                 </div>
               )}

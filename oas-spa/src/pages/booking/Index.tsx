@@ -5,7 +5,7 @@ import { PatientForm } from './PatientForm';
 import { Confirm } from './Confirm';
 import { Complete } from './Complete';
 import { useToast } from '@/hooks/useToast';
-import { createReservation, sendConfirmationEmail, notifyAdmin, fetchBookedSlots } from '@/hooks/useReservation';
+import { createReservation, fetchBookedSlots } from '@/hooks/useReservation';
 import { Alert } from '@/components/ui/Alert';
 import type { ReservationFormData } from '@/types/reservation';
 
@@ -57,32 +57,9 @@ export default function BookingIndex() {
     setSubmitting(true);
     setSlotTakenMsg('');
     try {
+      // メール送信はサーバーサイド（createReservation内部）で自動処理される
       const { bookingId: id } = await createReservation(form);
       setBookingId(id);
-
-      // メール送信（非同期、失敗しても予約は成立）
-      if (form.email) {
-        sendConfirmationEmail({
-          to: form.email,
-          name: form.name,
-          date: form.date,
-          time: form.time,
-          visitType: form.visitType,
-          bookingId: id,
-        });
-      }
-      notifyAdmin({
-        bookingId: id,
-        name: form.name,
-        furigana: form.furigana,
-        date: form.date,
-        time: form.time,
-        visitType: form.visitType,
-        insurance: form.insurance,
-        phone: form.phone,
-        symptoms: form.symptoms,
-        contactMethod: form.contactMethod,
-      });
 
       goToStep(4);
     } catch (err: unknown) {

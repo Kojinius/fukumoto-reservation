@@ -85,3 +85,61 @@ Full migration of the Online Appointment System (OAS) from Vanilla HTML/CSS/JS M
 - CSS @import order fixed (before @tailwind directives)
 - Firebase emulator admin claim setup via firebase-admin
 - Vite 8 Rolldown function-format manualChunks
+
+---
+
+## 2026-03-15 — V3 Redesign + Security Audit + Admin Features
+
+### V3 Redesign: Bold Navy × Gold (AMS-quality)
+- Applied AMS design analysis: split-screen AuthLayout, box-style inputs, shadow lift buttons
+- Updated 12 core files: Button, Input, Select, Card, Modal, AuthLayout, Header, Login, Complete, NotFound, Maintenance, Dashboard
+- AuthLayout: navy-900 gradient left panel + gold concentric circles + decorative dots
+- Input/Select: box-style with `rounded-lg` + `focus:ring-2 focus:ring-gold/30`
+- Button: `shadow-sm hover:shadow-md hover:-translate-y-px` lift effect
+- Card: upgraded to `rounded-xl`
+- Modal: `bg-black/40 backdrop-blur-sm` + `shadow-xl`
+- Background: darkened from `#FAFAF8` to `#EDE9E0` (cream palette adjusted)
+- Tailwind config: cream DEFAULT `#EDE9E0`, 100 `#E8E4DA`, 200 `#DDD8CD`
+
+### UI/UX Fixes
+- Gender select: widened to `w-[5.5rem]` to prevent text cutoff
+- Age badge: always visible ("— 歳" when birthdate empty)
+- PrivacyPolicy: removed `dangerouslySetInnerHTML`, added `parseSections()` for numbered-paragraph splitting
+- PatientForm: added `isValidPhone`, `isValidEmail`, `isValidFurigana`, `isValidZip` validation
+- Announcement banner: 3 distinct visual styles (info=sky+info icon, warning=amber+triangle, maintenance=navy+wrench)
+- Dashboard: replaced "電話する" button with "閉じる" button in reservation detail modal
+
+### Admin Features
+- [OAS-P7-T06] Admin password change page (`ChangePassword.tsx`): forced mode (`?forced=1`), reauthentication, `isStrongPassword` validation, live requirement indicators
+- Admin user CRUD fix: `callFunction` HTTP method support (GET for listUsers, DELETE for deleteUser)
+- Admin user list refresh: `await fetchUsers()` after create/delete
+- 429 fix: lifted `useAdminUsers()` to Settings parent to prevent re-fetch on tab switch
+- Admin user limit: max 2 accounts with Alert warning + form disable
+- Announcement tab: clear button for banner settings
+- Maintenance tab: clear button for date fields
+- Maintenance page: "更新して確認" refresh button with `isMaintenanceOver()` check
+- Settings zip auto-lookup: converted to `useEffect` pattern (CVCreator-style)
+
+### Security Audit — 12 Findings Fixed
+- [SEC-EMAIL] Email endpoints (`sendReservationEmail`, `notifyAdminOnReservation`) converted to internal helpers — no longer exposed as HTTP endpoints
+- [SEC-CORS] CORS whitelist enforced on all endpoints (production domain + localhost)
+- [SEC-RATE] Rate limiter memory leak fixed: entries older than 60s evicted
+- [SEC-ERR] Error message leakage fixed in `createAdminUser`, `listUsers`, `deleteUser` — generic fallback only
+- [SEC-XSS] Removed `dangerouslySetInnerHTML` from PrivacyPolicy
+- [SEC-CSP] CSP headers tightened (removed CDN sources, added `*.cloudfunctions.net` to connect-src)
+- [SEC-ADMIN-SUBJECT] Admin notification email subject changed from patient name to generic text
+- [SEC-AUDIT] CSV export audit logging added to `audit_logs` Firestore collection
+- [SEC-RULES] Firestore rules: `audit_logs` collection added, reservations split into create (validated) / update,delete
+
+### Re-Audit — 3 Regression Fixes
+- `audit_logs` Firestore rule was missing — added `allow create/read: if isAdmin()`
+- `listUsers`/`deleteUser` still leaked `err.message` — replaced with generic fallback
+- Admin email subject leaked patient name — changed to generic "【新規予約】新しい予約が入りました"
+
+### Deployment
+- Firestore rules deployed from AMS side (canonical, shared between AMS/OAS)
+- Cloud Functions deployed (deleted orphaned email endpoints first)
+- OAS Hosting deployed with updated CSP
+- Legacy URL 301 redirects added: OAS (`/login.html`, `/index.html`, `/admin.html`, `/cancel.html`)
+- AMS legacy 301 redirects added: all `.html` pages (login, admin, attendance-*, shift-*, etc.)
+- Verified production: `https://oas.kojinius.jp/` all routes working

@@ -18,6 +18,7 @@ import Login from '@/pages/Login';
 import AuthAction from '@/pages/AuthAction';
 import Dashboard from '@/pages/admin/Dashboard';
 import Settings from '@/pages/admin/Settings';
+import ChangePassword from '@/pages/admin/ChangePassword';
 import Maintenance from '@/pages/Maintenance';
 import NotFound from '@/pages/NotFound';
 
@@ -46,6 +47,7 @@ export default function App() {
                 <Route element={<AdminLayout />}>
                   <Route path="/admin" element={<Dashboard />} />
                   <Route path="/admin/settings" element={<Settings />} />
+                  <Route path="/admin/change-password" element={<ChangePassword />} />
                 </Route>
 
                 {/* メンテナンス */}

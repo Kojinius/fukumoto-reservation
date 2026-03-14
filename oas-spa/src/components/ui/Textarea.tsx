@@ -12,7 +12,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <div className="space-y-1.5">
         {label && (
-          <label htmlFor={textareaId} className="block text-sm font-medium text-lien-600 dark:text-lien-300">
+          <label htmlFor={textareaId} className="block text-xs tracking-wider uppercase text-navy-400 font-body">
             {label}
           </label>
         )}
@@ -20,19 +20,18 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           ref={ref}
           id={textareaId}
           className={cn(
-            'w-full px-3 py-2 rounded-lg border text-sm font-body resize-y',
-            'bg-white dark:bg-lien-800',
-            'border-lien-200 dark:border-lien-600',
-            'text-lien-900 dark:text-lien-100',
-            'placeholder:text-lien-400 dark:placeholder:text-lien-500',
-            'focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent',
-            'transition-colors duration-200',
-            error && 'border-red-500',
+            'w-full px-3 py-2.5 rounded-lg border border-cream-300 text-sm font-body resize-y',
+            'bg-white',
+            'text-navy-700',
+            'placeholder:text-navy-300',
+            'focus:outline-none focus:border-gold focus:shadow-[0_0_0_1px_#C9A96E]',
+            'transition-all duration-200',
+            error && 'border-danger focus:border-danger',
             className,
           )}
           {...props}
         />
-        {error && <p className="text-xs text-red-500">{error}</p>}
+        {error && <p className="text-xs text-danger">{error}</p>}
       </div>
     );
   },

@@ -458,37 +458,7 @@ async function submitReservation() {
         const bookingId = result.reservationId;
         booking.id = bookingId;
 
-        // 患者への確認メール（非同期・失敗しても予約は完了扱い）
-        if (booking.email) {
-            fetch(getFunctionUrl('sendReservationEmail'), {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    to: booking.email, name: booking.name,
-                    date: booking.date, time: booking.time,
-                    menu: booking.visitType || '診療',
-                    id: bookingId,
-                }),
-            }).catch(e => console.warn('患者メール送信エラー:', e));
-        }
-
-        // 管理者への新着通知（非同期・失敗しても予約は完了扱い）
-        fetch(getFunctionUrl('notifyAdminOnReservation'), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                id:            bookingId,
-                name:          booking.name,
-                furigana:      booking.furigana,
-                date:          booking.date,
-                time:          booking.time,
-                visitType:     booking.visitType,
-                insurance:     booking.insurance,
-                phone:         booking.phone,
-                symptoms:      booking.symptoms,
-                contactMethod: booking.contactMethod,
-            }),
-        }).catch(e => console.warn('管理者通知メール送信エラー:', e));
+        // メール送信はサーバーサイド（createReservation内部）で自動処理される
 
         window._lastBooking = { ...booking, status: 'pending', createdAt: new Date().toISOString() }; // PDF出力用
         overlay.classList.add('hidden');

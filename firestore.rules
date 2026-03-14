@@ -38,16 +38,22 @@ service cloud.firestore {
     // [SEC-5]  cancel も Cloud Function (cancelReservation) 経由のみ
     // [SEC-3]  get も Cloud Function (verifyReservation) 経由のみ — 未認証アクセス完全廃止
     match /reservations/{reservationId} {
-      // 管理者：読み書きすべて可
-      allow read, write: if isAdmin();
+      allow read: if isAdmin();
+      // 作成時はスキーマバリデーションを強制（不正データ混入防止）
+      allow create: if isAdmin() && isValidReservation(request.resource.data);
+      // 更新・削除はステータス変更等の部分更新があるためバリデーション不要
+      allow update, delete: if isAdmin();
     }
 
     // [SEC-18] create は Cloud Function 経由のみ
     // [SEC-5]  cancel も Cloud Function 経由のみ（未認証 update 廃止）
+    // [SEC-7]  患者向け予約画面（SPA）が未認証で slots を直接読み取るため
+    //          公開読み取りを維持。ただし reservationId フィールドが漏洩する
+    //          リスクあり — 将来的に Cloud Function 経由の読み取りに移行推奨
     match /slots/{slotId} {
       allow read: if true;
-      // 管理者：読み書きすべて可
-      allow read, write: if isAdmin();
+      // 管理者のみ書き込み可
+      allow write: if isAdmin();
     }
 
     // ユーザー設定コレクション（初期パスワード強制変更フラグ等）
@@ -58,6 +64,12 @@ service cloud.firestore {
       allow update: if request.auth != null
         && request.auth.uid == userId
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['mustChangePassword']);
+    }
+
+    // 監査ログコレクション（CSVエクスポート等の操作記録）
+    match /audit_logs/{logId} {
+      allow create: if isAdmin();
+      allow read: if isAdmin();
     }
 
     // 設定コレクション

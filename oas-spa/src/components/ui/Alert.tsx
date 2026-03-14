@@ -9,16 +9,16 @@ interface AlertProps {
 }
 
 const VARIANT_STYLES: Record<AlertVariant, string> = {
-  error:   'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300',
-  warning: 'bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300',
-  info:    'bg-sky-50 dark:bg-sky-900/30 border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300',
-  success: 'bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300',
+  error:   'border-l-danger bg-danger/5 text-danger',
+  warning: 'border-l-amber-500 bg-amber-50/60 text-amber-700',
+  info:    'border-l-info bg-info/5 text-info',
+  success: 'border-l-success bg-success/5 text-success',
 };
 
 export function Alert({ variant = 'info', children, className }: AlertProps) {
   return (
     <div className={cn(
-      'px-4 py-3 rounded-lg border text-sm',
+      'px-4 py-3 rounded-r-lg border-l-2 text-sm',
       VARIANT_STYLES[variant],
       className,
     )}>

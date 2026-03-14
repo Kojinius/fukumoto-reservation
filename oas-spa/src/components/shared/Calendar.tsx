@@ -84,26 +84,29 @@ export function Calendar({ selectedDate, onSelectDate, holidays, holidayNames, b
   return (
     <div className="select-none">
       {/* ヘッダー: 年月 + ナビ */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-5">
         <button
           type="button"
           onClick={prevMonth}
-          className="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-lien-100 dark:hover:bg-lien-700 text-lien-400 dark:text-lien-500 hover:text-lien-600 dark:hover:text-lien-300 transition-all duration-200"
+          className="w-9 h-9 rounded-md flex items-center justify-center hover:bg-cream-100 text-navy-300 hover:text-navy-500 transition-all duration-200 active:scale-[0.93]"
           aria-label="前月"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <h3 className="text-base font-heading font-bold text-lien-900 dark:text-lien-50 tracking-wide">
-          <span className="text-accent font-mono">{viewYear}</span>
-          <span className="mx-1 text-lien-300 dark:text-lien-600">/</span>
-          <span>{viewMonth + 1}月</span>
-        </h3>
+        <div className="text-center">
+          <h3 className="text-lg font-heading font-semibold text-navy-700">
+            {viewMonth + 1}月
+          </h3>
+          <p className="text-sm font-display font-light text-navy-400 -mt-0.5">
+            {viewYear}
+          </p>
+        </div>
         <button
           type="button"
           onClick={nextMonth}
-          className="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-lien-100 dark:hover:bg-lien-700 text-lien-400 dark:text-lien-500 hover:text-lien-600 dark:hover:text-lien-300 transition-all duration-200"
+          className="w-9 h-9 rounded-md flex items-center justify-center hover:bg-cream-100 text-navy-300 hover:text-navy-500 transition-all duration-200 active:scale-[0.93]"
           aria-label="翌月"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -116,10 +119,10 @@ export function Calendar({ selectedDate, onSelectDate, holidays, holidayNames, b
       <div className="grid grid-cols-7 mb-2">
         {WEEKDAY_LABELS.map((wd, i) => (
           <div key={wd} className={cn(
-            'text-center text-[11px] font-bold py-1.5 tracking-wider uppercase',
+            'text-center text-[10px] tracking-[0.15em] uppercase py-1.5 font-body font-medium',
             i === 0 && 'text-red-400',
             i === 6 && 'text-sky-400',
-            i > 0 && i < 6 && 'text-lien-400 dark:text-lien-500',
+            i > 0 && i < 6 && 'text-navy-300',
           )}>
             {wd}
           </div>
@@ -141,25 +144,25 @@ export function Calendar({ selectedDate, onSelectDate, holidays, holidayNames, b
               onClick={() => onSelectDate(cell.date)}
               title={cell.holidayName}
               className={cn(
-                'relative aspect-square flex items-center justify-center rounded-xl text-sm transition-all duration-200',
+                'relative aspect-square flex items-center justify-center rounded-md text-sm font-display transition-all duration-200',
                 // 選択中
-                isSelected && 'bg-gradient-accent text-white font-bold shadow-[0_2px_12px_-3px_rgba(247,147,33,0.5)] scale-105',
+                isSelected && 'bg-navy-700 text-white font-medium shadow-subtle',
                 // 今日
-                !isSelected && cell.isToday && 'ring-2 ring-accent/30 font-bold text-accent',
-                // 通常 — ホバーでリフト
-                !isSelected && !cell.disabled && 'hover:bg-lien-100 dark:hover:bg-lien-700 hover:scale-105 cursor-pointer',
+                !isSelected && cell.isToday && 'ring-1 ring-gold/50 font-medium text-gold',
+                // 通常 — ホバー
+                !isSelected && !cell.disabled && 'hover:bg-cream-100 cursor-pointer active:scale-[0.92]',
                 // 無効
                 cell.disabled && 'opacity-25 cursor-not-allowed',
                 // 曜日カラー（未選択時）
-                !isSelected && !cell.disabled && cell.dow === 0 && 'text-red-500 dark:text-red-400',
-                !isSelected && !cell.disabled && cell.dow === 6 && 'text-sky-500 dark:text-sky-400',
-                !isSelected && !cell.disabled && cell.dow > 0 && cell.dow < 6 && 'text-lien-700 dark:text-lien-200',
+                !isSelected && !cell.disabled && cell.dow === 0 && 'text-red-500',
+                !isSelected && !cell.disabled && cell.dow === 6 && 'text-sky-500',
+                !isSelected && !cell.disabled && cell.dow > 0 && cell.dow < 6 && 'text-navy-700',
               )}
             >
               {cell.day}
               {/* 今日のドット */}
               {cell.isToday && !isSelected && (
-                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-accent animate-pulse-soft" />
+                <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-gold" />
               )}
             </button>
           );

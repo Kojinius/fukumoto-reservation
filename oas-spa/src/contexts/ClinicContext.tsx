@@ -16,6 +16,7 @@ const DEFAULT_CLINIC: ClinicSettings = {
   clinicUrl: '',
   clinicZip: '',
   clinicAddress: '',
+  clinicAddressSub: '',
   clinicLogo: '',
   businessHours: DEFAULT_BUSINESS_HOURS,
   holidays: [],

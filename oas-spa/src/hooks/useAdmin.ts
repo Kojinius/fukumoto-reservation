@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { collection, onSnapshot, doc, writeBatch } from 'firebase/firestore';
+import { collection, onSnapshot, doc, writeBatch, addDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { auth } from '@/lib/firebase';
 import { callFunction } from '@/lib/functions';
@@ -74,7 +74,7 @@ export function useAdminUsers() {
     try {
       const token = await auth.currentUser?.getIdToken();
       if (!token) return;
-      const result = await callFunction<{ users: Array<{ uid: string; email: string; customClaims: Record<string, unknown>; metadata: { creationTime: string } }> }>('listUsers', {});
+      const result = await callFunction<{ users: Array<{ uid: string; email: string; customClaims: Record<string, unknown>; metadata: { creationTime: string } }> }>('listUsers', {}, 'GET');
       const admins = result.users
         .filter(u => !u.email.endsWith('@ams.local'))
         .map(u => ({
@@ -100,10 +100,10 @@ export async function createAdminUser(email: string, password: string): Promise<
 
 /** 管理者ユーザー削除 */
 export async function deleteAdminUser(uid: string): Promise<void> {
-  await callFunction('deleteUser', { uid });
+  await callFunction('deleteUser', { uid }, 'DELETE');
 }
 
-/** CSV エクスポート */
+/** CSV エクスポート（監査ログ付き） */
 export function exportReservationsCsv(reservations: ReservationRecord[]): void {
   const headers = ['予約番号', '予約日', '予約時間', '氏名', 'ふりがな', '生年月日', '住所', '電話番号', 'メール', '性別', '初診/再診', '保険証', '症状', '伝達事項', '連絡方法', 'ステータス', '登録日時'];
 
@@ -124,6 +124,21 @@ export function exportReservationsCsv(reservations: ReservationRecord[]): void {
   a.download = `予約データ_${new Date().toISOString().slice(0, 10)}.csv`;
   a.click();
   URL.revokeObjectURL(url);
+
+  // 監査ログをFirestoreに書き込み（エクスポート自体は失敗させない）
+  try {
+    addDoc(collection(db, 'audit_logs'), {
+      action: 'csv_export',
+      adminUid: auth.currentUser?.uid,
+      adminEmail: auth.currentUser?.email,
+      recordCount: reservations.length,
+      timestamp: new Date().toISOString(),
+    }).catch(() => {
+      // 監査ログ書き込み失敗時もCSVエクスポートは続行
+    });
+  } catch {
+    // 同期エラー時もCSVエクスポートは続行
+  }
 }
 
 /** メールアドレスマスキング */

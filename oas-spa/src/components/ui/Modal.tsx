@@ -35,22 +35,22 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
           aria-label={title}
           onClick={e => e.stopPropagation()}
           className={cn(
-            'relative bg-white dark:bg-lien-800 rounded-xl shadow-xl',
+            'relative bg-white rounded-xl shadow-xl',
             'w-full max-w-md animate-scale-in',
-            'border border-lien-200 dark:border-lien-600',
+            'border border-cream-300/60',
             className,
           )}
         >
           {title && (
-            <div className="flex items-center justify-between px-5 py-4 border-b border-lien-200 dark:border-lien-600">
-              <h3 className="text-lg font-heading font-bold text-lien-900 dark:text-lien-50">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-cream-300/60">
+              <h3 className="text-lg font-heading font-semibold text-navy-700">
                 {title}
               </h3>
               <button
                 type="button"
                 onClick={onClose}
                 aria-label="閉じる"
-                className="p-1 rounded-lg text-lien-400 hover:text-lien-600 dark:hover:text-lien-200 hover:bg-lien-100 dark:hover:bg-lien-700 transition-colors"
+                className="p-1 rounded-md text-navy-300 hover:text-navy-600 hover:bg-cream-100 transition-colors"
               >
                 <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
