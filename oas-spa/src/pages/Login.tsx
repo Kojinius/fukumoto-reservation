@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Input } from '@/components/ui/Input';
+import { PasswordInput } from '@/components/ui/PasswordInput';
 import { Button } from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Alert';
 
@@ -72,9 +73,8 @@ export default function Login() {
             autoComplete="email"
             required
           />
-          <Input
+          <PasswordInput
             label="パスワード"
-            type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
             autoComplete="current-password"

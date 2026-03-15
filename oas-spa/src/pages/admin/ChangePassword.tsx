@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
+import { PasswordInput } from '@/components/ui/PasswordInput';
 import { Button } from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Alert';
 import { isStrongPassword } from '@/utils/validation';
@@ -105,18 +106,16 @@ export default function ChangePassword() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
+            <PasswordInput
               label="現在のパスワード"
-              type="password"
               value={currentPassword}
               onChange={e => setCurrentPassword(e.target.value)}
               autoComplete="current-password"
               required
             />
 
-            <Input
+            <PasswordInput
               label="新しいパスワード"
-              type="password"
               value={newPassword}
               onChange={e => setNewPassword(e.target.value)}
               autoComplete="new-password"
@@ -142,9 +141,8 @@ export default function ChangePassword() {
               </li>
             </ul>
 
-            <Input
+            <PasswordInput
               label="新しいパスワード（確認）"
-              type="password"
               value={confirmPassword}
               onChange={e => setConfirmPassword(e.target.value)}
               autoComplete="new-password"

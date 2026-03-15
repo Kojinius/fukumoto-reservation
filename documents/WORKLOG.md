@@ -166,3 +166,37 @@
 
 - **Script**: Full rewrite of `documents/capture_screenshots.py` for React SPA
 - **Changes**: SPA routes (/cancel not /cancel.html, /privacy-policy, /login, /admin/settings tabs via button click), `domcontentloaded` + fixed wait (Firebase listener 対策), `exact=True` ラベル選択, 管理者タブは button role クリックで遷移
+
+---
+
+## 2026-03-15 Work Log (2)
+
+### Tasks Completed
+
+#### Portfolio SPA — Full React Migration + A4 Preview Font Tuning
+
+- **Scope**: Migrated legacy `apps/ResumeCreator/` and `apps/CVCreator/` to new `portfolio-spa/` React SPA (Vite + React 19 + TypeScript 5 + Tailwind CSS 3.4)
+- **Pages**: Home.tsx, ResumeCreator.tsx, CVCreator.tsx
+- **Components**: A4Preview.tsx, FormAccordion.tsx, FormField.tsx, PhotoUpload.tsx, ZipcodeInput.tsx
+- **Hooks**: useAutoSave.ts, useZipcode.ts
+- **Utils**: pdf.ts (pdf-lib + fontkit), storage.ts, cn.ts
+- **firebase.json**: Updated portfolio hosting target to `portfolio-spa/dist`, added SPA rewrite, legacy URL 301 redirects (`/apps/ResumeCreator` → `/resume`, `/apps/CVCreator` → `/cv`), CSP updated for `raw.githubusercontent.com` (font fetch)
+
+#### A4 Preview Font Size Enlargement (17 items)
+
+- **Motivation**: Preview text was too small (7–9px); enlarged all items ~2x for readability
+- **Final sizes**: Title 24px, labels 13px, name 32px (resume) / 20px (CV), furigana 18px, values 15px, tables 15px, section headings 16px (CV), base font 15px
+- **Layout adjustments**: Label widths (w-20), photo area (w-36), table columns (w-12/w-10), padding proportional increase, skill category (w-28)
+- **Personal info section**: Flex column layout with `flex-1`/`flex-[2]` for even row distribution matching photo height; `self-stretch` on labels/gender for unbroken borders
+
+#### Bug Fixes
+
+- **[BUG] Certs add-row crash**: `ADD_CERTS` (plural) dispatched but reducer expected `ADD_CERT` (singular). Fixed with `ACTION_KEY` mapping: `{ edu: 'EDU', work: 'WORK', certs: 'CERT' }`
+- **[BUG] PDF photo quality**: PhotoUpload canvas output was 85×113px (low-res for print). Added 4× scale factor (`PHOTO_SCALE = 4`) → 340×452px output with `imageSmoothingQuality: 'high'`
+- **Gender label**: Changed 男/女 → 男性/女性 in ResumeCreator form options
+
+#### OAS: PasswordInput Component
+
+- **New component**: `oas-spa/src/components/ui/PasswordInput.tsx` — password field with show/hide toggle
+- **Applied to**: Login.tsx, AuthAction.tsx (password reset), ChangePassword.tsx
+- **Changed**: Replaced `<Input type="password">` with `<PasswordInput>` across all password fields

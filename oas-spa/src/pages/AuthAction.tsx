@@ -4,6 +4,7 @@ import { applyActionCode, confirmPasswordReset, verifyPasswordResetCode } from '
 import { auth } from '@/lib/firebase';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
+import { PasswordInput } from '@/components/ui/PasswordInput';
 import { Button } from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Alert';
 import { Spinner } from '@/components/ui/Spinner';
@@ -151,8 +152,8 @@ export default function AuthAction() {
           <p className="text-sm text-navy-400 mb-4 text-center font-mono">{email}</p>
           {pwError && <Alert variant="error" className="mb-4">{pwError}</Alert>}
           <div className="space-y-4">
-            <Input label="新しいパスワード" type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} autoComplete="new-password" />
-            <Input label="パスワード確認" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} autoComplete="new-password" />
+            <PasswordInput label="新しいパスワード" value={newPassword} onChange={e => setNewPassword(e.target.value)} autoComplete="new-password" />
+            <PasswordInput label="パスワード確認" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} autoComplete="new-password" />
             <Button className="w-full" onClick={handleResetPassword} loading={saving}>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />

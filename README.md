@@ -12,8 +12,8 @@
 | ポートフォリオ（ルート） | `https://kojinius.jp/` |
 | 予約ページ（患者側） | `https://oas.kojinius.jp/` |
 | 管理画面（スタッフ側） | `https://oas.kojinius.jp/admin.html` |
-| 履歴書作成ツール | `https://kojinius.jp/apps/ResumeCreator/` |
-| 職務経歴書作成ツール | `https://kojinius.jp/apps/CVCreator/` |
+| 履歴書作成ツール | `https://kojinius.jp/resume` |
+| 職務経歴書作成ツール | `https://kojinius.jp/cv` |
 
 ---
 
@@ -81,7 +81,7 @@ const BUSINESS_HOURS = {
 
 | 項目 | 内容 |
 |------|------|
-| 構成 | 静的HTML/CSS/Vanilla JS + Firebase |
+| 構成 | OAS: Vite + React 19 + TypeScript 5 + Tailwind CSS / Portfolio: 同構成の SPA / Firebase |
 | ホスティング | Firebase Hosting マルチサイト（portfolio: kojinius.jp / oas: oas.kojinius.jp）|
 | データ永続化 | Firebase Firestore |
 | メール送信 | Firebase Functions + Resend（`noreply@kojinius.jp`）患者確認・管理者通知・前日リマインダー |
@@ -150,19 +150,18 @@ fukumoto-reservation/
 ├── functions/
 │   ├── index.js                      # Cloud Functions（メール・リマインダー等）
 │   └── package.json
-├── apps/
-│   ├── OnlineAppointSystem/          # 予約システム本体（oas.kojinius.jp）
-│   │   ├── index.html                # 患者側：予約フロー（4ステップ）
-│   │   ├── admin.html                # 管理側：予約管理ダッシュボード
-│   │   ├── login.html                # 管理者ログイン
-│   │   ├── cancel.html               # 患者側：予約キャンセル
-│   │   ├── fonts/
-│   │   │   └── NotoSansJP-Regular.ttf
-│   │   ├── css/style.css
-│   │   └── js/
-│   │       ├── app.js, auth.js, admin.js, utils.js, firebase.js, config.js, cancel.js
-│   ├── ResumeCreator/                # 履歴書作成ツール（kojinius.jp/apps/ResumeCreator/）
-│   └── CVCreator/                    # 職務経歴書作成ツール（kojinius.jp/apps/CVCreator/）
+├── portfolio-spa/                       # ポートフォリオSPA（kojinius.jp）— Vite + React + TypeScript + Tailwind
+│   └── src/
+│       ├── pages/
+│       │   ├── Home.tsx                 # トップページ
+│       │   ├── ResumeCreator.tsx        # 履歴書作成ツール（/resume）
+│       │   └── CVCreator.tsx            # 職務経歴書作成ツール（/cv）
+│       ├── components/tools/            # A4Preview, FormField, PhotoUpload 等
+│       ├── hooks/                       # useAutoSave, useZipcode 等
+│       ├── utils/                       # pdf.ts（pdf-lib）, storage.ts 等
+│       └── types/                       # resume.ts, cv.ts
+├── oas-spa/                             # OAS SPA（oas.kojinius.jp）— 同構成
+├── apps/                                # レガシーアプリ（ビルド時 dist/apps/ にコピー）
 ├── documents/
 │   ├── capture_screenshots.py        # Playwright スクリーンショット撮影スクリプト
 │   ├── make_user_manual.py           # ユーザーマニュアル pptx 生成スクリプト

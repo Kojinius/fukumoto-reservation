@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Zen Kaku Gothic New', 'Hiragino Kaku Gothic ProN', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(247, 147, 33, 0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(115, 87, 99, 0.05) 0%, transparent 50%),
+      #FCF0DE;
+    transition: background-color 300ms ease;
+  }
+
+  .dark body {
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(247, 147, 33, 0.03) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(160, 120, 136, 0.04) 0%, transparent 50%),
+      #1A1210;
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: #C4A99B;
+    border-radius: 3px;
+  }
+  .dark ::-webkit-scrollbar-thumb {
+    background: #5A4250;
+  }
+}
+
+@layer components {
+  .badge-shimmer {
+    background: linear-gradient(135deg, #F79321, #735763, #F79321);
+    background-size: 200% 200%;
+    animation: badgeShimmer 4s ease-in-out infinite;
+  }
+
+  @keyframes badgeShimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+}
