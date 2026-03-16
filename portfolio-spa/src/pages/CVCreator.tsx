@@ -115,7 +115,7 @@ export default function CVCreator() {
       </div>
 
       {/* ── フォームパネル ── */}
-      <div className={cn('lg:w-[400px] lg:shrink-0 overflow-y-auto', mobileTab !== 'form' && 'hidden lg:block')}>
+      <div className={cn('flex-1 min-h-0 lg:flex-none lg:w-[400px] overflow-y-auto', mobileTab !== 'form' && 'hidden lg:block')}>
         <form className="p-4 space-y-2.5" onSubmit={e => e.preventDefault()}>
           {/* 01 基本情報 */}
           <FormAccordion title="基本情報" sectionNumber="01" defaultOpen>
@@ -218,8 +218,8 @@ export default function CVCreator() {
 
       {/* ── プレビューパネル ── */}
       <div className={cn(
-        'lg:flex-1 lg:min-w-0 border-l border-brown-200/60 dark:border-brown-800/60',
-        mobileTab !== 'preview' && 'hidden lg:flex', 'flex flex-col',
+        'flex-1 min-h-0 flex-col lg:min-w-0 lg:border-l lg:border-brown-200/60 dark:lg:border-brown-800/60',
+        mobileTab === 'preview' ? 'flex' : 'hidden lg:flex',
       )}>
         <A4Preview onGeneratePdf={handlePdf} onReset={handleReset} isGenerating={isGenerating}>
           {/* タイトル */}

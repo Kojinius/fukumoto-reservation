@@ -10,7 +10,7 @@
 | ✅ | PORTFOLIO-T04 | PhotoUpload 高解像度対応 | P2 |
 | ✅ | PORTFOLIO-T05 | レガシーURL 301リダイレクト | P1 |
 | ⬜ | PORTFOLIO-T06 | PDF生成フォントサイズ同期（プレビューに合わせる） | P3 |
-| ⬜ | PORTFOLIO-T07 | モバイル最適化テスト | P2 |
+| ✅ | PORTFOLIO-T07 | モバイル最適化（A4スケーリング + パネル表示修正） | P2 |
 
 ## OAS SPA (oas.kojinius.jp)
 
@@ -31,4 +31,4 @@
 | ⬜ | SEC-21 | [共通] CDNスクリプトにSRIハッシュなし | P3-Low | S |
 | ⬜ | SEC-16 | [AMS] console.logデバッグコード残存 | P3-Low | S |
 
-**Completed: 17 / Remaining: 7**
+**Completed: 18 / Remaining: 6**

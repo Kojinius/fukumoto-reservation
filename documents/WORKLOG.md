@@ -200,3 +200,18 @@
 - **New component**: `oas-spa/src/components/ui/PasswordInput.tsx` — password field with show/hide toggle
 - **Applied to**: Login.tsx, AuthAction.tsx (password reset), ChangePassword.tsx
 - **Changed**: Replaced `<Input type="password">` with `<PasswordInput>` across all password fields
+
+---
+
+## 2026-03-16 Work Log
+
+### Tasks Completed
+
+#### [PORTFOLIO-T07] Mobile Layout Fix — ResumeCreator & CVCreator
+
+- **Root cause**: `tailwind-merge` resolved `hidden` vs `flex` class conflict by removing `hidden`, causing both form and preview panels to render simultaneously on mobile — squishing both into half the viewport height
+- **Fix 1 — A4Preview.tsx**: Added `ResizeObserver`-based CSS `transform: scale()` scaling. A4 content always renders at fixed 794×1123px and scales proportionally to fit the container. On a 375px phone, the preview scales to ~44% — maintaining exact PDF-matching layout
+- **Fix 2 — Panel visibility**: Changed preview panel class logic from `mobileTab !== 'preview' && 'hidden lg:flex', 'flex flex-col'` (conflict) to `mobileTab === 'preview' ? 'flex' : 'hidden lg:flex'` (no conflict)
+- **Fix 3 — Form panel flex**: Added `flex-1 min-h-0 lg:flex-none` to form panel — fills remaining viewport height on mobile, fixed 400px width on desktop
+- **Fix 4 — Border cleanup**: Changed `border-l` to `lg:border-l` on preview panel — left border only on desktop (vertical stack on mobile doesn't need it)
+- **Changed files**: `A4Preview.tsx`, `ResumeCreator.tsx`, `CVCreator.tsx`

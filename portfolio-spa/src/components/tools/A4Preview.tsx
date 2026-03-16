@@ -1,5 +1,9 @@
-import type { ReactNode } from 'react';
+import { useRef, useState, useEffect, type ReactNode } from 'react';
 import { cn } from '@/utils/cn';
+
+/** A4用紙の固定サイズ（96dpi） */
+const A4_W = 794;
+const A4_H = 1123;
 
 interface A4PreviewProps {
   children: ReactNode;
@@ -8,8 +12,23 @@ interface A4PreviewProps {
   isGenerating?: boolean;
 }
 
-/** A4用紙プレビュー + PDF出力ボタン */
+/** A4用紙プレビュー + PDF出力ボタン — モバイルではCSS transformでスケーリング */
 export function A4Preview({ children, onGeneratePdf, onReset, isGenerating = false }: A4PreviewProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => {
+      // p-3 = 12px × 2 = 24px
+      const available = el.clientWidth - 24;
+      setScale(Math.min(1, available / A4_W));
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   return (
     <div className="flex flex-col h-full">
       {/* アクションボタン */}
@@ -51,17 +70,21 @@ export function A4Preview({ children, onGeneratePdf, onReset, isGenerating = fal
         </button>
       </div>
 
-      {/* A4プレビュー領域（96dpi = ブラウザ座標系） */}
-      <div className="flex-1 overflow-y-auto p-3 bg-brown-100/50 dark:bg-brown-950/30">
-        <div className="mx-auto bg-white dark:bg-brown-900/80 shadow-lg rounded-sm border border-brown-200/60 dark:border-brown-800/60"
-          style={{
-            width: '100%',
-            maxWidth: 1000,
-            aspectRatio: '794 / 1123',
-          }}
-        >
-          <div className="p-10 text-[15px] leading-relaxed text-brown-800 dark:text-brown-100">
-            {children}
+      {/* A4プレビュー領域 — 固定794×1123をtransform:scaleで縮小 */}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 bg-brown-100/50 dark:bg-brown-950/30">
+        <div className="mx-auto" style={{ width: A4_W * scale, height: A4_H * scale }}>
+          <div
+            className="bg-white dark:bg-brown-900/80 shadow-lg rounded-sm border border-brown-200/60 dark:border-brown-800/60 overflow-hidden"
+            style={{
+              width: A4_W,
+              height: A4_H,
+              transform: `scale(${scale})`,
+              transformOrigin: 'top left',
+            }}
+          >
+            <div className="p-10 text-[15px] leading-relaxed text-brown-800 dark:text-brown-100">
+              {children}
+            </div>
           </div>
         </div>
       </div>
