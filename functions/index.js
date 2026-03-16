@@ -73,6 +73,47 @@ function setCorsHeaders(req, res) {
 }
 
 /**
+ * 【SEC-C2】予約済みスロット取得（CF proxy — reservationId 漏洩防止）
+ * GET /getBookedSlots?date=2026-03-16
+ * 患者向け予約画面が利用。認証不要。time 配列のみ返却し reservationId を隠蔽する。
+ * レート制限: IP あたり 5回/分
+ */
+exports.getBookedSlots = onRequest(
+  { invoker: "public" },
+  async (req, res) => {
+    setCorsHeaders(req, res);
+    if (req.method === "OPTIONS") { res.status(204).send(""); return; }
+    if (req.method !== "GET")     { res.status(405).json({ error: "Method Not Allowed" }); return; }
+
+    const clientIp = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.ip;
+    if (isRateLimited(clientIp)) {
+      res.status(429).json({ error: "リクエストが多すぎます。しばらくお待ちください。" });
+      return;
+    }
+
+    const date = req.query.date;
+    if (!date || typeof date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      res.status(400).json({ error: "日付パラメータが不正です" });
+      return;
+    }
+
+    try {
+      const db   = getFirestore();
+      const snap = await db.collection("slots").where("date", "==", date).get();
+      const bookedTimes = snap.docs
+        .map(d => d.data())
+        .filter(s => s.status !== "cancelled")
+        .map(s => s.time);
+
+      res.status(200).json({ bookedTimes });
+    } catch (err) {
+      console.error("[getBookedSlots] エラー:", err);
+      res.status(500).json({ error: "スロット情報の取得に失敗しました" });
+    }
+  }
+);
+
+/**
  * 【SEC-18】予約作成（スロット確保 + 予約登録のトランザクション）
  * POST /createReservation
  * Body: { date, time, name, furigana, birthdate, zip, address,

@@ -1,8 +1,7 @@
 import { db, auth } from "./firebase.js";
 import { getIdTokenResult, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 import {
-    doc, getDocs, getDoc,
-    collection, query, where,
+    doc, getDoc,
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 // ── Cloud Functions URL 解決 ──
@@ -184,14 +183,12 @@ let selectedDate = null;
 let selectedTime = null;
 let cachedBookedSlots = [];
 
-// ── Firestore：選択日の予約済みスロット取得（slotsコレクションを使用）──
+// ── [SEC-C2] CF proxy 経由で予約済みスロット取得（reservationId 漏洩防止）──
 async function fetchBookedSlots(dateStr) {
-    const q    = query(collection(db, 'slots'), where('date', '==', dateStr));
-    const snap = await getDocs(q);
-    return snap.docs
-        .map(d => d.data())
-        .filter(b => b.status !== 'cancelled')
-        .map(b => b.time);
+    const res = await fetch(`${getFunctionUrl('getBookedSlots')}?date=${encodeURIComponent(dateStr)}`);
+    if (!res.ok) throw new Error('スロット情報の取得に失敗しました');
+    const json = await res.json();
+    return json.bookedTimes;
 }
 
 // ── カレンダー描画 ──

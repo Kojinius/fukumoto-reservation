@@ -1,16 +1,14 @@
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { callFunction } from '@/lib/functions';
+import { callFunction, getFunctionUrl } from '@/lib/functions';
 import type { ReservationFormData } from '@/types/reservation';
 
-/** 指定日の予約済みスロットを取得 */
+/** 指定日の予約済みスロットを取得（CF proxy経由 — reservationId 非公開） */
 export async function fetchBookedSlots(dateStr: string): Promise<string[]> {
-  const q = query(collection(db, 'slots'), where('date', '==', dateStr));
-  const snap = await getDocs(q);
-  return snap.docs
-    .map(d => d.data())
-    .filter(s => s.status !== 'cancelled')
-    .map(s => s.time as string);
+  const res = await fetch(
+    `${getFunctionUrl('getBookedSlots')}?date=${encodeURIComponent(dateStr)}`,
+  );
+  if (!res.ok) throw new Error('スロット情報の取得に失敗しました');
+  const json = await res.json();
+  return json.bookedTimes;
 }
 
 interface CreateResult {
