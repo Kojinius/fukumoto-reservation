@@ -172,11 +172,11 @@ exports.createReservation = onRequest(
       }
     }
 
-    // ── 日付の妥当性チェック（過去日付を拒否）──
-    const bookingDate = new Date(d.date + "T00:00:00+09:00");
-    const todayJst    = new Date(Date.now() + 9 * 3600000);
-    todayJst.setUTCHours(0, 0, 0, 0);
-    if (bookingDate < todayJst) {
+    // ── 日付の妥当性チェック（過去日付を拒否、当日は許可）──
+    // 文字列比較でタイムゾーンずれを回避（ISO日付は辞書順 = 日付順）
+    const jstNow  = new Date(Date.now() + 9 * 3600000);
+    const todayStr = jstNow.toISOString().split("T")[0];
+    if (d.date < todayStr) {
       res.status(400).json({ error: "過去の日付は予約できません" });
       return;
     }
