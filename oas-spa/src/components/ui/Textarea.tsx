@@ -7,7 +7,7 @@ interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 }
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ label, error, className, id, ...props }, ref) => {
+  ({ label, error, className, id, disabled, ...props }, ref) => {
     const textareaId = id || label?.replace(/\s/g, '-');
     return (
       <div className="space-y-1.5">
@@ -27,8 +27,10 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             'focus:outline-none focus:border-gold focus:shadow-[0_0_0_1px_#C9A96E]',
             'transition-all duration-200',
             error && 'border-danger focus:border-danger',
+            disabled && 'bg-cream-100 text-navy-300 cursor-not-allowed opacity-60',
             className,
           )}
+          disabled={disabled}
           {...props}
         />
         {error && <p className="text-xs text-danger">{error}</p>}

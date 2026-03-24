@@ -34,6 +34,8 @@ export interface ReservationRecord {
   symptoms: string;
   notes: string;
   contactMethod: ContactMethod;
+  /** 要配慮個人情報の同意フラグ（C1: 個人情報保護法 第20条第2項） */
+  hasSensitiveDataConsent: boolean;
   /** メタデータ */
   createdAt: string;
 }
@@ -56,6 +58,8 @@ export interface ReservationFormData {
   symptoms: string;
   notes: string;
   contactMethod: ContactMethod;
+  /** 要配慮個人情報の同意フラグ（C1） */
+  hasSensitiveDataConsent: boolean;
 }
 
 /** 時間スロット（slots コレクション） */

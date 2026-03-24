@@ -33,6 +33,7 @@ const INITIAL_FORM: ReservationFormData = {
   symptoms: '',
   notes: '',
   contactMethod: '電話',
+  hasSensitiveDataConsent: false,
 };
 
 export default function BookingIndex() {

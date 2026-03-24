@@ -9,6 +9,7 @@ import { toHankaku } from '@/utils/security';
 import { isValidPhone, isValidEmail, isValidFurigana, isValidZip } from '@/utils/validation';
 import { calcAge } from '@/utils/date';
 import { cn } from '@/utils/cn';
+import { useClinic } from '@/hooks/useClinic';
 import type { ReservationFormData, Gender, VisitType, InsuranceType, ContactMethod } from '@/types/reservation';
 
 interface Props {
@@ -19,11 +20,20 @@ interface Props {
   privacyPolicyUrl?: string;
 }
 
+/** 要配慮個人情報の同意デフォルト文言（settings/clinic.sensitiveDataConsentText 未設定時） */
+const DEFAULT_SENSITIVE_DATA_TEXT =
+  '「症状・お悩み」欄に入力される健康に関する情報は、個人情報保護法上の「要配慮個人情報」に該当する可能性があります。当院の予約対応・施術準備の目的でのみ使用し、ご本人の同意なく第三者に提供することはありません。';
+
 export function PatientForm({ form, onUpdate, onNext, onBack, privacyPolicyUrl }: Props) {
+  const { clinic } = useClinic();
   const [consent, setConsent] = useState(false);
   const [consentError, setConsentError] = useState(false);
+  const [sensitiveConsentError, setSensitiveConsentError] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [zipMsg, setZipMsg] = useState('');
+
+  /** 要配慮個人情報の同意文言（管理画面で設定可能、未設定時はデフォルト） */
+  const sensitiveDataText = clinic?.sensitiveDataConsentText?.trim() || DEFAULT_SENSITIVE_DATA_TEXT;
   const onUpdateRef = useRef(onUpdate);
   onUpdateRef.current = onUpdate;
 
@@ -85,7 +95,9 @@ export function PatientForm({ form, onUpdate, onNext, onBack, privacyPolicyUrl }
     } else if (form.email.trim() && !isValidEmail(form.email)) {
       errs.push('メールアドレスの形式が正しくありません');
     }
+    if (!form.hasSensitiveDataConsent) errs.push('健康情報の取り扱いに同意してください');
     if (!form.symptoms.trim()) errs.push('症状・お悩みを入力してください');
+    setSensitiveConsentError(!form.hasSensitiveDataConsent);
     setConsentError(!consent);
     setErrors(errs);
     return errs.length === 0 && consent;
@@ -218,7 +230,45 @@ export function PatientForm({ form, onUpdate, onNext, onBack, privacyPolicyUrl }
             ]}
           />
         </div>
-        <Textarea label="症状・お悩み *" value={form.symptoms} onChange={e => onUpdate({ symptoms: e.target.value })} rows={3} placeholder="〇月〇日の〇時頃から、腰痛・肩こりなど" required />
+        {/* [C1] 要配慮個人情報の同意（個人情報保護法 第20条第2項） */}
+        <div className={cn(
+          'rounded-lg border p-4 transition-all duration-200',
+          sensitiveConsentError ? 'border-danger bg-red-50/50 shadow-[0_0_0_3px_rgba(194,91,86,0.08)]' : 'border-cream-300/60 bg-cream-50/50',
+          form.hasSensitiveDataConsent && !sensitiveConsentError && 'border-gold/40 bg-gold-50/30',
+        )}>
+          <div className="flex items-start gap-2 mb-2.5">
+            <svg className="w-4 h-4 shrink-0 mt-0.5 text-navy-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <span className="text-xs font-medium text-navy-500 uppercase tracking-wider">健康情報の取り扱いについて</span>
+          </div>
+          <p className="text-xs text-navy-500 leading-relaxed mb-3 ml-6">{sensitiveDataText}</p>
+          <label className="flex items-start gap-3 cursor-pointer group ml-3">
+            <input
+              type="checkbox"
+              checked={form.hasSensitiveDataConsent}
+              onChange={e => {
+                onUpdate({ hasSensitiveDataConsent: e.target.checked });
+                setSensitiveConsentError(false);
+                // 同意解除時に症状フィールドをクリア
+                if (!e.target.checked) onUpdate({ hasSensitiveDataConsent: false, symptoms: '' });
+              }}
+              className="mt-0.5 h-4 w-4 rounded border-cream-300 text-gold focus:ring-gold/30"
+            />
+            <span className="text-sm text-navy-600 group-hover:text-navy-700 transition-colors font-medium">
+              上記に同意のうえ、健康情報を入力します
+            </span>
+          </label>
+          {sensitiveConsentError && (
+            <p className="text-xs text-danger mt-2 ml-6 font-medium flex items-center gap-1">
+              <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              健康情報の取り扱いに同意してください
+            </p>
+          )}
+        </div>
+        <Textarea label="症状・お悩み *" value={form.symptoms} onChange={e => onUpdate({ symptoms: e.target.value })} rows={3} placeholder="〇月〇日の〇時頃から、腰痛・肩こりなど" required disabled={!form.hasSensitiveDataConsent} />
         <Textarea label="伝達事項（任意）" value={form.notes} onChange={e => onUpdate({ notes: e.target.value })} rows={2} placeholder="アレルギー、服用中の薬など" />
       </div>
 

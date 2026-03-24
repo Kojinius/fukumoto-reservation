@@ -26,6 +26,7 @@ const DEFAULT_CLINIC: ClinicSettings = {
   announcement: { active: false, type: 'info', message: '', startDate: null, endDate: null },
   maintenance: { startDate: null, endDate: null },
   privacyPolicy: '',
+  sensitiveDataConsentText: '',
   updatedAt: '',
 };
 
