@@ -5,7 +5,8 @@
     "settings": "設定",
     "logout": "ログアウト",
     "lastLogin": "最終: ",
-    "consentPending": "利用規約・PP 確認待ち"
+    "consentPending": "利用規約・PP 確認待ち",
+    "proxyBooking": "代行予約"
   },
   "dashboard": {
     "kpi": {

@@ -5,7 +5,8 @@
     "settings": "설정",
     "logout": "로그아웃",
     "lastLogin": "최근 로그인: ",
-    "consentPending": "약관 동의 필요"
+    "consentPending": "약관 동의 필요",
+    "proxyBooking": "대리 예약"
   },
   "dashboard": {
     "kpi": {

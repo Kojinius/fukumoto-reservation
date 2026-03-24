@@ -174,5 +174,9 @@
   "calendar": {
     "prevMonth": "上个月",
     "nextMonth": "下个月"
+  },
+  "adminProxy": {
+    "banner": "管理员代理预约模式",
+    "bannerDesc": "正在录入电话预约的患者信息。请通过电话口头确认同意事项。"
   }
 }

@@ -174,5 +174,9 @@
   "calendar": {
     "prevMonth": "Mês anterior",
     "nextMonth": "Próximo mês"
+  },
+  "adminProxy": {
+    "banner": "Modo de Reserva pelo Administrador",
+    "bannerDesc": "Inserindo informações do paciente de uma reserva por telefone. Confirme o consentimento verbalmente por telefone."
   }
 }

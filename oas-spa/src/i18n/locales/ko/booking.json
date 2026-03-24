@@ -174,5 +174,9 @@
   "calendar": {
     "prevMonth": "이전 달",
     "nextMonth": "다음 달"
+  },
+  "adminProxy": {
+    "banner": "관리자 대리 예약 모드",
+    "bannerDesc": "전화 예약 환자의 정보를 입력하고 있습니다. 동의 사항은 전화로 구두 확인해 주세요."
   }
 }

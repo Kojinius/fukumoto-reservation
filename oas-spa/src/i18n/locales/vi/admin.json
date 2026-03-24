@@ -5,7 +5,8 @@
     "settings": "Cài Đặt",
     "logout": "Đăng Xuất",
     "lastLogin": "Đăng nhập lần cuối: ",
-    "consentPending": "Chờ xác nhận điều khoản"
+    "consentPending": "Chờ xác nhận điều khoản",
+    "proxyBooking": "Đặt hộ bệnh nhân"
   },
   "dashboard": {
     "kpi": {

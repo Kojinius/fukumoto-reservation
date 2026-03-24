@@ -5,7 +5,8 @@
     "settings": "Settings",
     "logout": "Logout",
     "lastLogin": "Last: ",
-    "consentPending": "ToS / Privacy Pending"
+    "consentPending": "ToS / Privacy Pending",
+    "proxyBooking": "Book for Patient"
   },
   "dashboard": {
     "kpi": {
