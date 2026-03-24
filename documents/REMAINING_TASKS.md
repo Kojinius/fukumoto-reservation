@@ -22,9 +22,9 @@
 | ✅ | OAS-PW-T01 | PasswordInput コンポーネント（表示/非表示トグル） | P2 |
 | ✅ | LEGAL-C1 | 要配慮個人情報の明示的同意（APPI 第20条第2項） | P0 |
 | ✅ | LEGAL-C2 | 管理者利用規約＆PP同意モーダル（APPI 第15条） | P1 |
-| ⬜ | LEGAL-H1 | データ保存期間ポリシー設定 | P2 |
-| ⬜ | LEGAL-H2 | リマインダーメール配信同意 | P2 |
-| ⬜ | LEGAL-H3 | 患者権利行使機能（開示・訂正・利用停止） | P2 |
+| ✅ | LEGAL-H1 | データ保存期間ポリシー設定 | P2 |
+| ✅ | LEGAL-H2 | リマインダーメール配信同意 | P2 |
+| ✅ | LEGAL-H3 | 患者権利行使機能（開示・訂正・利用停止） | P2 |
 | ✅ | LEGAL-M1 | 利用規約タブ（Settings画面）— C2で実装済 | P3 |
 | ⬜ | LEGAL-M2 | PPデフォルトテンプレート | P3 |
 | ⬜ | OAS-UX-T01 | 管理ヘッダーにTOS確認アイコン（低優先） | P3 |
@@ -35,10 +35,20 @@
 
 | Status | ID | Task | Severity | Effort |
 |--------|-----|------|----------|--------|
-| ⬜ | SEC-22 | [共通] settingsコレクションのlist許可 | P2-Medium | S |
+| ✅ | SEC-22 | [共通] settingsコレクションのlist許可 | P2-Medium | S |
 | ⬜ | SEC-20 | [AMS] admin.htmlグローバル関数公開+onclick | P3-Low | M |
 | ⬜ | SEC-9 | [AMS] sessionStorageに勤務情報保存 | P2-Medium | M |
 | ⬜ | SEC-21 | [共通] CDNスクリプトにSRIハッシュなし | P3-Low | S |
 | ⬜ | SEC-16 | [AMS] console.logデバッグコード残存 | P3-Low | S |
 
-**Completed: 20 / Remaining: 11**
+## Code Review Findings (Noted for Future)
+
+| Status | Source | Finding | Priority |
+|--------|--------|---------|----------|
+| ⬜ | CR-PR7 | リマインダーメール opt-out 機構（特定電子メール法対応） | P2 |
+| ⬜ | CR-PR7 | メール削除時の reminderEmailConsent リセット | P2 |
+| ⬜ | CR-PR7 | 新規Textareaフィールドの max-length 統一 | P3 |
+| ⬜ | CR-PR7 | iframe sandbox 属性追加 | P3 |
+| ⬜ | CR-PR7 | 時刻フォーマットのゼロパディング互換性確認 | P3 |
+
+**Completed: 24 / Remaining: 11**

@@ -11,6 +11,59 @@
 
 ---
 
+## 2026-03-24 Work Log (3)
+
+### Completed Tasks
+
+#### [Settings UX Overhaul] Admin Settings Page Major Redesign (PR #7)
+
+- **Tab restructure**: Merged 営業時間 + 休日 tabs into unified "営業日設定" tab; separated PP/sensitive data consent into new "ポリシー" tab
+- **BusinessDayTab**: Visual timeline bars with click-to-expand editing, side-by-side layout (calendar left, timeline right), toggle switches, AM/PM `<select>` dropdowns (6:00–12:00 / 13:00–22:00), weekend bulk buttons, reservation conflict check on holiday toggle, cutoff settings moved here
+- **Validation gates**: Date inversion (announcement/maintenance), time inversion (AM/PM business hours) — all block save with error toast
+- **Google Maps Embed**: iframe below address in BasicInfoTab with `&hl=ja` for Japanese display
+- **Account UX**: PasswordInput component (eye toggle), email format validation (`isValidEmail(toHankaku())`), password requirements hint below input, create button right-aligned
+- **Bug fixes**: Zip code lookup overwrites saved address on initial load (fixed with `userEditedZip` ref), timeline bar position mismatch (TL_SPAN 15→16, scale extended to 22:00)
+- **UX polish**: Holiday dot indicator on calendar cells, announcement banner toggle switch (checkbox → toggle)
+
+#### [LEGAL-H1] Data Retention Period Policy (APPI Article 5)
+
+- Added `dataRetentionMonths` (default: 36 months) and `dataRetentionPurpose` (usage purpose template) to ClinicSettings
+- Policy tab UI with retention period dropdown (6m/1y/2y/3y推奨/5y) + purpose textarea with 4-item placeholder template
+- **Code review fix**: Default changed from 0 (indefinite) to 36 (APPI-compliant)
+
+#### [LEGAL-H2] Reminder Email Delivery Consent
+
+- Added `reminderEmailConsent` field to ReservationFormData, ReservationRecord, and Firestore rules validation
+- Admin toggle in PolicyTab to enable/disable reminder email feature
+- Patient-side: consent checkbox in PatientForm (shown only when feature enabled + email entered)
+- Server: `reminderEmailConsent` stored in createReservation Cloud Function
+
+#### [LEGAL-H3] Patient Rights Exercise (APPI Articles 28–30)
+
+- Added `patientRightsContact` field to ClinicSettings with placeholder template (disclosure/correction/cessation contact info)
+- Complete.tsx: "個人情報の取り扱いについて" section added to booking completion page
+- Admin configurable via PolicyTab
+
+#### [SEC-22] Settings Collection List Permission Restriction
+
+- Changed `allow read: if true` → `allow get: if true; allow list: if isAdmin()` in firestore.rules
+- Prevents unauthenticated enumeration of settings documents while preserving public access to specific documents (clinic settings)
+
+### Code Review Results (PR #7)
+
+- **Score**: 2 issues detected (1 CRITICAL fixed, 1 false positive)
+- **CR-1 (CRITICAL, fixed)**: `dataRetentionMonths` default 0 (indefinite) violates APPI Article 5 → changed to 36
+- **CR-2 (false positive)**: Composite index for `date + status` query already defined in `firestore.indexes.json`
+- **Additional findings below threshold (score < 80)**: iframe sandbox attribute, textarea max-length consistency, reminder opt-out mechanism (future), time format padding, dead import — all noted for future improvement
+
+### Changed Files
+- `firestore.rules`, `functions/index.js`, `oas-spa/src/contexts/ClinicContext.tsx`
+- `oas-spa/src/pages/admin/Settings.tsx` (major rewrite: +600 lines)
+- `oas-spa/src/pages/booking/Complete.tsx`, `PatientForm.tsx`, `Index.tsx`
+- `oas-spa/src/types/clinic.ts`, `reservation.ts`
+
+---
+
 ## 2026-03-24 Work Log (2)
 
 ### Completed Tasks
