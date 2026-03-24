@@ -37,6 +37,13 @@ function isRateLimited(ip) {
 
 const resendApiKey = defineSecret("RESEND_API_KEY");
 
+/** OAS予約システムのベースURL（メール内リンク用） */
+function getOasBaseUrl() {
+  return process.env.FUNCTIONS_EMULATOR === "true"
+    ? "http://localhost:5174"
+    : "https://oas.kojinius.jp";
+}
+
 // ── [SEC-14] 監査ログ（Cloud Logging へ構造化ログ出力）──
 function auditLog(event, data = {}) {
   // 個人情報を含まない構造化ログ。Cloud Functions は console.log を GCP Cloud Logging に転送する
@@ -336,11 +343,12 @@ exports.verifyReservation = onRequest(
 /**
  * 【SEC-5】予約キャンセル（サーバーサイド電話番号検証 + スロット開放）
  * POST /cancelReservation
- * Body: { reservationId, phone }
+ * Body: { reservationId, phone, cancelReason? }
+ * Headers: Authorization: Bearer <idToken> （管理者キャンセル時のみ）
  * レート制限: IP あたり 5回/分
  */
 exports.cancelReservation = onRequest(
-  { invoker: "public" },
+  { invoker: "public", secrets: [resendApiKey] },
   async (req, res) => {
     setCorsHeaders(req, res);
 
@@ -354,7 +362,18 @@ exports.cancelReservation = onRequest(
       return;
     }
 
-    const { reservationId, phone } = req.body;
+    const { reservationId, phone, cancelReason } = req.body;
+    const reason = (typeof cancelReason === "string" ? cancelReason.slice(0, 200) : "") || "";
+
+    // ── [SEC-CR1] cancelledBy はサーバー側で判定（クライアント信用しない）──
+    let by = "patient";
+    const authHeader = req.headers.authorization;
+    if (authHeader?.startsWith("Bearer ")) {
+      try {
+        const decoded = await getAuth().verifyIdToken(authHeader.split("Bearer ")[1]);
+        if (decoded.admin) by = "admin";
+      } catch (_) { /* トークン不正 → 患者扱い */ }
+    }
 
     // ── 必須フィールド検証 ──
     if (!reservationId || typeof reservationId !== "string" || reservationId.length > 100) {
@@ -395,19 +414,21 @@ exports.cancelReservation = onRequest(
         return;
       }
 
-      // ── キャンセル期限チェック（settings/clinic の cancelCutoffMinutes）──
+      // ── キャンセル期限チェック（患者キャンセルのみ適用、管理者は制限なし）──
       const settings       = await getClinicSettings();
-      const cutoffMinutes  = settings.cancelCutoffMinutes ?? 60;
-      const [bY, bM, bD]  = booking.date.split("-").map(Number);
-      const [bH, bMin]    = booking.time.split(":").map(Number);
-      const bookingMs      = new Date(bY, bM - 1, bD, bH, bMin).getTime();
-      const cutoffMs       = cutoffMinutes * 60 * 1000;
+      if (by === "patient") {
+        const cutoffMinutes  = settings.cancelCutoffMinutes ?? 60;
+        const [bY, bM, bD]  = booking.date.split("-").map(Number);
+        const [bH, bMin]    = booking.time.split(":").map(Number);
+        const bookingMs      = new Date(bY, bM - 1, bD, bH, bMin).getTime();
+        const cutoffMs       = cutoffMinutes * 60 * 1000;
 
-      if (Date.now() >= bookingMs - cutoffMs) {
-        res.status(400).json({
-          error: `予約時刻の${cutoffMinutes}分前を過ぎているため、オンラインではキャンセルできません。お電話にてご連絡ください。`,
-        });
-        return;
+        if (Date.now() >= bookingMs - cutoffMs) {
+          res.status(400).json({
+            error: `予約時刻の${cutoffMinutes}分前を過ぎているため、オンラインではキャンセルできません。お電話にてご連絡ください。`,
+          });
+          return;
+        }
       }
 
       // ── [SEC-8] トランザクションで予約+スロットを同時キャンセル（TOCTOU防止のため内部で再確認）──
@@ -424,14 +445,48 @@ exports.cancelReservation = onRequest(
           throw alreadyCancelled;
         }
 
-        tx.update(resRef, { status: "cancelled" });
+        tx.update(resRef, {
+          status: "cancelled",
+          cancelledBy: by,
+          cancelReason: reason,
+          cancelledAt: new Date().toISOString(),
+        });
 
         if (slotSnap.exists && slotSnap.data().status !== "cancelled") {
           tx.update(slotRef, { status: "cancelled" });
         }
       });
 
-      auditLog("reservation.cancelled", { reservationId });
+      auditLog("reservation.cancelled", { reservationId, cancelledBy: by, cancelReason: reason });
+
+      // ── キャンセル通知メール ──
+      try {
+        if (by === "admin" && booking.email) {
+          // 管理者キャンセル → 患者に通知（理由含む）
+          await _sendCancellationEmail({
+            to: booking.email,
+            name: booking.name,
+            date: booking.date,
+            time: booking.time,
+            reason,
+            settings,
+          });
+        }
+        if (by === "patient") {
+          // 患者キャンセル → 管理者に通知
+          await _notifyAdminOnCancellation({
+            id: reservationId,
+            name: booking.name,
+            date: booking.date,
+            time: booking.time,
+            reason,
+          });
+        }
+      } catch (mailErr) {
+        console.error("[cancelReservation] キャンセル通知メール送信失敗:", mailErr);
+        // メール失敗でもキャンセル自体は成功
+      }
+
       res.status(200).json({ success: true, message: "予約をキャンセルしました" });
     } catch (err) {
       if (err.message === "ALREADY_CANCELLED") {
@@ -482,8 +537,9 @@ async function _sendReservationEmail({ to, name, date, time, menu, id }) {
           </table>
           <div style="background:#fff8f0;border-left:4px solid #f5913e;padding:12px 16px;margin-bottom:24px;">
             <p style="margin:0 0 8px;font-weight:bold;">キャンセルについて</p>
-            <p style="margin:0;font-size:14px;">ご予約のキャンセル・変更は、お電話にてご連絡ください。<br>
-              <strong>電話番号：${escHtml(ph)}</strong>（受付時間：診療時間内）</p>
+            <p style="margin:0 0 8px;font-size:14px;">ご予約のキャンセルは下記リンクから手続きできます。</p>
+            <p style="margin:0 0 8px;"><a href="${getOasBaseUrl()}/cancel?id=${encodeURIComponent(id)}" style="display:inline-block;background:#72586f;color:#fff;padding:8px 16px;border-radius:6px;font-size:13px;text-decoration:none;">予約をキャンセルする</a></p>
+            <p style="margin:0;font-size:12px;color:#888;">お電話でもキャンセルを承ります: <strong>${escHtml(ph)}</strong>（受付時間：診療時間内）</p>
           </div>
           <p>ご不明な点がございましたら、お気軽にお問い合わせください。</p>
         </div>
@@ -497,6 +553,99 @@ async function _sendReservationEmail({ to, name, date, time, menu, id }) {
       </div>
     `,
   });
+}
+
+/**
+ * 【3-3】キャンセル通知メール（管理者キャンセル時に患者へ送信）
+ * @param {{ to: string, name: string, date: string, time: string, reason: string, settings: object }} params
+ */
+async function _sendCancellationEmail({ to, name, date, time, reason, settings }) {
+  const resend = new Resend(resendApiKey.value());
+  const cn = settings.clinicName || '院名未設定';
+  const ph = settings.phone || '';
+
+  await sendMail(resend, {
+    from:    `${escHtml(cn)} <noreply@kojinius.jp>`,
+    to,
+    subject: `【${escHtml(cn)}】ご予約キャンセルのお知らせ`,
+    html: `
+      <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#333;">
+        <div style="background:#72586f;padding:24px 32px;">
+          <h1 style="margin:0;color:#fff;font-size:20px;">ご予約キャンセルのお知らせ</h1>
+        </div>
+        <div style="padding:24px 32px;">
+          <p>${escHtml(name)} 様</p>
+          <p>誠に申し訳ございませんが、以下のご予約がキャンセルとなりました。</p>
+          <table style="border-collapse:collapse;width:100%;margin-bottom:24px;">
+            <tr>
+              <td style="padding:10px 12px;border:1px solid #ddd;background:#f9f9f9;width:30%;font-weight:bold;">日時</td>
+              <td style="padding:10px 12px;border:1px solid #ddd;">${escHtml(date)} ${escHtml(time)}〜</td>
+            </tr>
+            ${reason ? `<tr>
+              <td style="padding:10px 12px;border:1px solid #ddd;background:#f9f9f9;font-weight:bold;">理由</td>
+              <td style="padding:10px 12px;border:1px solid #ddd;">${escHtml(reason)}</td>
+            </tr>` : ''}
+          </table>
+          <p>ご不便をおかけし申し訳ございません。改めてのご予約をお待ちしております。</p>
+          ${ph ? `<p style="font-size:14px;">ご不明な点がございましたら、お電話にてお問い合わせください。<br><strong>電話番号：${escHtml(ph)}</strong></p>` : ''}
+        </div>
+        <div style="background:#f5f5f5;padding:16px 32px;">
+          <p style="margin:0;color:#888;font-size:12px;">${escHtml(cn)} 予約システム</p>
+        </div>
+      </div>
+    `,
+  });
+}
+
+/**
+ * 【3-4】患者キャンセル時の管理者通知（内部ヘルパー）
+ * [SEC-10] 件名に患者名を含めない
+ */
+async function _notifyAdminOnCancellation({ id, name, date, time, reason }) {
+  const resend = new Resend(resendApiKey.value());
+  const [{ clinicName: cn = '院名未設定' }, adminEmails] = await Promise.all([
+    getClinicSettings(),
+    getAdminEmails(),
+  ]);
+  if (adminEmails.length === 0) return;
+
+  await Promise.all(adminEmails.map(to => sendMail(resend, {
+    from:    `${escHtml(cn)} <noreply@kojinius.jp>`,
+    to,
+    subject: `【キャンセル】予約がキャンセルされました`,
+    html: `
+      <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#333;">
+        <div style="background:#c0392b;padding:24px 32px;">
+          <h1 style="margin:0;color:#fff;font-size:20px;">予約キャンセル通知</h1>
+        </div>
+        <div style="padding:24px 32px;">
+          <p>患者様から予約のキャンセルがありました。</p>
+          <table style="border-collapse:collapse;width:100%;margin-bottom:24px;">
+            <tr>
+              <td style="padding:10px 12px;border:1px solid #ddd;background:#f9f9f9;width:30%;font-weight:bold;">予約番号</td>
+              <td style="padding:10px 12px;border:1px solid #ddd;font-family:monospace;">${escHtml(id || '-')}</td>
+            </tr>
+            <tr>
+              <td style="padding:10px 12px;border:1px solid #ddd;background:#f9f9f9;font-weight:bold;">日時</td>
+              <td style="padding:10px 12px;border:1px solid #ddd;">${escHtml(date)} ${escHtml(time)}〜</td>
+            </tr>
+            <tr>
+              <td style="padding:10px 12px;border:1px solid #ddd;background:#f9f9f9;font-weight:bold;">患者名</td>
+              <td style="padding:10px 12px;border:1px solid #ddd;">${escHtml(name)}</td>
+            </tr>
+            ${reason ? `<tr>
+              <td style="padding:10px 12px;border:1px solid #ddd;background:#f9f9f9;font-weight:bold;">理由</td>
+              <td style="padding:10px 12px;border:1px solid #ddd;">${escHtml(reason)}</td>
+            </tr>` : ''}
+          </table>
+          <p style="color:#888;font-size:13px;">該当の時間枠は再予約可能になりました。</p>
+        </div>
+        <div style="background:#f5f5f5;padding:16px 32px;">
+          <p style="margin:0;color:#888;font-size:12px;">${escHtml(cn)} 予約システム</p>
+        </div>
+      </div>
+    `,
+  })));
 }
 
 /**

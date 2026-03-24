@@ -27,8 +27,12 @@
 | ✅ | LEGAL-H3 | 患者権利行使機能（開示・訂正・利用停止） | P2 |
 | ✅ | LEGAL-M1 | 利用規約タブ（Settings画面）— C2で実装済 | P3 |
 | ⬜ | LEGAL-M2 | PPデフォルトテンプレート | P3 |
+| ✅ | OAS-UX-T02 | キャンセルフロー改修（管理者強制理由入力+患者通知、患者任意理由+管理者通知） | P1 |
+| ✅ | OAS-UX-T03 | 予約一覧ソート（SortableHeader、AMS移植） | P2 |
+| ✅ | OAS-UX-T04 | UI/UX改善（ペンディングバッジ、モーダルスクロール、最終ログイン表示、アナウンスバナー改行） | P2 |
+| ✅ | OAS-UX-T05 | ポリシー再生成機能（確認ダイアログ付き） | P2 |
 | ⬜ | OAS-UX-T01 | 管理ヘッダーにTOS確認アイコン（低優先） | P3 |
-| ⬜ | OAS-FUTURE-T01 | 多国語対応（7か国語、AMS同等） | P3 |
+| ⬜ | OAS-FUTURE-T01 | 多国語対応（i18n）— 7か国語、AMS同等 — 次セッションで着手予定 | P2 |
 | ⬜ | OAS-FUTURE-T02 | 顧客管理システム（新規プロジェクト候補） | P3 |
 
 ## Security (SEC) — Remaining
@@ -51,4 +55,4 @@
 | ⬜ | CR-PR7 | iframe sandbox 属性追加 | P3 |
 | ⬜ | CR-PR7 | 時刻フォーマットのゼロパディング互換性確認 | P3 |
 
-**Completed: 24 / Remaining: 11**
+**Completed: 29 / Remaining: 11**

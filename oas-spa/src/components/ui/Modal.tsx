@@ -35,14 +35,14 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
           aria-label={title}
           onClick={e => e.stopPropagation()}
           className={cn(
-            'relative bg-white rounded-xl shadow-xl',
-            'w-full max-w-md animate-scale-in',
+            'relative bg-white rounded-xl shadow-xl flex flex-col',
+            'w-full max-w-md max-h-[85vh] animate-scale-in',
             'border border-cream-300/60',
             className,
           )}
         >
           {title && (
-            <div className="flex items-center justify-between px-5 py-4 border-b border-cream-300/60">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-cream-300/60 shrink-0">
               <h3 className="text-lg font-heading font-semibold text-navy-700">
                 {title}
               </h3>
@@ -58,7 +58,7 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
               </button>
             </div>
           )}
-          <div className="px-5 py-4">{children}</div>
+          <div className="px-5 py-4 overflow-y-auto min-h-0">{children}</div>
         </div>
       </div>
     </div>,

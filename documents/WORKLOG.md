@@ -11,6 +11,65 @@
 
 ---
 
+## 2026-03-24 Work Log (4)
+
+### Completed Tasks
+
+#### [OAS-UX] Cancel Flow Overhaul (PR #8)
+
+- **Admin cancel**: Mandatory cancel reason input + patient email notification via Resend
+- **Patient cancel**: Optional cancel reason (health-related reasons excluded per APPI — not collected to avoid sensitive personal data), admin email notification on patient cancel
+- **Cancel link in confirmation email**: Added `/cancel?id=XXX` deep link to confirmation emails using `getOasBaseUrl()` helper function
+- **Firestore audit fields**: Added `cancelledBy`, `cancelReason`, and `cancelledAt` to reservation records for operational transparency and audit trail
+- **Cloud Function `cancelReservation`**: Added `secrets: [resendApiKey]`, dual-path logic (admin vs. patient), email notification helper functions
+
+#### [OAS-UX] SortableHeader Component (ported from AMS)
+
+- Multi-column sort with cycle: asc → desc → remove
+- Navy/cream/gold theme consistent with OAS design system
+
+#### [OAS-UX] Dashboard UX Improvements
+
+- Pending reservation badge with filter link (using `useSearchParams`)
+- Sortable table headers using SortableHeader component
+
+#### [OAS-UX] Detail Modal
+
+- Scrollable content area with fixed footer buttons (`max-h-[85vh] overflow-y-auto`)
+
+#### [OAS-UX] AdminLayout
+
+- Last login display with Firestore Timestamp → Date conversion
+- Notification badge for pending reservations
+
+#### [OAS-UX] PatientLayout
+
+- Announcement banner line break support via `whitespace-pre-line`
+
+#### [OAS-UX] Settings: Policy Auto-Generate "Regenerate" Feature
+
+- "Regenerate" button with confirmation dialog for privacy policy auto-generation
+- Privacy policy purpose updated to include anonymized statistical analysis
+
+#### [OAS-UX] Patient Cancel Page Bug Fix
+
+- Fixed missing free-text input box for "その他" (other) cancel reason — implementation oversight
+
+### Code Review
+
+- PR #8 created, code review in progress
+
+### Changed Files
+- `functions/index.js` — cancelReservation dual-path + email helpers + resendApiKey secret
+- `oas-spa/src/pages/admin/Dashboard.tsx` — sortable headers, pending badge, filter link
+- `oas-spa/src/pages/admin/AdminLayout.tsx` — last login display, notification badge
+- `oas-spa/src/pages/booking/PatientLayout.tsx` — whitespace-pre-line banner
+- `oas-spa/src/pages/booking/Cancel.tsx` — patient cancel reason + "その他" text input fix
+- `oas-spa/src/pages/admin/Settings.tsx` — policy regenerate + privacy purpose update
+- `oas-spa/src/components/ui/SortableHeader.tsx` — new component (ported from AMS)
+
+---
+
 ## 2026-03-24 Work Log (3)
 
 ### Completed Tasks

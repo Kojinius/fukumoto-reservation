@@ -44,7 +44,7 @@ export function PatientLayout() {
           <div className="max-w-3xl mx-auto w-full px-4 pt-6 animate-slide-down">
             <div className={`flex items-start gap-3 px-4 py-3 rounded-lg border ${cfg.bg} ${cfg.border} ${cfg.text}`}>
               {cfg.icon}
-              <p className="text-sm leading-relaxed">{clinic.announcement.message}</p>
+              <p className="text-sm leading-relaxed whitespace-pre-line">{clinic.announcement.message}</p>
             </div>
           </div>
         );
