@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/Button';
+import { useTranslation } from 'react-i18next';
 import { formatDateShort, calcAge } from '@/utils/date';
 import type { ReservationFormData } from '@/types/reservation';
 
@@ -19,6 +20,7 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 export function Confirm({ form, loading, onSubmit, onBack }: Props) {
+  const { t } = useTranslation('booking');
   const address = form.addressSub
     ? `${form.addressMain}　${form.addressSub}`
     : form.addressMain;
@@ -31,7 +33,7 @@ export function Confirm({ form, loading, onSubmit, onBack }: Props) {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_70%,rgba(61,97,159,0.12)_0%,transparent_50%)]" />
         <div className="relative">
           <p className="text-[10px] font-display tracking-[0.3em] uppercase text-cream/50 mb-3">
-            ご予約日時
+            {t('confirm.appointmentDateTime')}
           </p>
           <p className="text-3xl font-display font-light text-cream tracking-wide">
             {formatDateShort(form.date)}
@@ -44,28 +46,28 @@ export function Confirm({ form, loading, onSubmit, onBack }: Props) {
 
       {/* 基本情報 */}
       <div className="card-section animate-stagger-2">
-        <h3 className="section-heading">基本情報</h3>
+        <h3 className="section-heading">{t('confirm.basicInfo')}</h3>
         <dl>
-          <Row label="氏名" value={form.name} />
-          <Row label="ふりがな" value={form.furigana} />
-          <Row label="生年月日" value={form.birthdate + (calcAge(form.birthdate) !== null ? `（${calcAge(form.birthdate)}歳）` : '')} />
-          <Row label="性別" value={form.gender || '未入力'} />
-          <Row label="郵便番号" value={`〒${form.zip}`} />
-          <Row label="住所" value={address} />
-          <Row label="電話番号" value={form.phone} />
-          <Row label="メール" value={form.email} />
-          <Row label="連絡方法" value={form.contactMethod} />
+          <Row label={t('confirm.labelName')} value={form.name} />
+          <Row label={t('confirm.labelFurigana')} value={form.furigana} />
+          <Row label={t('confirm.labelBirthdate')} value={form.birthdate + (calcAge(form.birthdate) !== null ? `（${calcAge(form.birthdate)}${t('confirm.labelAgeUnit')}）` : '')} />
+          <Row label={t('confirm.labelGender')} value={form.gender || t('confirm.labelGenderUnspecified')} />
+          <Row label={t('confirm.labelZip')} value={`〒${form.zip}`} />
+          <Row label={t('confirm.labelAddress')} value={address} />
+          <Row label={t('confirm.labelPhone')} value={form.phone} />
+          <Row label={t('confirm.labelEmail')} value={form.email} />
+          <Row label={t('confirm.labelContactMethod')} value={form.contactMethod} />
         </dl>
       </div>
 
       {/* 診療情報 */}
       <div className="card-section animate-stagger-3">
-        <h3 className="section-heading">診療情報</h3>
+        <h3 className="section-heading">{t('confirm.medicalInfo')}</h3>
         <dl>
-          <Row label="初診/再診" value={form.visitType} />
-          <Row label="保険証" value={form.insurance} />
-          <Row label="症状" value={form.symptoms} />
-          <Row label="伝達事項" value={form.notes || 'なし'} />
+          <Row label={t('confirm.labelVisitType')} value={form.visitType} />
+          <Row label={t('confirm.labelInsurance')} value={form.insurance} />
+          <Row label={t('confirm.labelSymptoms')} value={form.symptoms} />
+          <Row label={t('confirm.labelNotes')} value={form.notes || t('confirm.notesNone')} />
         </dl>
       </div>
 
@@ -75,13 +77,13 @@ export function Confirm({ form, loading, onSubmit, onBack }: Props) {
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
-          戻る
+          {t('confirm.back')}
         </Button>
         <Button onClick={onSubmit} loading={loading} size="lg">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
-          予約を確定する
+          {t('confirm.submit')}
         </Button>
       </div>
     </div>

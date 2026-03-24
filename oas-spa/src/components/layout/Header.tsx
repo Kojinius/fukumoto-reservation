@@ -1,4 +1,5 @@
 import { useClinic } from '@/hooks/useClinic';
+import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
 
 export function Header() {
   const { clinic } = useClinic();
@@ -26,7 +27,7 @@ export function Header() {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {clinic?.phone && (
             <a
               href={`tel:${clinic.phone}`}
@@ -38,6 +39,8 @@ export function Header() {
               <span className="font-mono text-sm font-medium">{clinic.phone}</span>
             </a>
           )}
+          {/* 言語切り替えボタン */}
+          <LanguageSwitcher variant="header" />
         </div>
       </div>
     </header>

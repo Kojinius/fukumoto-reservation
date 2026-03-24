@@ -1,0 +1,19 @@
+{
+  "cancelReasonRequired": "请选择取消原因",
+  "cancelSuccess": "预约已取消（已向患者发送通知邮件）",
+  "statusUpdated": "状态已更新",
+  "updateFailed": "更新失败",
+  "settingSaved": "设置已保存",
+  "saveFailed": "保存失败",
+  "holidaysAdded": "已添加{{count}}个节假日",
+  "termsVersionUpdated": "版本已更新为 {{version}}。所有管理员将需要重新同意。",
+  "termsVersionUpdateFailed": "版本更新失败",
+  "userCreated": "用户已创建",
+  "userCreateFailed": "创建失败",
+  "userDeleted": "用户已删除",
+  "userDeleteFailed": "删除失败",
+  "maxUsersReached": "最多允许{{max}}名用户。",
+  "emailPasswordRequired": "请输入邮箱和密码",
+  "invalidEmail": "邮箱地址格式不正确",
+  "passwordChanged": "密码修改成功"
+}

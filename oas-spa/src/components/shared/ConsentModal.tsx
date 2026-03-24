@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button';
 
 interface ConsentModalProps {
@@ -17,6 +18,7 @@ interface ConsentModalProps {
  * - Escape / バックドロップクリック無効（同意必須）
  */
 export function ConsentModal({ open, termsText, privacyText, onAccept }: ConsentModalProps) {
+  const { t } = useTranslation('auth');
   const [step, setStep] = useState<1 | 2>(1);
   const [scrolledToBottom, setScrolledToBottom] = useState(false);
   const [accepting, setAccepting] = useState(false);
@@ -84,8 +86,8 @@ export function ConsentModal({ open, termsText, privacyText, onAccept }: Consent
   if (!open) return null;
 
   const currentText = step === 1 ? termsText : privacyText;
-  const stepLabel = step === 1 ? '利用規約' : 'プライバシーポリシー';
-  const buttonLabel = step === 1 ? '同意して次へ' : '同意して利用開始';
+  const stepLabel = step === 1 ? t('consent.terms') : t('consent.privacy');
+  const buttonLabel = step === 1 ? t('consent.agreeAndNext') : t('consent.agreeAndStart');
 
   return createPortal(
     <div className="fixed inset-0 z-[60]">
@@ -113,7 +115,7 @@ export function ConsentModal({ open, termsText, privacyText, onAccept }: Consent
               </div>
             </div>
             <p className="text-xs text-navy-400 mt-1">
-              ステップ {step} / 2 — 最後までお読みください
+              {t('consent.stepIndicator', { current: step, total: 2 })}
             </p>
           </div>
 
@@ -124,7 +126,7 @@ export function ConsentModal({ open, termsText, privacyText, onAccept }: Consent
             className="flex-1 overflow-y-auto px-5 py-4 min-h-0"
           >
             <div className="text-sm text-navy-600 leading-relaxed whitespace-pre-wrap font-body">
-              {currentText || `（${stepLabel}が設定されていません）`}
+              {currentText || t('consent.notSet', { label: stepLabel })}
             </div>
           </div>
 
@@ -135,7 +137,7 @@ export function ConsentModal({ open, termsText, privacyText, onAccept }: Consent
                 <svg className="w-3.5 h-3.5 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                 </svg>
-                下までスクロールしてお読みください
+                {t('consent.scrollPrompt')}
               </p>
             )}
             <Button

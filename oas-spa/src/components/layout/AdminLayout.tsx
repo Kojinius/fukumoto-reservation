@@ -1,4 +1,5 @@
 import { Outlet, Navigate, useLocation, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { useClinic } from '@/hooks/useClinic';
 import { usePendingCount } from '@/hooks/useAdmin';
@@ -7,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { ConsentModal } from '@/components/shared/ConsentModal';
 
 export function AdminLayout() {
+  const { t } = useTranslation('admin');
   const { user, isAdmin, loading, logout, profile, needsConsent, acceptConsent } = useAuth();
   const { clinic } = useClinic();
   const location = useLocation();
@@ -34,7 +36,7 @@ export function AdminLayout() {
                 </svg>
               </span>
               <span className="text-base font-heading font-semibold text-cream group-hover:text-gold transition-colors duration-200">
-                管理画面
+                {t('layout.adminPanel')}
               </span>
             </Link>
             <nav className="hidden sm:flex items-center gap-1 ml-2">
@@ -46,7 +48,7 @@ export function AdminLayout() {
                     : 'text-cream/60 hover:text-cream hover:bg-white/5'
                 }`}
               >
-                予約一覧
+                {t('layout.reservationList')}
                 {pendingCount > 0 && (
                   <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-amber-500 text-white text-[10px] font-bold px-1 animate-pulse">
                     {pendingCount > 99 ? '99+' : pendingCount}
@@ -61,7 +63,7 @@ export function AdminLayout() {
                     : 'text-cream/60 hover:text-cream hover:bg-white/5'
                 }`}
               >
-                設定
+                {t('layout.settings')}
               </Link>
             </nav>
           </div>
@@ -76,7 +78,7 @@ export function AdminLayout() {
                 if (!ms) return null;
                 return (
                   <span className="ml-2 text-[11px] text-cream/30">
-                    最終: {new Date(ms).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    {t('layout.lastLogin')}{new Date(ms).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                   </span>
                 );
               })()}
@@ -90,7 +92,7 @@ export function AdminLayout() {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
-              ログアウト
+              {t('layout.logout')}
             </Button>
           </div>
         </div>

@@ -1,0 +1,292 @@
+{
+  "layout": {
+    "adminPanel": "管理界面",
+    "reservationList": "预约列表",
+    "settings": "设置",
+    "logout": "退出登录",
+    "lastLogin": "最后登录: "
+  },
+  "dashboard": {
+    "kpi": {
+      "todayReservations": "今日预约",
+      "monthReservations": "本月预约",
+      "newPatients": "新患者",
+      "pending": "未确认"
+    },
+    "filter": {
+      "all": "全部",
+      "pending": "未确认",
+      "confirmed": "已确认",
+      "cancelled": "已取消",
+      "csvExport": "导出CSV",
+      "clearFilters": "清除"
+    },
+    "search": {
+      "name": "姓名",
+      "namePlaceholder": "山田太郎",
+      "zip": "邮政编码",
+      "zipPlaceholder": "123-4567",
+      "phone": "电话",
+      "phonePlaceholder": "090-1234-5678",
+      "reservationDate": "预约日期",
+      "scheduledDate": "就诊日期"
+    },
+    "table": {
+      "scheduledDateTime": "就诊日时",
+      "name": "姓名",
+      "visitType": "初/复诊",
+      "symptoms": "症状",
+      "phone": "电话",
+      "reservationDate": "预约日期",
+      "status": "状态"
+    },
+    "status": {
+      "pending": "未确认",
+      "confirmed": "已确认",
+      "cancelled": "已取消",
+      "cancelledByAdmin": "管理员",
+      "cancelledByPatient": "患者"
+    },
+    "action": {
+      "detail": "详情"
+    },
+    "emptyState": "暂无预约",
+    "modal": {
+      "reservationDetail": "预约详情",
+      "close": "关闭",
+      "markConfirmed": "标为已确认",
+      "cancel": "取消",
+      "fields": {
+        "reservationId": "预约编号",
+        "scheduledDateTime": "就诊日时",
+        "name": "姓名",
+        "furigana": "假名",
+        "birthdate": "出生日期",
+        "ageUnit": "岁",
+        "zip": "邮政编码",
+        "address": "地址",
+        "phone": "电话",
+        "email": "邮箱",
+        "gender": "性别",
+        "genderUnset": "未填写",
+        "visitType": "初诊/复诊",
+        "insurance": "医保卡",
+        "symptoms": "症状",
+        "notes": "备注",
+        "noNotes": "无",
+        "contactMethod": "联系方式",
+        "reservationStatus": "状态",
+        "cancelledBy": "取消方",
+        "cancelReason": "取消原因",
+        "cancelledAt": "取消日时",
+        "createdAt": "预约日期"
+      },
+      "symptomsTitle": "{{name}}的症状",
+      "notesLabel": "备注"
+    },
+    "confirmDialog": {
+      "statusChange": "更改状态",
+      "statusChangeMessage": "将{{name}}的预约标为已确认？",
+      "okLabel": "标为已确认"
+    },
+    "cancelModal": {
+      "title": "取消预约",
+      "message": "正在取消{{name}}的预约。",
+      "notifyPatient": "系统将向患者发送取消通知邮件。",
+      "cancelReasonLabel": "取消原因（必填）",
+      "cancelReasonPlaceholder": "请选择",
+      "reason": {
+        "doctorUnavailable": "医生原因停诊",
+        "temporaryClosure": "临时停诊",
+        "patientRequest": "患者电话请求",
+        "duplicateBooking": "重复预约处理",
+        "other": "其他"
+      },
+      "otherReasonPlaceholder": "请输入原因",
+      "back": "返回",
+      "confirm": "确认取消"
+    }
+  },
+  "settings": {
+    "title": "设置",
+    "save": "保存",
+    "tabs": {
+      "basicInfo": "基本信息",
+      "businessDays": "营业日设置",
+      "announcement": "公告",
+      "terms": "使用条款",
+      "policy": "隐私政策",
+      "accounts": "账户"
+    },
+    "basicInfo": {
+      "clinicName": "诊所名称 *",
+      "phone": "电话号码 *",
+      "websiteUrl": "网站URL",
+      "zip": "邮政编码",
+      "zipPrefix": "〒",
+      "zipPlaceholder": "123-4567",
+      "zipSearching": "搜索中…",
+      "zipFound": "✓ 已填写地址",
+      "zipNotFound": "未找到",
+      "zipError": "搜索错误",
+      "address": "省/市/街道 *",
+      "addressSub": "楼栋/房间号",
+      "mapLabel": "位置地图",
+      "mapTitle": "诊所位置"
+    },
+    "businessDays": {
+      "holidays": "已设置休息日",
+      "daysUnit": "天",
+      "calendarClickHint": "点击日历添加",
+      "fetchHolidays": "自动获取节假日",
+      "clearHolidays": "清除",
+      "clickToRemove": "点击取消设置",
+      "clickToSetHoliday": "点击设为休息日",
+      "weeklySchedule": "每周排班",
+      "openDays": "营业",
+      "closedDays": "休诊",
+      "daysUnitJa": "天",
+      "weekendClosed": "周末 → 休诊",
+      "weekendOpen": "周末 → 营业",
+      "timeline": {
+        "bookingCutoff": "预约与取消截止",
+        "bookingCutoffLabel": "预约截止",
+        "cancelCutoffLabel": "取消截止",
+        "before": "诊疗开始前",
+        "minutesBefore": "分钟"
+      },
+      "dayStatus": {
+        "open": "营业",
+        "closed": "休诊",
+        "openDay": "营业日",
+        "closedDay": "休诊日",
+        "morning": "上午诊",
+        "afternoon": "下午诊",
+        "timeRangeError": "开始时间晚于结束时间",
+        "timelineMorning": "上午",
+        "timelineAfternoon": "下午"
+      },
+      "confirmHoliday": {
+        "title": "该日有预约",
+        "message": "{{date}} 已有 {{count}} 条预约。确定设为休息日？",
+        "okLabel": "设为休息日"
+      }
+    },
+    "announcement": {
+      "bannerTitle": "公告横幅",
+      "clear": "清除",
+      "active": "显示中",
+      "inactive": "隐藏",
+      "typeLabel": "类型",
+      "typeInfo": "通知",
+      "typeWarning": "警告",
+      "typeMaintenance": "维护",
+      "messageLabel": "消息内容",
+      "startDateLabel": "显示开始日时",
+      "endDateLabel": "显示结束日时",
+      "dateRangeError": "开始日时晚于结束日时。",
+      "maintenanceTitle": "维护模式",
+      "maintenanceWarning": "维护期间仅管理员可访问系统",
+      "maintenanceStartLabel": "维护开始日时",
+      "maintenanceEndLabel": "维护结束日时"
+    },
+    "terms": {
+      "title": "使用条款",
+      "versionUpdated": "已更新",
+      "termsTextLabel": "使用条款文本",
+      "termsTextPlaceholder": "请输入管理员登录时需同意的使用条款",
+      "termsHint": "首次登录或版本更新后显示。",
+      "versionManagement": "版本管理",
+      "versionWarning": "更新版本后，所有管理员在下次登录时需重新同意使用条款和隐私政策。",
+      "bumpVersionButton": "更新版本（v{{current}} → v{{next}}）"
+    },
+    "policy": {
+      "autoFillAlert": "部分政策字段为空。可从基本信息（诊所名称和电话）自动生成。",
+      "autoGenerate": "自动生成",
+      "regenerateLink": "从基本信息重新生成",
+      "regenerateConfirmTitle": "重新生成政策文本",
+      "regenerateConfirmMessage": "所有政策文本将从基本信息重新生成。手动编辑的内容将被覆盖。",
+      "regenerateOkLabel": "重新生成",
+      "cancelLabel": "取消",
+      "privacyPolicyTitle": "隐私政策",
+      "privacyPolicyLabel": "隐私政策文本",
+      "privacyPolicyHint": "在预约表单的个人信息同意复选框中显示链接。",
+      "sensitiveDataTitle": "敏感个人信息同意文本",
+      "sensitiveDataLabel": "同意文本",
+      "sensitiveDataHint": "显示在预约表单的症状输入栏中。",
+      "sensitiveDataCharCount": " {{count}}/500字",
+      "dataRetentionTitle": "数据保存期限政策",
+      "dataRetentionLabel": "预约与患者数据保存期限",
+      "retentionUnlimited": "无限期",
+      "retention6months": "6个月",
+      "retention1year": "1年",
+      "retention2years": "2年",
+      "retention3years": "3年（推荐）",
+      "retention5years": "5年",
+      "usagePurposeLabel": "个人信息利用目的（APPI第17条）",
+      "usagePurposeHint": "显示在隐私政策和预约表单中。",
+      "retentionLegalNote": "请根据个人信息保护法，在实现利用目的所必要的范围内设定保存期限。超过期限的数据将通知管理员，可手动删除。",
+      "reminderEmailTitle": "提醒邮件配送",
+      "reminderEmailLabel": "启用提醒邮件功能",
+      "reminderEmailHint": "启用后，预约表单将显示「接收提醒邮件」的同意复选框。仅向同意的患者发送就诊前一天的提醒邮件。",
+      "patientRightsTitle": "患者权利行使（APPI第28〜30条）",
+      "patientRightsLabel": "联系方式与手续说明",
+      "patientRightsHint": "显示在预约完成页面和隐私政策中。"
+    },
+    "accounts": {
+      "createUserTitle": "创建新用户",
+      "maxUsersWarning": "最多允许{{max}}名用户。",
+      "emailLabel": "邮箱地址",
+      "emailPlaceholder": "admin@example.com",
+      "passwordLabel": "密码",
+      "passwordPlaceholder": "8位以上",
+      "passwordHint": "8〜128位，需包含大写字母、小写字母、数字和符号各至少1个",
+      "createButton": "创建",
+      "userListTitle": "用户列表",
+      "noUsers": "暂无用户",
+      "tableEmail": "邮箱",
+      "tableCreatedAt": "创建日期",
+      "tableActions": "操作",
+      "deleteButton": "删除",
+      "deleteConfirmTitle": "删除用户",
+      "deleteConfirmMessage": "确定删除 {{email}}？",
+      "deleteOkLabel": "删除"
+    },
+    "validation": {
+      "clinicNameRequired": "诊所名称为必填项",
+      "phoneRequired": "电话号码为必填项",
+      "announcementDateError": "公告开始日时晚于结束日时",
+      "maintenanceDateError": "维护开始日时晚于结束日时",
+      "businessHoursError": "{{weekday}} {{session}}开始时间晚于结束时间",
+      "amSession": "上午",
+      "pmSession": "下午"
+    }
+  },
+  "changePassword": {
+    "title": "修改密码",
+    "forcedAlert": "出于安全原因，首次登录时必须修改密码。在修改完成之前，无法跳转到其他页面。",
+    "cardTitle": "设置新密码",
+    "currentPassword": "当前密码",
+    "newPassword": "新密码",
+    "confirmPassword": "确认新密码",
+    "requirements": {
+      "minLength": "· 至少8位字符",
+      "uppercase": "· 包含大写字母",
+      "lowercase": "· 包含小写字母",
+      "number": "· 包含数字",
+      "symbol": "· 包含符号"
+    },
+    "passwordMismatch": "密码不一致",
+    "submitButton": "修改密码",
+    "cancelButton": "取消",
+    "errors": {
+      "currentPasswordRequired": "请输入当前密码",
+      "newPasswordSameAsCurrent": "新密码必须与当前密码不同",
+      "passwordMismatch": "两次输入的新密码不一致",
+      "wrongPassword": "当前密码不正确",
+      "tooManyRequests": "尝试次数过多，请稍后再试",
+      "weakPassword": "密码强度不足，请设置更复杂的密码",
+      "changeFailed": "密码修改失败"
+    }
+  }
+}

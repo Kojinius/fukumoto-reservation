@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useClinic } from '@/hooks/useClinic';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -19,6 +20,7 @@ function isMaintenanceOver(clinic: { maintenance: { startDate: string | null; en
 export default function Maintenance() {
   const { clinic } = useClinic();
   const navigate = useNavigate();
+  const { t } = useTranslation('common');
   const [checking, setChecking] = useState(false);
   const [stillMaint, setStillMaint] = useState(false);
 
@@ -54,30 +56,41 @@ export default function Maintenance() {
             </svg>
           </div>
           <h2 className="text-xl font-heading font-semibold text-navy-700 mb-3">
-            メンテナンス中
+            {t('maintenance.title')}
           </h2>
           <p className="text-sm text-navy-400 mb-1">
-            現在システムメンテナンスを行っています。
+            {t('maintenance.message')}
           </p>
           <p className="text-sm text-navy-400 mb-6">
-            しばらくお待ちください。
+            {t('maintenance.wait')}
           </p>
 
           <Button variant="secondary" onClick={handleCheck} loading={checking}>
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" />
             </svg>
-            更新して確認
+            {t('maintenance.checkButton')}
           </Button>
           {stillMaint && (
-            <p className="text-xs text-danger mt-3">まだメンテナンス期間中です。</p>
+            <p className="text-xs text-danger mt-3">{t('maintenance.stillActive')}</p>
           )}
 
           {clinic?.phone && (
             <p className="mt-6 pt-4 border-t border-cream-300/40 text-sm text-navy-300">
-              お急ぎの場合は{' '}
-              <a href={`tel:${clinic.phone}`} className="text-gold font-medium link-gold-underline">{clinic.phone}</a>
-              {' '}までお電話ください。
+              {/* urgentContactの電話番号部分をリンクに差し替えてレンダリング */}
+              {t('urgentContact', { phone: clinic.phone })
+                .split(clinic.phone)
+                .reduce<ReactNode[]>((acc, part, i, arr) => {
+                  acc.push(part);
+                  if (i < arr.length - 1) {
+                    acc.push(
+                      <a key="phone" href={`tel:${clinic.phone}`} className="text-gold font-medium link-gold-underline">
+                        {clinic.phone}
+                      </a>
+                    );
+                  }
+                  return acc;
+                }, [])}
             </p>
           )}
         </CardBody>

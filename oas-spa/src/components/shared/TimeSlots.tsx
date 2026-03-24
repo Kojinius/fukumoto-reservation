@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/utils/cn';
 import { generateTimeSlots, today as getToday } from '@/utils/date';
 import type { BusinessHours } from '@/types/clinic';
@@ -16,6 +17,7 @@ export function TimeSlots({
   date, selectedTime, onSelectTime,
   bookedSlots, businessHours, bookingCutoffMinutes = 0,
 }: TimeSlotsProps) {
+  const { t } = useTranslation('booking');
   const todayStr = getToday();
 
   /** 過去スロットか判定 */
@@ -58,18 +60,18 @@ export function TimeSlots({
           </svg>
         </div>
         <p className="text-sm text-navy-400">
-          この日は予約を受け付けていません
+          {t('timeSlots.closedDay')}
         </p>
       </div>
     );
   }
 
-  function SlotSection({ label, slots }: { label: string; slots: typeof amSlots }) {
+  function SlotSection({ label, slots, isAm }: { label: string; slots: typeof amSlots; isAm: boolean }) {
     if (slots.length === 0) return null;
     return (
       <div className="space-y-2.5">
         <h4 className="text-[10px] tracking-[0.15em] uppercase text-navy-400 font-medium flex items-center gap-2">
-          {label === '午前' ? (
+          {isAm ? (
             <svg className="w-3.5 h-3.5 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
@@ -113,16 +115,16 @@ export function TimeSlots({
   return (
     <div className="space-y-5 animate-fade-in-up">
       <div className="flex items-center justify-between">
-        <span className="text-sm text-navy-500 font-medium">時間を選択</span>
+        <span className="text-sm text-navy-500 font-medium">{t('timeSlots.selectTime')}</span>
         <span className={cn(
           'text-[11px] font-mono px-2 py-0.5 rounded-md',
           availableCount <= 3 ? 'text-danger bg-danger/5' : 'text-navy-400 bg-cream-100',
         )}>
-          残り{availableCount}枠
+          {t('timeSlots.remainingSlots', { count: availableCount })}
         </span>
       </div>
-      <SlotSection label="午前" slots={amSlots} />
-      <SlotSection label="午後" slots={pmSlots} />
+      <SlotSection label={t('timeSlots.am')} slots={amSlots} isAm={true} />
+      <SlotSection label={t('timeSlots.pm')} slots={pmSlots} isAm={false} />
     </div>
   );
 }

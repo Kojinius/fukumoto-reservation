@@ -1,0 +1,43 @@
+{
+  "appName": "Reserva Online",
+  "onlineReservation": "Sistema de Reservas Online",
+  "loading": "Carregando...",
+  "error": "Ocorreu um erro",
+  "save": "Salvar",
+  "cancel": "Cancelar",
+  "close": "Fechar",
+  "confirm": "Confirmar",
+  "delete": "Excluir",
+  "edit": "Editar",
+  "add": "Adicionar",
+  "back": "Voltar",
+  "next": "Próximo",
+  "previous": "Anterior",
+  "submit": "Enviar",
+  "search": "Pesquisar",
+  "filter": "Filtrar",
+  "ok": "OK",
+  "yes": "Sim",
+  "no": "Não",
+  "success": "Sucesso",
+  "warning": "Aviso",
+  "info": "Informação",
+  "required": "Obrigatório",
+  "optional": "Opcional",
+  "topPage": "Voltar ao Início",
+  "backToLogin": "Voltar ao Login",
+  "phone": "Telefone",
+  "urgentContact": "Em caso de urgência, ligue para {{phone}}.",
+  "notFound": {
+    "title": "Página Não Encontrada",
+    "description": "A página que você está procurando não existe ou pode ter sido movida."
+  },
+  "maintenance": {
+    "title": "Em Manutenção",
+    "message": "O sistema está em manutenção no momento.",
+    "wait": "Por favor, aguarde um momento.",
+    "checkButton": "Atualizar & Verificar",
+    "stillActive": "A manutenção ainda está em andamento."
+  },
+  "languageSettings": "Configurações de Idioma"
+}

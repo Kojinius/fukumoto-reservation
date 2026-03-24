@@ -1,0 +1,43 @@
+{
+  "appName": "在线预约",
+  "onlineReservation": "在线预约系统",
+  "loading": "加载中...",
+  "error": "发生错误",
+  "save": "保存",
+  "cancel": "取消",
+  "close": "关闭",
+  "confirm": "确认",
+  "delete": "删除",
+  "edit": "编辑",
+  "add": "添加",
+  "back": "返回",
+  "next": "下一步",
+  "previous": "上一步",
+  "submit": "提交",
+  "search": "搜索",
+  "filter": "筛选",
+  "ok": "确定",
+  "yes": "是",
+  "no": "否",
+  "success": "成功",
+  "warning": "警告",
+  "info": "信息",
+  "required": "必填",
+  "optional": "选填",
+  "topPage": "返回首页",
+  "backToLogin": "返回登录",
+  "phone": "电话号码",
+  "urgentContact": "如有紧急事项，请拨打 {{phone}}。",
+  "notFound": {
+    "title": "页面未找到",
+    "description": "您访问的页面不存在或已被移动。"
+  },
+  "maintenance": {
+    "title": "系统维护中",
+    "message": "系统正在进行维护。",
+    "wait": "请稍候。",
+    "checkButton": "刷新并检查",
+    "stillActive": "维护仍在进行中。"
+  },
+  "languageSettings": "语言设置"
+}

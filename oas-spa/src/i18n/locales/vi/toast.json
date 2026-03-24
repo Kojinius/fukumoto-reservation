@@ -1,0 +1,19 @@
+{
+  "cancelReasonRequired": "Vui lòng chọn lý do hủy",
+  "cancelSuccess": "Đã hủy đặt lịch (đã gửi email thông báo cho bệnh nhân)",
+  "statusUpdated": "Đã cập nhật trạng thái",
+  "updateFailed": "Cập nhật thất bại",
+  "settingSaved": "Đã lưu cài đặt",
+  "saveFailed": "Lưu thất bại",
+  "holidaysAdded": "Đã thêm {{count}} ngày lễ",
+  "termsVersionUpdated": "Phiên bản đã được cập nhật lên {{version}}. Tất cả quản trị viên sẽ cần đồng ý lại.",
+  "termsVersionUpdateFailed": "Cập nhật phiên bản thất bại",
+  "userCreated": "Đã tạo người dùng",
+  "userCreateFailed": "Tạo thất bại",
+  "userDeleted": "Đã xóa người dùng",
+  "userDeleteFailed": "Xóa thất bại",
+  "maxUsersReached": "Tối đa {{max}} người dùng.",
+  "emailPasswordRequired": "Vui lòng nhập email và mật khẩu",
+  "invalidEmail": "Định dạng địa chỉ email không hợp lệ",
+  "passwordChanged": "Đổi mật khẩu thành công"
+}

@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StepBar } from '@/components/shared/StepBar';
 import { DateTimeSelect } from './DateTimeSelect';
 import { PatientForm } from './PatientForm';
@@ -9,13 +10,7 @@ import { createReservation, fetchBookedSlots } from '@/hooks/useReservation';
 import { Alert } from '@/components/ui/Alert';
 import type { ReservationFormData } from '@/types/reservation';
 
-const STEPS = [
-  { label: '日時選択' },
-  { label: '情報入力' },
-  { label: '確認' },
-  { label: '完了' },
-];
-
+/** フォームの初期値 */
 const INITIAL_FORM: ReservationFormData = {
   date: '',
   time: '',
@@ -38,9 +33,18 @@ const INITIAL_FORM: ReservationFormData = {
 };
 
 export default function BookingIndex() {
+  const { t } = useTranslation('booking');
   const { showToast } = useToast();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<ReservationFormData>({ ...INITIAL_FORM });
+
+  /** ステップラベル（ローカライズ） */
+  const STEPS = [
+    { label: t('steps.dateTime') },
+    { label: t('steps.patientInfo') },
+    { label: t('steps.confirm') },
+    { label: t('steps.complete') },
+  ];
   const [bookingId, setBookingId] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [slotTakenMsg, setSlotTakenMsg] = useState('');
@@ -67,13 +71,13 @@ export default function BookingIndex() {
     } catch (err: unknown) {
       const error = err as { error?: string };
       if (error?.error === 'SLOT_TAKEN') {
-        setSlotTakenMsg('選択した時間はすでに予約が入っています。別の時間を選択してください。');
+        setSlotTakenMsg(t('slotTaken'));
         // スロットを再取得してStep 1に戻る
         fetchBookedSlots(form.date).catch(() => {});
         updateForm({ time: '' });
         goToStep(1);
       } else {
-        showToast('予約の作成に失敗しました', 'error');
+        showToast(t('errors.createFailed'), 'error');
       }
     } finally {
       setSubmitting(false);
@@ -101,7 +105,7 @@ export default function BookingIndex() {
           date={form.date}
           time={form.time}
           onDateChange={d => updateForm({ date: d })}
-          onTimeChange={t => updateForm({ time: t })}
+          onTimeChange={time => updateForm({ time })}
           onNext={() => goToStep(2)}
         />
       )}

@@ -1,14 +1,17 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { Input } from '@/components/ui/Input';
 import { PasswordInput } from '@/components/ui/PasswordInput';
 import { Button } from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Alert';
+import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
 
 export default function Login() {
   const { user, isAdmin, loading: authLoading, login } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation(['auth', 'common']);
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading]   = useState(false);
@@ -32,13 +35,13 @@ export default function Login() {
     } catch (err: unknown) {
       const code = (err as { code?: string }).code;
       const friendly: Record<string, string> = {
-        'auth/user-not-found':      'メールアドレスまたはパスワードが正しくありません。',
-        'auth/wrong-password':      'メールアドレスまたはパスワードが正しくありません。',
-        'auth/invalid-credential':  'メールアドレスまたはパスワードが正しくありません。',
-        'auth/invalid-email':       'メールアドレスの形式が正しくありません。',
-        'auth/too-many-requests':   'ログイン試行回数が多すぎます。しばらくお待ちください。',
+        'auth/user-not-found':      t('auth:errors.userNotFound'),
+        'auth/wrong-password':      t('auth:errors.wrongPassword'),
+        'auth/invalid-credential':  t('auth:errors.invalidCredential'),
+        'auth/invalid-email':       t('auth:errors.invalidEmail'),
+        'auth/too-many-requests':   t('auth:errors.tooManyRequests'),
       };
-      setError(code && friendly[code] ? friendly[code] : (err instanceof Error ? err.message : 'ログインに失敗しました'));
+      setError(code && friendly[code] ? friendly[code] : (err instanceof Error ? err.message : t('auth:errors.loginFailed')));
     } finally {
       setLoading(false);
     }
@@ -54,7 +57,7 @@ export default function Login() {
           </svg>
         </div>
         <h2 className="text-xl font-heading font-semibold text-navy-700">
-          スタッフログイン
+          {t('auth:staffLogin')}
         </h2>
         <p className="text-[11px] tracking-[0.2em] uppercase text-navy-400 font-display mt-1">
           STAFF PORTAL
@@ -66,7 +69,7 @@ export default function Login() {
         {error && <Alert variant="error">{error}</Alert>}
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            label="メールアドレス"
+            label={t('auth:email')}
             type="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
@@ -74,7 +77,7 @@ export default function Login() {
             required
           />
           <PasswordInput
-            label="パスワード"
+            label={t('auth:password')}
             value={password}
             onChange={e => setPassword(e.target.value)}
             autoComplete="current-password"
@@ -84,9 +87,13 @@ export default function Login() {
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
             </svg>
-            ログイン
+            {t('auth:loginButton')}
           </Button>
         </form>
+      </div>
+      {/* 言語切り替え — ログイン画面下部 */}
+      <div className="flex justify-center mt-4">
+        <LanguageSwitcher variant="login" />
       </div>
     </div>
   );

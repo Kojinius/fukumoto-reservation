@@ -1,0 +1,292 @@
+{
+  "layout": {
+    "adminPanel": "管理画面",
+    "reservationList": "予約一覧",
+    "settings": "設定",
+    "logout": "ログアウト",
+    "lastLogin": "最終: "
+  },
+  "dashboard": {
+    "kpi": {
+      "todayReservations": "本日の予約",
+      "monthReservations": "今月の予約",
+      "newPatients": "新規患者",
+      "pending": "未確認"
+    },
+    "filter": {
+      "all": "全て",
+      "pending": "未確認",
+      "confirmed": "確認済み",
+      "cancelled": "キャンセル",
+      "csvExport": "CSV出力",
+      "clearFilters": "クリア"
+    },
+    "search": {
+      "name": "氏名",
+      "namePlaceholder": "山田太郎",
+      "zip": "郵便番号",
+      "zipPlaceholder": "123-4567",
+      "phone": "電話番号",
+      "phonePlaceholder": "090-1234-5678",
+      "reservationDate": "予約受付日",
+      "scheduledDate": "診察予定日"
+    },
+    "table": {
+      "scheduledDateTime": "診察予定日時",
+      "name": "氏名",
+      "visitType": "初/再",
+      "symptoms": "症状",
+      "phone": "電話",
+      "reservationDate": "予約受付日",
+      "status": "ステータス"
+    },
+    "status": {
+      "pending": "未確認",
+      "confirmed": "確認済み",
+      "cancelled": "キャンセル",
+      "cancelledByAdmin": "管理者",
+      "cancelledByPatient": "患者"
+    },
+    "action": {
+      "detail": "詳細"
+    },
+    "emptyState": "予約がありません",
+    "modal": {
+      "reservationDetail": "予約詳細",
+      "close": "閉じる",
+      "markConfirmed": "確認済みにする",
+      "cancel": "キャンセル",
+      "fields": {
+        "reservationId": "予約番号",
+        "scheduledDateTime": "診察予定日時",
+        "name": "氏名",
+        "furigana": "ふりがな",
+        "birthdate": "生年月日",
+        "ageUnit": "歳",
+        "zip": "郵便番号",
+        "address": "住所",
+        "phone": "電話番号",
+        "email": "メール",
+        "gender": "性別",
+        "genderUnset": "未入力",
+        "visitType": "初診/再診",
+        "insurance": "保険証",
+        "symptoms": "症状",
+        "notes": "伝達事項",
+        "noNotes": "なし",
+        "contactMethod": "連絡方法",
+        "reservationStatus": "ステータス",
+        "cancelledBy": "キャンセル元",
+        "cancelReason": "キャンセル理由",
+        "cancelledAt": "キャンセル日時",
+        "createdAt": "予約受付日"
+      },
+      "symptomsTitle": "{{name}}様 — 症状",
+      "notesLabel": "伝達事項"
+    },
+    "confirmDialog": {
+      "statusChange": "ステータス変更",
+      "statusChangeMessage": "{{name}}様の予約を確認済みにしますか？",
+      "okLabel": "確認済みにする"
+    },
+    "cancelModal": {
+      "title": "予約キャンセル",
+      "message": "{{name}}様の予約をキャンセルします。",
+      "notifyPatient": "患者にキャンセル通知メールが送信されます。",
+      "cancelReasonLabel": "キャンセル理由（必須）",
+      "cancelReasonPlaceholder": "選択してください",
+      "reason": {
+        "doctorUnavailable": "医師都合による休診",
+        "temporaryClosure": "臨時休診",
+        "patientRequest": "患者様からの電話依頼",
+        "duplicateBooking": "予約重複の整理",
+        "other": "その他"
+      },
+      "otherReasonPlaceholder": "理由を入力してください",
+      "back": "戻る",
+      "confirm": "キャンセルする"
+    }
+  },
+  "settings": {
+    "title": "設定",
+    "save": "保存",
+    "tabs": {
+      "basicInfo": "基本情報",
+      "businessDays": "営業日設定",
+      "announcement": "お知らせ",
+      "terms": "利用規約",
+      "policy": "ポリシー",
+      "accounts": "アカウント"
+    },
+    "basicInfo": {
+      "clinicName": "院名 *",
+      "phone": "電話番号 *",
+      "websiteUrl": "WebサイトURL",
+      "zip": "郵便番号",
+      "zipPrefix": "〒",
+      "zipPlaceholder": "123-4567",
+      "zipSearching": "検索中…",
+      "zipFound": "✓ 住所を反映",
+      "zipNotFound": "見つかりません",
+      "zipError": "検索エラー",
+      "address": "都道府県・市区町村・番地 *",
+      "addressSub": "建物名・号室",
+      "mapLabel": "所在地マップ",
+      "mapTitle": "クリニック所在地"
+    },
+    "businessDays": {
+      "holidays": "設定済み休日",
+      "daysUnit": "日",
+      "calendarClickHint": "カレンダーをクリックして追加",
+      "fetchHolidays": "祝日を自動取得",
+      "clearHolidays": "クリア",
+      "clickToRemove": "クリックで解除",
+      "clickToSetHoliday": "クリックで休日に設定",
+      "weeklySchedule": "週間スケジュール",
+      "openDays": "営業",
+      "closedDays": "休診",
+      "daysUnitJa": "日",
+      "weekendClosed": "土日 → 休診",
+      "weekendOpen": "土日 → 診療",
+      "timeline": {
+        "bookingCutoff": "予約・キャンセル締切",
+        "bookingCutoffLabel": "予約受付締切",
+        "cancelCutoffLabel": "キャンセル受付締切",
+        "before": "診療開始の",
+        "minutesBefore": "分前まで"
+      },
+      "dayStatus": {
+        "open": "営業",
+        "closed": "休診",
+        "openDay": "営業日",
+        "closedDay": "休診日",
+        "morning": "午前診療",
+        "afternoon": "午後診療",
+        "timeRangeError": "開始が終了以降です",
+        "timelineMorning": "午前",
+        "timelineAfternoon": "午後"
+      },
+      "confirmHoliday": {
+        "title": "予約が存在する日です",
+        "message": "{{date}} にはすでに {{count}}件 の予約が入っています。この日を休日に設定しますか？",
+        "okLabel": "休日に設定する"
+      }
+    },
+    "announcement": {
+      "bannerTitle": "お知らせバナー",
+      "clear": "クリア",
+      "active": "表示中",
+      "inactive": "非表示",
+      "typeLabel": "種別",
+      "typeInfo": "お知らせ",
+      "typeWarning": "注意",
+      "typeMaintenance": "メンテナンス",
+      "messageLabel": "メッセージ",
+      "startDateLabel": "お知らせ表示開始日時",
+      "endDateLabel": "お知らせ表示終了日時",
+      "dateRangeError": "開始日時が終了日時より後になっています。",
+      "maintenanceTitle": "メンテナンスモード",
+      "maintenanceWarning": "メンテナンス期間中は管理者以外アクセス不可になります",
+      "maintenanceStartLabel": "メンテナンス開始日時",
+      "maintenanceEndLabel": "メンテナンス終了日時"
+    },
+    "terms": {
+      "title": "利用規約",
+      "versionUpdated": "更新",
+      "termsTextLabel": "利用規約テキスト",
+      "termsTextPlaceholder": "管理者がログイン時に同意する利用規約を入力してください",
+      "termsHint": "管理者の初回ログイン時、またはバージョン更新後に表示されます。",
+      "versionManagement": "バージョン管理",
+      "versionWarning": "バージョンを更新すると、全管理者が次回ログイン時に利用規約・プライバシーポリシーへの再同意を求められます。",
+      "bumpVersionButton": "バージョンを更新（v{{current}} → v{{next}}）"
+    },
+    "policy": {
+      "autoFillAlert": "未入力のポリシー項目があります。基本情報（院名・電話番号）から自動生成できます。",
+      "autoGenerate": "自動生成",
+      "regenerateLink": "基本情報から再生成",
+      "regenerateConfirmTitle": "ポリシーテキストを再生成",
+      "regenerateConfirmMessage": "すべてのポリシーテキストを基本情報（院名・電話番号）から再生成します。手動で編集した内容は上書きされます。",
+      "regenerateOkLabel": "再生成する",
+      "cancelLabel": "キャンセル",
+      "privacyPolicyTitle": "プライバシーポリシー",
+      "privacyPolicyLabel": "プライバシーポリシーテキスト",
+      "privacyPolicyHint": "予約フォームの個人情報同意チェックボックスからリンクされます。空欄の場合はプレースホルダーの内容が使用されます。",
+      "sensitiveDataTitle": "要配慮個人情報の同意文言",
+      "sensitiveDataLabel": "同意文言テキスト",
+      "sensitiveDataHint": "予約フォームの症状入力欄に表示されます。空欄の場合はプレースホルダーに表示されているデフォルト文言が使用されます。",
+      "sensitiveDataCharCount": " {{count}}/500文字",
+      "dataRetentionTitle": "データ保存期間ポリシー",
+      "dataRetentionLabel": "予約・患者データの保存期間",
+      "retentionUnlimited": "無期限",
+      "retention6months": "6ヶ月",
+      "retention1year": "1年",
+      "retention2years": "2年",
+      "retention3years": "3年（推奨）",
+      "retention5years": "5年",
+      "usagePurposeLabel": "個人情報の利用目的（APPI 第17条）",
+      "usagePurposeHint": "プライバシーポリシーおよび予約フォームに表示されます。空欄の場合はプレースホルダーの内容が使用されます。",
+      "retentionLegalNote": "個人情報保護法に基づき、利用目的の達成に必要な範囲で保存期間を設定してください。保存期間を過ぎたデータは管理者に通知され、手動で削除できます。",
+      "reminderEmailTitle": "リマインダーメール配信",
+      "reminderEmailLabel": "リマインダーメール機能を有効にする",
+      "reminderEmailHint": "有効にすると、予約フォームに「リマインダーメールを受け取る」同意チェックが表示されます。同意した患者にのみ予約前日のリマインダーメールが送信されます。",
+      "patientRightsTitle": "患者の権利行使（APPI 第28〜30条）",
+      "patientRightsLabel": "問い合わせ先・手続き案内",
+      "patientRightsHint": "予約完了画面およびプライバシーポリシーに表示されます。空欄の場合はプレースホルダーの内容が使用されます。"
+    },
+    "accounts": {
+      "createUserTitle": "新規ユーザー作成",
+      "maxUsersWarning": "ユーザーの登録上限は{{max}}人までです。",
+      "emailLabel": "メールアドレス",
+      "emailPlaceholder": "admin@example.com",
+      "passwordLabel": "パスワード",
+      "passwordPlaceholder": "8文字以上",
+      "passwordHint": "8〜128文字、英大文字・英小文字・数字・記号をそれぞれ1文字以上",
+      "createButton": "作成",
+      "userListTitle": "ユーザー一覧",
+      "noUsers": "ユーザーがいません",
+      "tableEmail": "メール",
+      "tableCreatedAt": "作成日",
+      "tableActions": "操作",
+      "deleteButton": "削除",
+      "deleteConfirmTitle": "ユーザー削除",
+      "deleteConfirmMessage": "{{email}} を削除しますか？",
+      "deleteOkLabel": "削除する"
+    },
+    "validation": {
+      "clinicNameRequired": "院名は必須です",
+      "phoneRequired": "電話番号は必須です",
+      "announcementDateError": "お知らせ表示の開始日時が終了日時より後になっています",
+      "maintenanceDateError": "メンテナンスの開始日時が終了日時より後になっています",
+      "businessHoursError": "{{weekday}}曜の{{session}}の開始時刻が終了時刻以降になっています",
+      "amSession": "午前",
+      "pmSession": "午後"
+    }
+  },
+  "changePassword": {
+    "title": "パスワード変更",
+    "forcedAlert": "セキュリティのため、初回ログイン時にパスワードの変更が必要です。変更が完了するまで他のページへ移動できません。",
+    "cardTitle": "新しいパスワードを設定",
+    "currentPassword": "現在のパスワード",
+    "newPassword": "新しいパスワード",
+    "confirmPassword": "新しいパスワード（確認）",
+    "requirements": {
+      "minLength": "・8文字以上",
+      "uppercase": "・英大文字を含む",
+      "lowercase": "・英小文字を含む",
+      "number": "・数字を含む",
+      "symbol": "・記号を含む"
+    },
+    "passwordMismatch": "パスワードが一致しません",
+    "submitButton": "パスワードを変更",
+    "cancelButton": "キャンセル",
+    "errors": {
+      "currentPasswordRequired": "現在のパスワードを入力してください",
+      "newPasswordSameAsCurrent": "新しいパスワードは現在のパスワードと異なるものを設定してください",
+      "passwordMismatch": "新しいパスワードが一致しません",
+      "wrongPassword": "現在のパスワードが正しくありません",
+      "tooManyRequests": "試行回数が多すぎます。しばらくお待ちください",
+      "weakPassword": "パスワードが弱すぎます。より複雑なパスワードを設定してください",
+      "changeFailed": "パスワードの変更に失敗しました"
+    }
+  }
+}
