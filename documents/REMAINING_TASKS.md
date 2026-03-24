@@ -60,4 +60,12 @@
 | ⬜ | CR-PR15 | Dashboard KPI: `completed` ステータスを件数カウントに含める | P3 |
 | ⬜ | CR-PR15 | toLocaleString ロケールハードコード → i18n対応の日付フォーマット | P3 |
 
-**Completed: 31 / Remaining: 15**
+## Legal Audit Findings (2026-03-24 監査報告)
+
+| Status | ID | Task | Priority |
+|--------|-----|------|----------|
+| ⬜ | AUDIT-01 | APPI第34条 訂正権対応 — visit_histories 論理削除+新規作成の運用フロー設計 | P1 |
+| ⬜ | AUDIT-02 | 予約フォーム同意注記追加 — 「診察履歴として保管されます」文言（7言語） | P2 |
+| ⬜ | AUDIT-03 | 参照ログ（アクセストレーサビリティ）— 詳細モーダル閲覧ログ | P3 |
+
+**Completed: 31 / Remaining: 18**
