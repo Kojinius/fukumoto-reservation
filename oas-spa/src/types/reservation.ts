@@ -1,5 +1,5 @@
 /** 予約ステータス */
-export type ReservationStatus = 'pending' | 'confirmed' | 'cancelled';
+export type ReservationStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
 
 /** 初診・再診区分 */
 export type VisitType = '初診' | '再診';
@@ -68,6 +68,42 @@ export interface ReservationFormData {
   hasSensitiveDataConsent: boolean;
   /** [H2] リマインダーメール配信同意 */
   reminderEmailConsent: boolean;
+}
+
+/** 診察履歴レコード（visit_histories コレクション） */
+export interface VisitHistoryRecord {
+  id: string;
+  reservationId: string;
+  /** 患者情報スナップショット */
+  date: string;
+  time: string;
+  name: string;
+  furigana: string;
+  birthdate: string;
+  zip: string;
+  address: string;
+  phone: string;
+  email: string;
+  gender: Gender;
+  visitType: VisitType;
+  insurance: InsuranceType;
+  symptoms: string;
+  notes: string;
+  contactMethod: ContactMethod;
+  hasSensitiveDataConsent: boolean;
+  reminderEmailConsent: boolean;
+  /** 予約メタデータ */
+  reservationCreatedAt: string;
+  reservationStatus: string;
+  /** キャンセル情報（キャンセル後に完了にした場合） */
+  cancelledBy?: 'admin' | 'patient';
+  cancelReason?: string;
+  cancelledAt?: string;
+  /** 診察完了メタデータ */
+  completedAt: string;
+  completedBy: string;
+  completedByEmail: string;
+  createdAt: string;
 }
 
 /** 時間スロット（slots コレクション） */

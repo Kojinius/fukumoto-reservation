@@ -980,3 +980,115 @@ exports.sendDailyReminders = onSchedule(
     console.log(`リマインダー送信完了: ${tasks.length} 件 (${tomorrowStr})`);
   }
 );
+
+// ── 診察完了（visit_histories にスナップショット保存 + ステータス更新）──
+exports.completeVisit = onRequest(
+  { invoker: "public" },
+  async (req, res) => {
+    setCorsHeaders(req, res);
+    if (req.method === "OPTIONS") { res.status(204).send(""); return; }
+    if (req.method !== "POST")    { res.status(405).json({ error: "Method Not Allowed" }); return; }
+
+    // [SEC-11] レート制限
+    const clientIp = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.ip;
+    if (isRateLimited(clientIp)) {
+      res.status(429).json({ error: "リクエストが多すぎます。しばらくお待ちください。" }); return;
+    }
+
+    // ── 管理者認証チェック ──
+    const authHeader = req.headers.authorization;
+    if (!authHeader?.startsWith("Bearer ")) {
+      res.status(401).json({ error: "認証が必要です" }); return;
+    }
+    let decoded;
+    try {
+      decoded = await getAuth().verifyIdToken(authHeader.split("Bearer ")[1]);
+      if (!decoded.admin) { res.status(403).json({ error: "管理者権限が必要です" }); return; }
+    } catch (_) {
+      res.status(401).json({ error: "認証トークンが無効です" }); return;
+    }
+
+    const { reservationId } = req.body;
+    if (!reservationId || typeof reservationId !== "string" || reservationId.length > 100) {
+      res.status(400).json({ error: "予約IDが不正です" }); return;
+    }
+
+    const db = getFirestore();
+
+    try {
+      const result = await db.runTransaction(async (tx) => {
+        // 予約ドキュメント取得
+        const resRef  = db.collection("reservations").doc(reservationId);
+        const resSnap = await tx.get(resRef);
+        if (!resSnap.exists) return { status: 404, error: "予約が見つかりません" };
+
+        // 二重完了防止
+        const dupQuery = db.collection("visit_histories").where("reservationId", "==", reservationId).limit(1);
+        const dupSnap  = await tx.get(dupQuery);
+        if (!dupSnap.empty) return { status: 409, error: "ALREADY_COMPLETED" };
+
+        const booking = resSnap.data();
+        const now     = new Date().toISOString();
+        const histRef = db.collection("visit_histories").doc();
+
+        // スナップショット作成
+        const snapshot = {
+          id:                      histRef.id,
+          reservationId,
+          // 患者情報
+          date:                    booking.date    || "",
+          time:                    booking.time    || "",
+          name:                    booking.name    || "",
+          furigana:                booking.furigana || "",
+          birthdate:               booking.birthdate || "",
+          zip:                     booking.zip     || "",
+          address:                 booking.address || "",
+          phone:                   booking.phone   || "",
+          email:                   booking.email   || "",
+          gender:                  booking.gender  || "",
+          visitType:               booking.visitType || "",
+          insurance:               booking.insurance || "",
+          symptoms:                booking.symptoms || "",
+          notes:                   booking.notes   || "",
+          contactMethod:           booking.contactMethod || "",
+          hasSensitiveDataConsent: booking.hasSensitiveDataConsent || false,
+          reminderEmailConsent:    booking.reminderEmailConsent || false,
+          // 予約メタデータ
+          reservationCreatedAt:    booking.createdAt || "",
+          reservationStatus:       booking.status || "",
+          // キャンセル情報（あれば）
+          ...(booking.cancelledBy  ? { cancelledBy: booking.cancelledBy }   : {}),
+          ...(booking.cancelReason ? { cancelReason: booking.cancelReason } : {}),
+          ...(booking.cancelledAt  ? { cancelledAt: booking.cancelledAt }   : {}),
+          // 診察完了メタデータ
+          completedAt:             now,
+          completedBy:             decoded.uid,
+          completedByEmail:        decoded.email || "",
+          createdAt:               now,
+        };
+
+        tx.create(histRef, snapshot);
+        tx.update(resRef, { status: "completed" });
+
+        return { status: 200, visitHistoryId: histRef.id };
+      });
+
+      if (result.status !== 200) {
+        res.status(result.status).json({ error: result.error });
+        return;
+      }
+
+      auditLog("visit_completed", {
+        reservationId,
+        visitHistoryId: result.visitHistoryId,
+        adminUid: decoded.uid,
+        adminEmail: decoded.email,
+      });
+
+      res.status(200).json({ ok: true, visitHistoryId: result.visitHistoryId });
+    } catch (err) {
+      console.error("completeVisit エラー:", err);
+      res.status(500).json({ error: "内部エラーが発生しました" });
+    }
+  }
+);

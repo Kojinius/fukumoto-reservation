@@ -15,5 +15,7 @@
   "maxUsersReached": "Tối đa {{max}} người dùng.",
   "emailPasswordRequired": "Vui lòng nhập email và mật khẩu",
   "invalidEmail": "Định dạng địa chỉ email không hợp lệ",
-  "passwordChanged": "Đổi mật khẩu thành công"
+  "passwordChanged": "Đổi mật khẩu thành công",
+  "visitCompleted": "Đã đánh dấu hoàn tất khám",
+  "alreadyCompleted": "Cuộc hẹn này đã hoàn tất khám"
 }

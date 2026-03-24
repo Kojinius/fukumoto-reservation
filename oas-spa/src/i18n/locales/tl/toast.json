@@ -1,6 +1,6 @@
 {
   "cancelReasonRequired": "Pakiusap pumili ng dahilan ng pagkansela",
-  "cancelSuccess": "Nakansela ang reserbасyon (naipadala ang email na abiso sa pasyente)",
+  "cancelSuccess": "Nakansela ang reserbacyon (naipadala ang email na abiso sa pasyente)",
   "statusUpdated": "Na-update ang katayuan",
   "updateFailed": "Nabigo ang pag-update",
   "settingSaved": "Nai-save ang mga setting",
@@ -15,5 +15,7 @@
   "maxUsersReached": "Maximum na {{max}} user ang pinahihintulutan.",
   "emailPasswordRequired": "Pakiusap ilagay ang email at password",
   "invalidEmail": "Hindi valid ang format ng email address",
-  "passwordChanged": "Matagumpay na nabago ang password"
+  "passwordChanged": "Matagumpay na nabago ang password",
+  "visitCompleted": "Nairekord bilang nakumpleto ang konsultasyon",
+  "alreadyCompleted": "Ang reserbacyon na ito ay nakumpleto na"
 }

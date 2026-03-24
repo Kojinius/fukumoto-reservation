@@ -20,7 +20,7 @@ service cloud.firestore {
         && data.phone    is string && data.phone.size()    <= 20
         && data.date     is string && data.date.size()     == 10
         && data.time     is string && data.time.size()     <= 10
-        && data.status   in ['pending','confirmed','cancelled']
+        && data.status   in ['pending','confirmed','cancelled','completed']
         // 任意フィールドの型・長さ検証
         && (!data.keys().hasAny(['email'])         || (data.email is string && data.email.size() <= 200))
         && (!data.keys().hasAny(['zip'])           || (data.zip is string && data.zip.size() <= 8))
@@ -75,6 +75,23 @@ service cloud.firestore {
           'privacyAcceptedAt',
           'termsVersion'
         ]);
+    }
+
+    // 診察履歴コレクション（管理者のみ読み書き可能 — 改ざん防止のため更新・削除不可）
+    match /visit_histories/{historyId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasAll([
+          'id', 'reservationId', 'name', 'phone', 'date', 'time',
+          'completedAt', 'completedBy', 'createdAt'
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 50
+        && request.resource.data.phone is string
+        && request.resource.data.phone.size() <= 20
+        && request.resource.data.date is string
+        && request.resource.data.date.size() == 10;
+      allow update, delete: if false;
     }
 
     // 監査ログコレクション（CSVエクスポート等の操作記録）

@@ -32,7 +32,8 @@
 | ✅ | OAS-UX-T04 | UI/UX改善（ペンディングバッジ、モーダルスクロール、最終ログイン表示、アナウンスバナー改行） | P2 |
 | ✅ | OAS-UX-T05 | ポリシー再生成機能（確認ダイアログ付き） | P2 |
 | ⬜ | OAS-UX-T01 | 管理ヘッダーにTOS確認アイコン（低優先） | P3 |
-| ⬜ | OAS-FUTURE-T01 | 多国語対応（i18n）— 7か国語、AMS同等 — 次セッションで着手予定 | P2 |
+| ✅ | OAS-FUTURE-T01 | 多国語対応（i18n）— 7か国語、AMS同等 | P2 |
+| ✅ | OAS-HIST-T01 | 患者別診察履歴管理（completeVisit CF + /admin/history画面 + Dashboard連携） | P1 |
 | ⬜ | OAS-FUTURE-T02 | 顧客管理システム（新規プロジェクト候補） | P3 |
 
 ## Security (SEC) — Remaining
@@ -52,7 +53,11 @@
 | ⬜ | CR-PR7 | リマインダーメール opt-out 機構（特定電子メール法対応） | P2 |
 | ⬜ | CR-PR7 | メール削除時の reminderEmailConsent リセット | P2 |
 | ⬜ | CR-PR7 | 新規Textareaフィールドの max-length 統一 | P3 |
-| ⬜ | CR-PR7 | iframe sandbox 属性追加 | P3 |
+| ⬜ | CR-PR7 | iframe sandbox 属性追加（PR #7で部分対応、Google Maps embed fix済み） | P3 |
 | ⬜ | CR-PR7 | 時刻フォーマットのゼロパディング互換性確認 | P3 |
+| ⬜ | CR-PR15 | visit_histories フルスキャン → ページネーション/クエリ上限対応（大規模データ対策） | P2 |
+| ⬜ | CR-PR15 | completeVisit CF: スロットステータス確認追加（二重完了防止強化） | P2 |
+| ⬜ | CR-PR15 | Dashboard KPI: `completed` ステータスを件数カウントに含める | P3 |
+| ⬜ | CR-PR15 | toLocaleString ロケールハードコード → i18n対応の日付フォーマット | P3 |
 
-**Completed: 29 / Remaining: 11**
+**Completed: 31 / Remaining: 15**

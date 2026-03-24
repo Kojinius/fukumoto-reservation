@@ -8,6 +8,15 @@
         { "fieldPath": "status", "order": "ASCENDING" }
       ]
     }
+    ,
+    {
+      "collectionGroup": "visit_histories",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "date", "order": "DESCENDING" },
+        { "fieldPath": "completedAt", "order": "DESCENDING" }
+      ]
+    }
   ],
   "fieldOverrides": []
 }

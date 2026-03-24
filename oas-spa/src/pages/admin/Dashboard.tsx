@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useReservations, useKpis, updateReservationStatus, exportReservationsCsv } from '@/hooks/useAdmin';
+import { useReservations, useKpis, updateReservationStatus, exportReservationsCsv, completeVisit } from '@/hooks/useAdmin';
 import { useToast } from '@/hooks/useToast';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -21,6 +21,7 @@ const STATUS_BADGE_CLS: Record<ReservationStatus, string> = {
   pending:   'bg-amber-100 text-amber-700',
   confirmed: 'bg-emerald-100 text-emerald-700',
   cancelled: 'bg-red-100 text-red-700',
+  completed: 'bg-sky-100 text-sky-700',
 };
 
 const KPI_ICONS = [
@@ -82,6 +83,9 @@ export default function Dashboard() {
   const [updating, setUpdating] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
   const [cancelReasonOther, setCancelReasonOther] = useState('');
+  // 診察完了確認
+  const [completeTarget, setCompleteTarget] = useState<ReservationRecord | null>(null);
+  const [completing, setCompleting] = useState(false);
 
   // ソート
   const [sortKeys, setSortKeys] = useState<SortKey[]>([{ col: 'datetime', dir: 'desc' }]);
@@ -219,6 +223,7 @@ export default function Dashboard() {
       pending:   t('dashboard.status.pending'),
       confirmed: t('dashboard.status.confirmed'),
       cancelled: t('dashboard.status.cancelled'),
+      completed: t('dashboard.status.completed'),
     },
     filename: `${t('dashboard.csv.filename')}${new Date().toISOString().slice(0, 10)}.csv`,
   };
@@ -263,7 +268,7 @@ export default function Dashboard() {
           {/* 1段目: ステータスタブ */}
           <div className="flex items-center justify-between">
             <div className="flex gap-1">
-              {(['all', 'pending', 'confirmed', 'cancelled'] as const).map(s => (
+              {(['all', 'pending', 'confirmed', 'completed', 'cancelled'] as const).map(s => (
                 <Button
                   key={s}
                   size="sm"
@@ -274,6 +279,11 @@ export default function Dashboard() {
                 </Button>
               ))}
             </div>
+            {sortKeys.length > 0 && !(sortKeys.length === 1 && sortKeys[0].col === 'datetime' && sortKeys[0].dir === 'desc') && (
+              <Button size="sm" variant="ghost" onClick={() => setSortKeys([{ col: 'datetime', dir: 'desc' }])}>
+                {t('dashboard.table.clearSort')}
+              </Button>
+            )}
             <Button size="sm" variant="secondary" onClick={() => exportReservationsCsv(sorted, csvLabels)}>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
@@ -447,7 +457,7 @@ export default function Dashboard() {
             <Button variant="ghost" size="sm" onClick={() => setSelected(null)}>
               {t('dashboard.modal.close')}
             </Button>
-            {selected.status !== 'confirmed' && (
+            {selected.status !== 'completed' && selected.status !== 'confirmed' && (
               <Button size="sm" onClick={() => setConfirmAction({ booking: selected, status: 'confirmed' })}>
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -455,7 +465,15 @@ export default function Dashboard() {
                 {t('dashboard.modal.markConfirmed')}
               </Button>
             )}
-            {selected.status !== 'cancelled' && (
+            {selected.status === 'confirmed' && (
+              <Button size="sm" variant="secondary" onClick={() => setCompleteTarget(selected)}>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {t('dashboard.modal.markCompleted')}
+              </Button>
+            )}
+            {selected.status !== 'completed' && selected.status !== 'cancelled' && (
               <Button size="sm" variant="danger" onClick={() => setConfirmAction({ booking: selected, status: 'cancelled' })}>
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -489,6 +507,36 @@ export default function Dashboard() {
         variant="primary"
         onConfirm={handleStatusUpdate}
         onCancel={() => setConfirmAction(null)}
+      />
+
+      {/* 診察完了確認ダイアログ */}
+      <ConfirmDialog
+        open={!!completeTarget}
+        title={t('dashboard.confirmDialog.completeTitle')}
+        message={t('dashboard.confirmDialog.completeMessage', { name: completeTarget?.name })}
+        okLabel={t('dashboard.confirmDialog.completeOkLabel')}
+        variant="primary"
+        loading={completing}
+        onConfirm={async () => {
+          if (!completeTarget) return;
+          setCompleting(true);
+          try {
+            await completeVisit(completeTarget.id);
+            showToast(tToast('visitCompleted'), 'success');
+            setSelected(null);
+          } catch (err: unknown) {
+            const error = err as { error?: string };
+            if (error?.error === 'ALREADY_COMPLETED') {
+              showToast(tToast('alreadyCompleted'), 'error');
+            } else {
+              showToast(tToast('updateFailed'), 'error');
+            }
+          } finally {
+            setCompleting(false);
+            setCompleteTarget(null);
+          }
+        }}
+        onCancel={() => setCompleteTarget(null)}
       />
 
       {/* キャンセル確認（理由必須） */}

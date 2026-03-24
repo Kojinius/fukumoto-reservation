@@ -15,5 +15,7 @@
   "maxUsersReached": "Maximum {{max}} users allowed.",
   "emailPasswordRequired": "Please enter email and password",
   "invalidEmail": "Invalid email address format",
-  "passwordChanged": "Password changed successfully"
+  "passwordChanged": "Password changed successfully",
+  "visitCompleted": "Visit marked as completed",
+  "alreadyCompleted": "This reservation is already completed"
 }

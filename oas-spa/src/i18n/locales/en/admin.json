@@ -6,7 +6,8 @@
     "logout": "Logout",
     "lastLogin": "Last: ",
     "consentPending": "ToS / Privacy Pending",
-    "proxyBooking": "Book for Patient"
+    "proxyBooking": "Book for Patient",
+    "visitHistory": "Visit History"
   },
   "dashboard": {
     "kpi": {
@@ -20,6 +21,7 @@
       "pending": "Unconfirmed",
       "confirmed": "Confirmed",
       "cancelled": "Cancelled",
+      "completed": "Completed",
       "csvExport": "Export CSV",
       "clearFilters": "Clear"
     },
@@ -40,12 +42,14 @@
       "symptoms": "Symptoms",
       "phone": "Phone",
       "reservationDate": "Booking Date",
-      "status": "Status"
+      "status": "Status",
+      "clearSort": "Clear Sort"
     },
     "status": {
       "pending": "Unconfirmed",
       "confirmed": "Confirmed",
       "cancelled": "Cancelled",
+      "completed": "Completed",
       "cancelledByAdmin": "Admin",
       "cancelledByPatient": "Patient"
     },
@@ -57,6 +61,7 @@
       "reservationDetail": "Reservation Details",
       "close": "Close",
       "markConfirmed": "Mark as Confirmed",
+      "markCompleted": "Complete Visit",
       "cancel": "Cancel",
       "fields": {
         "reservationId": "Booking ID",
@@ -81,7 +86,9 @@
         "cancelledBy": "Cancelled By",
         "cancelReason": "Cancel Reason",
         "cancelledAt": "Cancelled At",
-        "createdAt": "Booking Date"
+        "createdAt": "Booking Date",
+        "completedAt": "Completed At",
+        "completedBy": "Completed By"
       },
       "symptomsTitle": "{{name}} — Symptoms",
       "notesLabel": "Notes"
@@ -89,7 +96,10 @@
     "confirmDialog": {
       "statusChange": "Change Status",
       "statusChangeMessage": "Mark {{name}}'s reservation as confirmed?",
-      "okLabel": "Mark as Confirmed"
+      "okLabel": "Mark as Confirmed",
+      "completeTitle": "Complete Visit",
+      "completeMessage": "Mark {{name}}'s visit as completed? This will be saved to visit history.",
+      "completeOkLabel": "Mark as Completed"
     },
     "cancelModal": {
       "title": "Cancel Reservation",
@@ -112,6 +122,47 @@
       "date": "Date",
       "time": "Time",
       "filename": "reservations_"
+    }
+  },
+  "history": {
+    "title": "Visit History",
+    "search": {
+      "name": "Name",
+      "namePlaceholder": "Yamada Taro",
+      "zip": "Postal Code",
+      "zipPlaceholder": "123-4567",
+      "phone": "Phone",
+      "phonePlaceholder": "090-1234-5678",
+      "visitDateFrom": "Visit Date From",
+      "visitDateTo": "Visit Date To"
+    },
+    "filter": {
+      "clearFilters": "Clear Search",
+      "csvExport": "Export CSV"
+    },
+    "table": {
+      "visitDateTime": "Visit Date/Time",
+      "name": "Name",
+      "visitType": "Visit",
+      "phone": "Phone",
+      "clearSort": "Clear Sort"
+    },
+    "action": {
+      "detail": "View"
+    },
+    "emptyState": "No visit history found",
+    "modal": {
+      "historyDetail": "Visit History Details",
+      "close": "Close",
+      "fields": {
+        "completedAt": "Completed At",
+        "completedBy": "Completed By"
+      }
+    },
+    "csv": {
+      "date": "Visit Date",
+      "time": "Visit Time",
+      "filename": "visit-history_"
     }
   },
   "settings": {
@@ -235,6 +286,7 @@
       "usagePurposeLabel": "Purpose of Use (APPI Article 17)",
       "usagePurposeHint": "Displayed in the privacy policy and booking form.",
       "retentionLegalNote": "Set the retention period within the scope necessary for achieving the purpose of use. Data past the retention period will be notified to admins for manual deletion.",
+      "retentionVisitHistoryNote": "* Visit history (completed consultation records) is excluded from data retention policy. It is permanently retained as medical records regardless of retention period settings. Please inform patients via your privacy policy.",
       "reminderEmailTitle": "Reminder Email",
       "reminderEmailLabel": "Enable reminder email feature",
       "reminderEmailHint": "When enabled, patients can opt-in to receive a reminder email the day before their appointment.",

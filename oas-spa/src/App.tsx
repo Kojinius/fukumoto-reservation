@@ -17,6 +17,7 @@ import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import Login from '@/pages/Login';
 import AuthAction from '@/pages/AuthAction';
 import Dashboard from '@/pages/admin/Dashboard';
+import VisitHistory from '@/pages/admin/VisitHistory';
 import Settings from '@/pages/admin/Settings';
 import ChangePassword from '@/pages/admin/ChangePassword';
 import Maintenance from '@/pages/Maintenance';
@@ -46,6 +47,7 @@ export default function App() {
                 {/* 管理者ページ */}
                 <Route element={<AdminLayout />}>
                   <Route path="/admin" element={<Dashboard />} />
+                  <Route path="/admin/history" element={<VisitHistory />} />
                   <Route path="/admin/settings" element={<Settings />} />
                   <Route path="/admin/change-password" element={<ChangePassword />} />
                 </Route>

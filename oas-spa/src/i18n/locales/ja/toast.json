@@ -15,5 +15,7 @@
   "maxUsersReached": "ユーザーの登録上限は{{max}}人までです。",
   "emailPasswordRequired": "メールとパスワードを入力してください",
   "invalidEmail": "メールアドレスの形式が正しくありません",
-  "passwordChanged": "パスワードを変更しました"
+  "passwordChanged": "パスワードを変更しました",
+  "visitCompleted": "診察完了として記録しました",
+  "alreadyCompleted": "この予約は既に診察完了済みです"
 }

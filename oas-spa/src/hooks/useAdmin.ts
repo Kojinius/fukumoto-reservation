@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { collection, onSnapshot, doc, writeBatch, addDoc, query, where } from 'firebase/firestore';
 import { db, auth } from '@/lib/firebase';
 import { callFunction } from '@/lib/functions';
-import type { ReservationRecord, ReservationStatus } from '@/types/reservation';
+import type { ReservationRecord, ReservationStatus, VisitHistoryRecord } from '@/types/reservation';
 
 /** 未確認予約件数リアルタイムリスナー（ヘッダーバッジ用） */
 export function usePendingCount() {
@@ -154,6 +154,75 @@ export function exportReservationsCsv(
   } catch {
     // 同期エラー時もCSVエクスポートは続行
   }
+}
+
+/** 診察完了処理（CF呼び出し） */
+export async function completeVisit(reservationId: string): Promise<{ visitHistoryId: string }> {
+  return callFunction<{ visitHistoryId: string }>('completeVisit', { reservationId });
+}
+
+/** 診察履歴リアルタイムリスナー */
+export function useVisitHistories() {
+  const [histories, setHistories] = useState<VisitHistoryRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      collection(db, 'visit_histories'),
+      (snap) => {
+        const data = snap.docs.map(d => ({ ...d.data(), id: d.id }) as VisitHistoryRecord);
+        // 診察日降順ソート
+        data.sort((a, b) => {
+          const da = `${a.date} ${a.time}`;
+          const db_ = `${b.date} ${b.time}`;
+          return db_.localeCompare(da);
+        });
+        setHistories(data);
+        setLoading(false);
+      },
+      () => setLoading(false),
+    );
+    return unsubscribe;
+  }, []);
+
+  return { histories, loading };
+}
+
+/** 診察履歴CSV出力（監査ログ付き） */
+export function exportVisitHistoriesCsv(
+  histories: VisitHistoryRecord[],
+  labels: { headers: string[]; statusLabels: Record<string, string>; filename: string },
+): void {
+  const escape = (v: string) => `"${(v || '').replace(/"/g, '""')}"`;
+
+  const rows = histories.map(r => [
+    r.reservationId, r.date, r.time, r.name, r.furigana, r.birthdate,
+    r.address, r.phone, r.email, r.gender,
+    r.visitType, r.insurance, r.symptoms, r.notes,
+    r.contactMethod, labels.statusLabels[r.reservationStatus] || r.reservationStatus,
+    r.reservationCreatedAt,
+    r.completedAt ? new Date(r.completedAt).toLocaleString('ja-JP') : '',
+    r.completedByEmail,
+  ].map(escape).join(','));
+
+  const csv = '\uFEFF' + [labels.headers.join(','), ...rows].join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = labels.filename;
+  a.click();
+  URL.revokeObjectURL(url);
+
+  try {
+    addDoc(collection(db, 'audit_logs'), {
+      action: 'visit_history_csv_export',
+      adminUid: auth.currentUser?.uid,
+      adminEmail: auth.currentUser?.email,
+      recordCount: histories.length,
+      timestamp: new Date().toISOString(),
+    }).catch(() => {});
+  } catch { /* 監査ログ失敗時もCSV続行 */ }
 }
 
 /** メールアドレスマスキング */

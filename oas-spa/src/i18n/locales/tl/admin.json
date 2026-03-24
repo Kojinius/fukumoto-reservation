@@ -6,7 +6,8 @@
     "logout": "Mag-logout",
     "lastLogin": "Huling login: ",
     "consentPending": "Naghihintay ng pahintulot",
-    "proxyBooking": "Mag-book para sa pasyente"
+    "proxyBooking": "Mag-book para sa pasyente",
+    "visitHistory": "Kasaysayan ng Konsultasyon"
   },
   "dashboard": {
     "kpi": {
@@ -20,6 +21,7 @@
       "pending": "Hindi Pa Nakumpirma",
       "confirmed": "Nakumpirma",
       "cancelled": "Nakansela",
+      "completed": "Nakumpleto",
       "csvExport": "I-export ang CSV",
       "clearFilters": "I-clear"
     },
@@ -40,12 +42,14 @@
       "symptoms": "Mga Sintomas",
       "phone": "Telepono",
       "reservationDate": "Petsa ng Reserbacyon",
-      "status": "Katayuan"
+      "status": "Katayuan",
+      "clearSort": "I-clear ang Pagkakaayos"
     },
     "status": {
       "pending": "Hindi Pa Nakumpirma",
       "confirmed": "Nakumpirma",
       "cancelled": "Nakansela",
+      "completed": "Nakumpleto",
       "cancelledByAdmin": "Admin",
       "cancelledByPatient": "Pasyente"
     },
@@ -57,6 +61,7 @@
       "reservationDetail": "Detalye ng Reserbacyon",
       "close": "Isara",
       "markConfirmed": "Markahan bilang Nakumpirma",
+      "markCompleted": "Kumpletuhin ang Konsultasyon",
       "cancel": "Kanselahin",
       "fields": {
         "reservationId": "Blg. ng Reserbacyon",
@@ -81,7 +86,9 @@
         "cancelledBy": "Kinansela ng",
         "cancelReason": "Dahilan ng Pagkansela",
         "cancelledAt": "Petsa ng Pagkansela",
-        "createdAt": "Petsa ng Reserbacyon"
+        "createdAt": "Petsa ng Reserbacyon",
+        "completedAt": "Nakumpleto Noong",
+        "completedBy": "Kinumpleto Ng"
       },
       "symptomsTitle": "Mga Sintomas ni {{name}}",
       "notesLabel": "Mga Tala"
@@ -89,7 +96,10 @@
     "confirmDialog": {
       "statusChange": "Baguhin ang Katayuan",
       "statusChangeMessage": "Markahan ang reserbacyon ni {{name}} bilang nakumpirma?",
-      "okLabel": "Markahan bilang Nakumpirma"
+      "okLabel": "Markahan bilang Nakumpirma",
+      "completeTitle": "Kumpletuhin ang Konsultasyon",
+      "completeMessage": "Markahan ang konsultasyon ni {{name}} bilang nakumpleto? Ise-save sa kasaysayan ng konsultasyon.",
+      "completeOkLabel": "Markahan bilang Nakumpleto"
     },
     "cancelModal": {
       "title": "Kanselahin ang Reserbacyon",
@@ -112,6 +122,47 @@
       "date": "Petsa",
       "time": "Oras",
       "filename": "mga-reserbacyon_"
+    }
+  },
+  "history": {
+    "title": "Kasaysayan ng Konsultasyon",
+    "search": {
+      "name": "Pangalan",
+      "namePlaceholder": "Yamada Taro",
+      "zip": "Zip Code",
+      "zipPlaceholder": "123-4567",
+      "phone": "Telepono",
+      "phonePlaceholder": "090-1234-5678",
+      "visitDateFrom": "Petsa ng Konsulta Mula",
+      "visitDateTo": "Petsa ng Konsulta Hanggang"
+    },
+    "filter": {
+      "clearFilters": "I-clear ang Paghahanap",
+      "csvExport": "I-export ang CSV"
+    },
+    "table": {
+      "visitDateTime": "Petsa/Oras ng Konsultasyon",
+      "name": "Pangalan",
+      "visitType": "Uri ng Bisita",
+      "phone": "Telepono",
+      "clearSort": "I-clear ang Pagkakaayos"
+    },
+    "action": {
+      "detail": "Detalye"
+    },
+    "emptyState": "Walang kasaysayan ng konsultasyon",
+    "modal": {
+      "historyDetail": "Detalye ng Kasaysayan",
+      "close": "Isara",
+      "fields": {
+        "completedAt": "Nakumpleto Noong",
+        "completedBy": "Kinumpleto Ng"
+      }
+    },
+    "csv": {
+      "date": "Petsa ng Konsultasyon",
+      "time": "Oras ng Konsultasyon",
+      "filename": "kasaysayan-ng-konsultasyon_"
     }
   },
   "settings": {
@@ -235,6 +286,7 @@
       "usagePurposeLabel": "Layunin ng Paggamit ng Personal na Impormasyon (APPI Art. 17)",
       "usagePurposeHint": "Ipinapakita sa patakaran sa privacy at form ng reserbacyon.",
       "retentionLegalNote": "Itakda ang panahon ng pagpapanatili sa saklaw na kinakailangan para makamit ang layunin ng paggamit. Ang data na lumampas sa panahon ng pagpapanatili ay ipapaalam sa mga admin para sa manu-manong pagtanggal.",
+      "retentionVisitHistoryNote": "※ Ang kasaysayan ng konsultasyon (mga rekord ng nakumpletong konsultasyon) ay hindi saklaw ng patakaran sa pagpapanatili ng data. Permanenteng pinapanatili bilang medikal na rekord anuman ang setting ng panahon ng pagpapanatili. Mangyaring ipaalam sa mga pasyente sa pamamagitan ng inyong patakaran sa privacy.",
       "reminderEmailTitle": "Reminder Email",
       "reminderEmailLabel": "Paganahin ang feature ng reminder email",
       "reminderEmailHint": "Kapag pinagana, ang form ng reserbacyon ay magpapakita ng checkbox ng pahintulot para sa mga reminder email. Ang mga reminder ay ipapadala lamang sa mga pasyenteng pumayag.",

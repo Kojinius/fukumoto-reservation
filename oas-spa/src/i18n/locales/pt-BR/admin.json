@@ -6,7 +6,8 @@
     "logout": "Sair",
     "lastLogin": "Último acesso: ",
     "consentPending": "Termos pendentes",
-    "proxyBooking": "Reservar para paciente"
+    "proxyBooking": "Reservar para paciente",
+    "visitHistory": "Histórico de Consultas"
   },
   "dashboard": {
     "kpi": {
@@ -20,6 +21,7 @@
       "pending": "Não Confirmados",
       "confirmed": "Confirmados",
       "cancelled": "Cancelados",
+      "completed": "Consulta Concluída",
       "csvExport": "Exportar CSV",
       "clearFilters": "Limpar"
     },
@@ -40,12 +42,14 @@
       "symptoms": "Sintomas",
       "phone": "Telefone",
       "reservationDate": "Data da Reserva",
-      "status": "Status"
+      "status": "Status",
+      "clearSort": "Limpar Ordenação"
     },
     "status": {
       "pending": "Não Confirmado",
       "confirmed": "Confirmado",
       "cancelled": "Cancelado",
+      "completed": "Consulta Concluída",
       "cancelledByAdmin": "Administrador",
       "cancelledByPatient": "Paciente"
     },
@@ -57,6 +61,7 @@
       "reservationDetail": "Detalhes da Reserva",
       "close": "Fechar",
       "markConfirmed": "Marcar como Confirmado",
+      "markCompleted": "Concluir Consulta",
       "cancel": "Cancelar",
       "fields": {
         "reservationId": "Nº da Reserva",
@@ -81,7 +86,9 @@
         "cancelledBy": "Cancelado por",
         "cancelReason": "Motivo do Cancelamento",
         "cancelledAt": "Data do Cancelamento",
-        "createdAt": "Data da Reserva"
+        "createdAt": "Data da Reserva",
+        "completedAt": "Concluído em",
+        "completedBy": "Concluído por"
       },
       "symptomsTitle": "Sintomas de {{name}}",
       "notesLabel": "Observações"
@@ -89,7 +96,10 @@
     "confirmDialog": {
       "statusChange": "Alterar Status",
       "statusChangeMessage": "Marcar a reserva de {{name}} como confirmada?",
-      "okLabel": "Marcar como Confirmado"
+      "okLabel": "Marcar como Confirmado",
+      "completeTitle": "Concluir Consulta",
+      "completeMessage": "Marcar a consulta de {{name}} como concluída? Será salvo no histórico de consultas.",
+      "completeOkLabel": "Marcar como Concluída"
     },
     "cancelModal": {
       "title": "Cancelar Reserva",
@@ -112,6 +122,47 @@
       "date": "Data",
       "time": "Horário",
       "filename": "reservas_"
+    }
+  },
+  "history": {
+    "title": "Histórico de Consultas",
+    "search": {
+      "name": "Nome",
+      "namePlaceholder": "Yamada Taro",
+      "zip": "CEP",
+      "zipPlaceholder": "123-4567",
+      "phone": "Telefone",
+      "phonePlaceholder": "090-1234-5678",
+      "visitDateFrom": "Data da consulta De",
+      "visitDateTo": "Data da consulta Até"
+    },
+    "filter": {
+      "clearFilters": "Limpar Busca",
+      "csvExport": "Exportar CSV"
+    },
+    "table": {
+      "visitDateTime": "Data/Hora da consulta",
+      "name": "Nome",
+      "visitType": "Tipo",
+      "phone": "Telefone",
+      "clearSort": "Limpar Ordenação"
+    },
+    "action": {
+      "detail": "Detalhes"
+    },
+    "emptyState": "Nenhum histórico de consulta encontrado",
+    "modal": {
+      "historyDetail": "Detalhes do Histórico",
+      "close": "Fechar",
+      "fields": {
+        "completedAt": "Concluído em",
+        "completedBy": "Concluído por"
+      }
+    },
+    "csv": {
+      "date": "Data da consulta",
+      "time": "Hora da consulta",
+      "filename": "historico-consultas_"
     }
   },
   "settings": {
@@ -235,6 +286,7 @@
       "usagePurposeLabel": "Finalidade do Uso de Dados Pessoais (APPI Art. 17)",
       "usagePurposeHint": "Exibido na política de privacidade e no formulário de reserva.",
       "retentionLegalNote": "Defina o período de retenção dentro do escopo necessário para atingir a finalidade de uso. Os dados vencidos serão notificados aos administradores para exclusão manual.",
+      "retentionVisitHistoryNote": "※ O histórico de consultas (registros de consultas concluídas) está excluído da política de retenção de dados. É mantido permanentemente como registro médico, independentemente das configurações do período de retenção. Informe os pacientes através da sua política de privacidade.",
       "reminderEmailTitle": "E-mail de Lembrete",
       "reminderEmailLabel": "Ativar função de e-mail de lembrete",
       "reminderEmailHint": "Quando ativado, o formulário de reserva exibirá uma caixa de seleção de consentimento para e-mails de lembrete. Lembretes são enviados somente a pacientes que consentiram.",
