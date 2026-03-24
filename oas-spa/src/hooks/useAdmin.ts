@@ -118,26 +118,25 @@ export async function deleteAdminUser(uid: string): Promise<void> {
 }
 
 /** CSV エクスポート（監査ログ付き） */
-const STATUS_JA: Record<string, string> = { pending: '未確認', confirmed: '確認済み', cancelled: 'キャンセル' };
-
-export function exportReservationsCsv(reservations: ReservationRecord[]): void {
-  const headers = ['予約番号', '予約日', '予約時間', '氏名', 'ふりがな', '生年月日', '住所', '電話番号', 'メール', '性別', '初診/再診', '保険証', '症状', '伝達事項', '連絡方法', 'ステータス', '登録日時'];
-
+export function exportReservationsCsv(
+  reservations: ReservationRecord[],
+  labels: { headers: string[]; statusLabels: Record<string, string>; filename: string },
+): void {
   const escape = (v: string) => `"${(v || '').replace(/"/g, '""')}"`;
 
   const rows = reservations.map(r => [
     r.id, r.date, r.time, r.name, r.furigana, r.birthdate,
     r.address, r.phone, r.email, r.gender,
     r.visitType, r.insurance, r.symptoms, r.notes,
-    r.contactMethod, STATUS_JA[r.status] || r.status, r.createdAt,
+    r.contactMethod, labels.statusLabels[r.status] || r.status, r.createdAt,
   ].map(escape).join(','));
 
-  const csv = '\uFEFF' + [headers.join(','), ...rows].join('\r\n');
+  const csv = '\uFEFF' + [labels.headers.join(','), ...rows].join('\r\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `予約データ_${new Date().toISOString().slice(0, 10)}.csv`;
+  a.download = labels.filename;
   a.click();
   URL.revokeObjectURL(url);
 

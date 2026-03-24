@@ -6,6 +6,7 @@ import { usePendingCount } from '@/hooks/useAdmin';
 import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
 import { ConsentModal } from '@/components/shared/ConsentModal';
+import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
 
 export function AdminLayout() {
   const { t } = useTranslation('admin');
@@ -94,6 +95,7 @@ export function AdminLayout() {
                 );
               })()}
             </span>
+            <LanguageSwitcher variant="header" />
             <Button
               variant="ghost"
               size="sm"
