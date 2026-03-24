@@ -34,6 +34,7 @@ const INITIAL_FORM: ReservationFormData = {
   notes: '',
   contactMethod: '電話',
   hasSensitiveDataConsent: false,
+  reminderEmailConsent: false,
 };
 
 export default function BookingIndex() {

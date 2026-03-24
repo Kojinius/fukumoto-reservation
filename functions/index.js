@@ -226,6 +226,7 @@ exports.createReservation = onRequest(
           notes:         d.notes || "",
           contactMethod: d.contactMethod || "",
           hasSensitiveDataConsent: true,  // [C1] 同意証跡（サーバー検証済み）
+          reminderEmailConsent: d.reminderEmailConsent === true,  // [H2] リマインダーメール同意
           status:        "pending",
           createdAt:     new Date().toISOString(),
         });

@@ -272,6 +272,31 @@ export function PatientForm({ form, onUpdate, onNext, onBack, privacyPolicyUrl }
         <Textarea label="伝達事項（任意）" value={form.notes} onChange={e => onUpdate({ notes: e.target.value })} rows={2} placeholder="アレルギー、服用中の薬など" />
       </div>
 
+      {/* [H2] リマインダーメール配信同意（管理画面で有効時のみ表示） */}
+      {clinic?.reminderEmailEnabled && form.email.trim() && (
+        <div className={cn(
+          'bg-white rounded-lg border p-4 shadow-subtle transition-all duration-200 animate-stagger-4',
+          form.reminderEmailConsent ? 'border-gold/40 bg-gold-50/30' : 'border-cream-300/60',
+        )}>
+          <label className="flex items-start gap-3 cursor-pointer group">
+            <input
+              type="checkbox"
+              checked={form.reminderEmailConsent}
+              onChange={e => onUpdate({ reminderEmailConsent: e.target.checked })}
+              className="mt-0.5 h-4 w-4 rounded border-cream-300 text-gold focus:ring-gold/30"
+            />
+            <div>
+              <span className="text-sm text-navy-600 group-hover:text-navy-700 transition-colors font-medium">
+                予約前日にリマインダーメールを受け取る
+              </span>
+              <p className="text-[11px] text-navy-400 mt-1">
+                ご入力のメールアドレス宛に予約日前日のリマインダーをお送りします。配信停止はいつでも可能です。
+              </p>
+            </div>
+          </label>
+        </div>
+      )}
+
       {/* 同意チェック */}
       <div className={cn(
         'bg-white rounded-lg border p-5 shadow-subtle transition-all duration-200 animate-stagger-4',

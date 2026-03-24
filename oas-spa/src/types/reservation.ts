@@ -36,6 +36,8 @@ export interface ReservationRecord {
   contactMethod: ContactMethod;
   /** 要配慮個人情報の同意フラグ（C1: 個人情報保護法 第20条第2項） */
   hasSensitiveDataConsent: boolean;
+  /** [H2] リマインダーメール配信同意 */
+  reminderEmailConsent: boolean;
   /** メタデータ */
   createdAt: string;
 }
@@ -60,6 +62,8 @@ export interface ReservationFormData {
   contactMethod: ContactMethod;
   /** 要配慮個人情報の同意フラグ（C1） */
   hasSensitiveDataConsent: boolean;
+  /** [H2] リマインダーメール配信同意 */
+  reminderEmailConsent: boolean;
 }
 
 /** 時間スロット（slots コレクション） */
