@@ -39,10 +39,13 @@ export default function Dashboard() {
   const [search, setSearch] = useState('');
   const [phoneSearch, setPhoneSearch] = useState('');
   const [zipSearch, setZipSearch] = useState('');
+  const [createdAtFilter, setCreatedAtFilter] = useState('');
   const [kpiFilter, setKpiFilter] = useState<KpiFilter>(null);
 
   // 詳細モーダル
   const [selected, setSelected] = useState<ReservationRecord | null>(null);
+  // 症状モーダル
+  const [symptomsTarget, setSymptomsTarget] = useState<ReservationRecord | null>(null);
 
   // ステータス変更確認
   const [confirmAction, setConfirmAction] = useState<{ booking: ReservationRecord; status: ReservationStatus } | null>(null);
@@ -70,19 +73,20 @@ export default function Dashboard() {
     setSearch('');
     setPhoneSearch('');
     setZipSearch('');
+    setCreatedAtFilter('');
   }
 
   /** フィルター適用 */
   const filtered = useMemo(() => {
     let list = reservations;
 
-    // KPIフィルター
+    // KPIフィルター（KPI計算と同じくキャンセル済みを除外）
     if (kpiFilter === 'today') {
-      list = list.filter(r => r.date === todayStr);
+      list = list.filter(r => r.date === todayStr && r.status !== 'cancelled');
     } else if (kpiFilter === 'month') {
-      list = list.filter(r => r.date.startsWith(monthPrefix));
+      list = list.filter(r => r.date.startsWith(monthPrefix) && r.status !== 'cancelled');
     } else if (kpiFilter === 'new') {
-      list = list.filter(r => r.visitType === '初診');
+      list = list.filter(r => r.visitType === '初診' && r.date.startsWith(monthPrefix) && r.status !== 'cancelled');
     } else if (kpiFilter === 'pending') {
       list = list.filter(r => r.status === 'pending');
     } else {
@@ -103,8 +107,11 @@ export default function Dashboard() {
       const q = zipSearch.replace(/[-\s]/g, '');
       list = list.filter(r => (r.zip || '').replace(/[-\s]/g, '').includes(q));
     }
+    if (createdAtFilter) {
+      list = list.filter(r => r.createdAt && r.createdAt.startsWith(createdAtFilter));
+    }
     return list;
-  }, [reservations, statusFilter, dateFilter, search, phoneSearch, zipSearch, kpiFilter, todayStr, monthPrefix]);
+  }, [reservations, statusFilter, dateFilter, search, phoneSearch, zipSearch, createdAtFilter, kpiFilter, todayStr, monthPrefix]);
 
   /** 通常フィルター操作時はKPIフィルターをクリア */
   function setStatusFilterAndClearKpi(s: ReservationStatus | 'all') {
@@ -118,10 +125,11 @@ export default function Dashboard() {
     setSearch('');
     setPhoneSearch('');
     setZipSearch('');
+    setCreatedAtFilter('');
     setKpiFilter(null);
   }
 
-  const hasFilter = dateFilter || search || phoneSearch || zipSearch || statusFilter !== 'all' || kpiFilter;
+  const hasFilter = dateFilter || createdAtFilter || search || phoneSearch || zipSearch || statusFilter !== 'all' || kpiFilter;
 
   /** ステータス更新 */
   async function handleStatusUpdate() {
@@ -175,8 +183,9 @@ export default function Dashboard() {
 
       {/* フィルター + CSV */}
       <Card>
-        <CardBody>
-          <div className="flex flex-wrap items-end gap-3">
+        <CardBody className="space-y-3">
+          {/* 1段目: ステータスタブ */}
+          <div className="flex items-center justify-between">
             <div className="flex gap-1">
               {(['all', 'pending', 'confirmed', 'cancelled'] as const).map(s => (
                 <Button
@@ -189,38 +198,6 @@ export default function Dashboard() {
                 </Button>
               ))}
             </div>
-            <Input
-              type="date"
-              value={dateFilter}
-              onChange={e => { setDateFilter(e.target.value); setKpiFilter(null); }}
-              className="w-40"
-            />
-            <Input
-              placeholder="氏名検索"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="w-32"
-            />
-            <Input
-              placeholder="電話番号"
-              value={phoneSearch}
-              onChange={e => setPhoneSearch(e.target.value)}
-              className="w-32"
-            />
-            <Input
-              placeholder="郵便番号"
-              value={zipSearch}
-              onChange={e => setZipSearch(e.target.value)}
-              className="w-28"
-            />
-          </div>
-          <div className="flex items-center mt-2">
-            {hasFilter && (
-              <Button size="sm" variant="ghost" onClick={clearFilters}>
-                クリア
-              </Button>
-            )}
-            <div className="flex-1" />
             <Button size="sm" variant="secondary" onClick={() => exportReservationsCsv(filtered)}>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
@@ -228,6 +205,44 @@ export default function Dashboard() {
               CSV出力
             </Button>
           </div>
+          {/* 2段目: 検索フィールド */}
+          <div className="grid grid-cols-5 gap-2">
+            <Input
+              label="氏名"
+              placeholder="山田太郎"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+            <Input
+              label="郵便番号"
+              placeholder="123-4567"
+              value={zipSearch}
+              onChange={e => setZipSearch(e.target.value)}
+            />
+            <Input
+              label="電話番号"
+              placeholder="090-1234-5678"
+              value={phoneSearch}
+              onChange={e => setPhoneSearch(e.target.value)}
+            />
+            <Input
+              label="予約受付日"
+              type="date"
+              value={createdAtFilter}
+              onChange={e => { setCreatedAtFilter(e.target.value); setKpiFilter(null); }}
+            />
+            <Input
+              label="診察予定日"
+              type="date"
+              value={dateFilter}
+              onChange={e => { setDateFilter(e.target.value); setKpiFilter(null); }}
+            />
+          </div>
+          {hasFilter && (
+            <Button size="sm" variant="ghost" onClick={clearFilters}>
+              クリア
+            </Button>
+          )}
         </CardBody>
       </Card>
 
@@ -248,7 +263,7 @@ export default function Dashboard() {
             <table className="w-full text-sm border-separate border-spacing-0">
               <thead>
                 <tr className="border-b border-cream-200">
-                  {['日時', '氏名', '初/再', '症状', '電話', 'ステータス', ''].map(h => (
+                  {['診察予定日時', '氏名', '初/再', '症状', '電話', '予約受付日', 'ステータス', ''].map(h => (
                     <th key={h} className="px-3 py-3 text-[11px] font-medium text-navy-400 whitespace-nowrap tracking-wider uppercase text-left bg-cream-100/50 first:rounded-tl-lg last:rounded-tr-lg">{h}</th>
                   ))}
                 </tr>
@@ -268,10 +283,24 @@ export default function Dashboard() {
                         {r.visitType || '-'}
                       </Badge>
                     </td>
-                    <td className="px-3 py-3 max-w-[160px] truncate text-navy-500" title={r.symptoms}>
-                      {r.symptoms}
+                    <td className="px-3 py-3 max-w-[160px]">
+                      {r.symptoms ? (
+                        <button
+                          type="button"
+                          onClick={() => setSymptomsTarget(r)}
+                          className="text-left text-sky-600 hover:text-sky-800 hover:underline truncate block max-w-full transition-colors"
+                          title={r.symptoms}
+                        >
+                          {r.symptoms}
+                        </button>
+                      ) : (
+                        <span className="text-navy-300">-</span>
+                      )}
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap text-navy-500 font-mono text-xs">{r.phone}</td>
+                    <td className="px-3 py-3 whitespace-nowrap text-navy-400 text-xs">
+                      {r.createdAt ? new Date(r.createdAt).toLocaleDateString('ja-JP') : '-'}
+                    </td>
                     <td className="px-3 py-3 whitespace-nowrap">
                       <Badge className={STATUS_BADGE[r.status].cls}>{STATUS_BADGE[r.status].label}</Badge>
                     </td>
@@ -298,10 +327,11 @@ export default function Dashboard() {
           <dl className="space-y-1 text-sm mb-6">
             {[
               ['予約番号', selected.id],
-              ['予約日時', formatDateTimeJa(selected.date, selected.time)],
+              ['診察予定日時', formatDateTimeJa(selected.date, selected.time)],
               ['氏名', selected.name],
               ['ふりがな', selected.furigana],
               ['生年月日', selected.birthdate + (calcAge(selected.birthdate) !== null ? `（${calcAge(selected.birthdate)}歳）` : '')],
+              ['郵便番号', selected.zip || '-'],
               ['住所', selected.address],
               ['電話番号', selected.phone],
               ['メール', selected.email || '-'],
@@ -312,7 +342,7 @@ export default function Dashboard() {
               ['伝達事項', selected.notes || 'なし'],
               ['連絡方法', selected.contactMethod || '-'],
               ['ステータス', STATUS_BADGE[selected.status].label],
-              ['登録日時', selected.createdAt ? new Date(selected.createdAt).toLocaleString('ja-JP') : '-'],
+              ['予約受付日', selected.createdAt ? new Date(selected.createdAt).toLocaleString('ja-JP') : '-'],
             ].map(([label, val]) => (
               <div key={label} className="flex border-b border-cream-200/80 py-2">
                 <dt className="w-24 shrink-0 text-navy-400">{label}</dt>
@@ -341,6 +371,19 @@ export default function Dashboard() {
               </Button>
             )}
           </div>
+        </Modal>
+      )}
+
+      {/* 症状モーダル */}
+      {symptomsTarget && (
+        <Modal open={!!symptomsTarget} onClose={() => setSymptomsTarget(null)} title={`${symptomsTarget.name}様 — 症状`}>
+          <p className="text-sm text-navy-700 whitespace-pre-wrap leading-relaxed">{symptomsTarget.symptoms}</p>
+          {symptomsTarget.notes && (
+            <div className="mt-4 pt-3 border-t border-cream-200">
+              <p className="text-[11px] text-navy-400 mb-1">伝達事項</p>
+              <p className="text-sm text-navy-600 whitespace-pre-wrap">{symptomsTarget.notes}</p>
+            </div>
+          )}
         </Modal>
       )}
 
