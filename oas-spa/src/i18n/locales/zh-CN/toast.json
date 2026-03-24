@@ -15,5 +15,7 @@
   "maxUsersReached": "最多允许{{max}}名用户。",
   "emailPasswordRequired": "请输入邮箱和密码",
   "invalidEmail": "邮箱地址格式不正确",
-  "passwordChanged": "密码修改成功"
+  "passwordChanged": "密码修改成功",
+  "visitCompleted": "已标记为诊察完成",
+  "alreadyCompleted": "此预约已诊察完成"
 }

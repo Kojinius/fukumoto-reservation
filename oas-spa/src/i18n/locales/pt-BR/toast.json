@@ -15,5 +15,7 @@
   "maxUsersReached": "Máximo de {{max}} usuários permitidos.",
   "emailPasswordRequired": "Por favor, insira e-mail e senha",
   "invalidEmail": "Formato de endereço de e-mail inválido",
-  "passwordChanged": "Senha alterada com sucesso"
+  "passwordChanged": "Senha alterada com sucesso",
+  "visitCompleted": "Consulta marcada como concluída",
+  "alreadyCompleted": "Esta reserva já foi concluída"
 }

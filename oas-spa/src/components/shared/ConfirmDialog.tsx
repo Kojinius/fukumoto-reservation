@@ -9,6 +9,7 @@ interface ConfirmDialogProps {
   okLabel?: string;
   cancelLabel?: string;
   variant?: 'primary' | 'danger';
+  loading?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -18,6 +19,7 @@ export function ConfirmDialog({
   okLabel,
   cancelLabel,
   variant = 'primary',
+  loading,
   onConfirm, onCancel,
 }: ConfirmDialogProps) {
   const { t } = useTranslation('common');
@@ -28,8 +30,8 @@ export function ConfirmDialog({
     <Modal open={open} onClose={onCancel} title={title}>
       <p className="text-sm text-navy-500 mb-6">{message}</p>
       <div className="flex justify-end gap-3">
-        <Button variant="ghost" onClick={onCancel}>{resolvedCancelLabel}</Button>
-        <Button variant={variant === 'danger' ? 'danger' : 'primary'} onClick={onConfirm}>{resolvedOkLabel}</Button>
+        <Button variant="ghost" onClick={onCancel} disabled={loading}>{resolvedCancelLabel}</Button>
+        <Button variant={variant === 'danger' ? 'danger' : 'primary'} onClick={onConfirm} loading={loading}>{resolvedOkLabel}</Button>
       </div>
     </Modal>
   );

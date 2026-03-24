@@ -221,8 +221,8 @@ function BasicInfoTab({ form, update }: { form: Partial<ClinicSettings>; update:
                 style={{ border: 0 }}
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                src={`https://www.google.com/maps?q=${encodeURIComponent((form.clinicAddress || '') + ' ' + (form.clinicAddressSub || ''))}&output=embed&hl=ja`}
-                sandbox="allow-scripts allow-same-origin"
+                src={`https://www.google.com/maps?q=${encodeURIComponent((form.clinicAddress || '') + ' ' + (form.clinicAddressSub || ''))}&output=embed&hl=ja&z=16`}
+                sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
               />
             </div>
           </div>
@@ -790,7 +790,7 @@ function PolicyTab({ form, update }: { form: Partial<ClinicSettings>; update: (p
   /** テンプレートテキストを生成（日本語固定 — 日本法準拠の書式） */
   function generateTexts() {
     return {
-      privacyPolicy: `プライバシーポリシー\n\n${name}（以下「当院」）は、患者様の個人情報の保護に努め、個人情報の保護に関する法律（個人情報保護法）を遵守いたします。\n\n【収集する情報】\nお名前、ふりがな、生年月日、住所、電話番号、メールアドレス、症状・お悩み（要配慮個人情報）、保険証情報\n\n【利用目的】\n1. 予約の受付・確認・変更・キャンセル処理\n2. 診療準備のための症状・お悩みの事前把握\n3. 予約確認・リマインダー等のご連絡\n4. 再来院時の前回情報参照\n5. サービス改善のための匿名化統計分析\n\n【第三者提供】\nご本人の同意なく、個人情報を第三者に提供することはありません。ただし、法令に基づく場合を除きます。\n\n【要配慮個人情報の取り扱い】\n症状・お悩み等の健康に関する情報は「要配慮個人情報」として、ご本人の明示的な同意を得た上で取得・利用いたします。\n\n【データの保存期間】\nお預かりした個人情報は、利用目的の達成後、当院が定める保存期間を経て安全に削除いたします。\n\n【開示・訂正・利用停止】\nご自身の個人情報の開示・訂正・利用停止をご希望の場合は、下記の窓口までご連絡ください。本人確認の上、法令に基づき対応いたします。\n\n【お問い合わせ窓口】\n${name} 個人情報相談窓口\n電話: ${phone}`,
+      privacyPolicy: `プライバシーポリシー\n\n${name}（以下「当院」）は、患者様の個人情報の保護に努め、個人情報の保護に関する法律（個人情報保護法）を遵守いたします。\n\n【収集する情報】\nお名前、ふりがな、生年月日、住所、電話番号、メールアドレス、症状・お悩み（要配慮個人情報）、保険証情報\n\n【利用目的】\n1. 予約の受付・確認・変更・キャンセル処理\n2. 診療準備のための症状・お悩みの事前把握\n3. 予約確認・リマインダー等のご連絡\n4. 再来院時の前回情報参照\n5. サービス改善のための匿名化統計分析\n\n【第三者提供】\nご本人の同意なく、個人情報を第三者に提供することはありません。ただし、法令に基づく場合を除きます。\n\n【要配慮個人情報の取り扱い】\n症状・お悩み等の健康に関する情報は「要配慮個人情報」として、ご本人の明示的な同意を得た上で取得・利用いたします。\n\n【データの保存期間】\nお預かりした個人情報は、利用目的の達成後、当院が定める保存期間を経て安全に削除いたします。ただし、診察完了記録（診察履歴）は、医療記録の保全を目的として、保存期間設定に関わらず永久に保持されます。\n\n【開示・訂正・利用停止】\nご自身の個人情報の開示・訂正・利用停止をご希望の場合は、下記の窓口までご連絡ください。本人確認の上、法令に基づき対応いたします。\n\n【お問い合わせ窓口】\n${name} 個人情報相談窓口\n電話: ${phone}`,
       sensitiveDataConsentText: `「症状・お悩み」欄に入力される健康に関する情報は、個人情報保護法上の「要配慮個人情報」に該当する可能性があります。${name}の予約対応・施術準備の目的でのみ使用し、ご本人の同意なく第三者に提供することはありません。`,
       dataRetentionPurpose: `${name}は、ご予約時にご提供いただく個人情報を、以下の目的で利用いたします。\n\n1. 予約の受付・確認・変更・キャンセル処理\n2. 診療準備のための症状・お悩みの事前把握\n3. 予約確認・リマインダー等のご連絡\n4. 再来院時の前回情報参照\n5. サービス改善のための匿名化統計分析\n\n上記目的の達成後、所定の保存期間を経て安全に削除いたします。`,
       patientRightsContact: `個人情報の開示・訂正・利用停止をご希望の場合は、下記までご連絡ください。\n\n窓口: ${name} 個人情報相談窓口\n電話: ${phone}\n\n本人確認の上、法令に基づき対応いたします。`,
@@ -922,6 +922,9 @@ function PolicyTab({ form, update }: { form: Partial<ClinicSettings>; update: (p
           </p>
           <Alert variant="info">
             {t('settings.policy.retentionLegalNote')}
+          </Alert>
+          <Alert variant="warning">
+            {t('settings.policy.retentionVisitHistoryNote')}
           </Alert>
         </CardBody>
       </Card>

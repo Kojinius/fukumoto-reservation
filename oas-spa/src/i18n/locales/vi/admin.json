@@ -6,7 +6,8 @@
     "logout": "Đăng Xuất",
     "lastLogin": "Đăng nhập lần cuối: ",
     "consentPending": "Chờ xác nhận điều khoản",
-    "proxyBooking": "Đặt hộ bệnh nhân"
+    "proxyBooking": "Đặt hộ bệnh nhân",
+    "visitHistory": "Lịch sử khám"
   },
   "dashboard": {
     "kpi": {
@@ -20,6 +21,7 @@
       "pending": "Chưa Xác Nhận",
       "confirmed": "Đã Xác Nhận",
       "cancelled": "Đã Hủy",
+      "completed": "Đã khám xong",
       "csvExport": "Xuất CSV",
       "clearFilters": "Xóa Bộ Lọc"
     },
@@ -40,14 +42,16 @@
       "symptoms": "Triệu Chứng",
       "phone": "Điện Thoại",
       "reservationDate": "Ngày Đặt Lịch",
-      "status": "Trạng Thái"
+      "status": "Trạng Thái",
+      "clearSort": "Xóa sắp xếp"
     },
     "status": {
       "pending": "Chưa Xác Nhận",
       "confirmed": "Đã Xác Nhận",
       "cancelled": "Đã Hủy",
       "cancelledByAdmin": "Quản Trị Viên",
-      "cancelledByPatient": "Bệnh Nhân"
+      "cancelledByPatient": "Bệnh Nhân",
+      "completed": "Đã khám xong"
     },
     "action": {
       "detail": "Chi Tiết"
@@ -57,6 +61,7 @@
       "reservationDetail": "Chi Tiết Đặt Lịch",
       "close": "Đóng",
       "markConfirmed": "Đánh Dấu Đã Xác Nhận",
+      "markCompleted": "Hoàn tất khám",
       "cancel": "Hủy",
       "fields": {
         "reservationId": "Mã Đặt Lịch",
@@ -81,7 +86,9 @@
         "cancelledBy": "Người Hủy",
         "cancelReason": "Lý Do Hủy",
         "cancelledAt": "Thời Gian Hủy",
-        "createdAt": "Ngày Đặt Lịch"
+        "createdAt": "Ngày Đặt Lịch",
+        "completedAt": "Thời gian hoàn tất",
+        "completedBy": "Người thao tác"
       },
       "symptomsTitle": "Triệu Chứng của {{name}}",
       "notesLabel": "Ghi Chú"
@@ -89,7 +96,10 @@
     "confirmDialog": {
       "statusChange": "Thay Đổi Trạng Thái",
       "statusChangeMessage": "Đánh dấu đặt lịch của {{name}} là đã xác nhận?",
-      "okLabel": "Đánh Dấu Đã Xác Nhận"
+      "okLabel": "Đánh Dấu Đã Xác Nhận",
+      "completeTitle": "Hoàn tất khám",
+      "completeMessage": "Đánh dấu cuộc khám của {{name}} là hoàn tất? Sẽ được lưu vào lịch sử khám.",
+      "completeOkLabel": "Hoàn tất"
     },
     "cancelModal": {
       "title": "Hủy Đặt Lịch",
@@ -112,6 +122,47 @@
       "date": "Ngày",
       "time": "Giờ",
       "filename": "dat-lich_"
+    }
+  },
+  "history": {
+    "title": "Lịch sử khám",
+    "search": {
+      "name": "Họ tên",
+      "namePlaceholder": "Yamada Taro",
+      "zip": "Mã bưu điện",
+      "zipPlaceholder": "123-4567",
+      "phone": "Điện thoại",
+      "phonePlaceholder": "090-1234-5678",
+      "visitDateFrom": "Ngày khám Từ",
+      "visitDateTo": "Ngày khám Đến"
+    },
+    "filter": {
+      "clearFilters": "Xóa tìm kiếm",
+      "csvExport": "Xuất CSV"
+    },
+    "table": {
+      "visitDateTime": "Ngày giờ khám",
+      "name": "Họ tên",
+      "visitType": "Lần đầu/Tái khám",
+      "phone": "Điện thoại",
+      "clearSort": "Xóa sắp xếp"
+    },
+    "action": {
+      "detail": "Chi tiết"
+    },
+    "emptyState": "Không có lịch sử khám",
+    "modal": {
+      "historyDetail": "Chi tiết lịch sử khám",
+      "close": "Đóng",
+      "fields": {
+        "completedAt": "Thời gian hoàn tất",
+        "completedBy": "Người thao tác"
+      }
+    },
+    "csv": {
+      "date": "Ngày khám",
+      "time": "Giờ khám",
+      "filename": "lich-su-kham_"
     }
   },
   "settings": {
@@ -235,6 +286,7 @@
       "usagePurposeLabel": "Mục Đích Sử Dụng Thông Tin (APPI Điều 17)",
       "usagePurposeHint": "Hiển thị trong chính sách bảo mật và form đặt lịch.",
       "retentionLegalNote": "Hãy đặt thời gian lưu trữ trong phạm vi cần thiết để đạt được mục đích sử dụng. Dữ liệu quá hạn sẽ được thông báo cho quản trị viên để xóa thủ công.",
+      "retentionVisitHistoryNote": "※ Lịch sử khám (hồ sơ khám hoàn tất) không nằm trong chính sách lưu trữ dữ liệu. Được lưu trữ vĩnh viễn như hồ sơ y tế bất kể cài đặt thời hạn lưu trữ. Vui lòng thông báo cho bệnh nhân qua chính sách bảo mật.",
       "reminderEmailTitle": "Email Nhắc Nhở",
       "reminderEmailLabel": "Bật tính năng email nhắc nhở",
       "reminderEmailHint": "Khi bật, form đặt lịch sẽ hiển thị hộp kiểm đồng ý nhận email nhắc nhở. Email chỉ được gửi cho bệnh nhân đã đồng ý.",

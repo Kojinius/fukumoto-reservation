@@ -6,7 +6,8 @@
     "logout": "로그아웃",
     "lastLogin": "최근 로그인: ",
     "consentPending": "약관 동의 필요",
-    "proxyBooking": "대리 예약"
+    "proxyBooking": "대리 예약",
+    "visitHistory": "진찰 이력"
   },
   "dashboard": {
     "kpi": {
@@ -21,7 +22,8 @@
       "confirmed": "확인됨",
       "cancelled": "취소됨",
       "csvExport": "CSV 내보내기",
-      "clearFilters": "필터 지우기"
+      "clearFilters": "필터 지우기",
+      "completed": "진찰 완료"
     },
     "search": {
       "name": "이름",
@@ -40,14 +42,16 @@
       "symptoms": "증상",
       "phone": "전화번호",
       "reservationDate": "예약 접수일",
-      "status": "상태"
+      "status": "상태",
+      "clearSort": "정렬 초기화"
     },
     "status": {
       "pending": "미확인",
       "confirmed": "확인됨",
       "cancelled": "취소됨",
       "cancelledByAdmin": "관리자",
-      "cancelledByPatient": "환자"
+      "cancelledByPatient": "환자",
+      "completed": "진찰 완료"
     },
     "action": {
       "detail": "상세보기"
@@ -57,6 +61,7 @@
       "reservationDetail": "예약 상세",
       "close": "닫기",
       "markConfirmed": "확인됨으로 표시",
+      "markCompleted": "진찰 완료",
       "cancel": "취소",
       "fields": {
         "reservationId": "예약 번호",
@@ -81,7 +86,9 @@
         "cancelledBy": "취소한 사람",
         "cancelReason": "취소 이유",
         "cancelledAt": "취소 일시",
-        "createdAt": "예약 접수일"
+        "createdAt": "예약 접수일",
+        "completedAt": "진찰 완료 일시",
+        "completedBy": "완료 처리자"
       },
       "symptomsTitle": "{{name}}님 — 증상",
       "notesLabel": "전달 사항"
@@ -89,7 +96,10 @@
     "confirmDialog": {
       "statusChange": "상태 변경",
       "statusChangeMessage": "{{name}}님의 예약을 확인됨으로 표시하시겠습니까?",
-      "okLabel": "확인됨으로 표시"
+      "okLabel": "확인됨으로 표시",
+      "completeTitle": "진찰 완료",
+      "completeMessage": "{{name}}님의 진찰을 완료로 표시하시겠습니까? 진찰 이력에 저장됩니다.",
+      "completeOkLabel": "완료 처리"
     },
     "cancelModal": {
       "title": "예약 취소",
@@ -112,6 +122,47 @@
       "date": "예약일",
       "time": "예약시간",
       "filename": "예약데이터_"
+    }
+  },
+  "history": {
+    "title": "진찰 이력",
+    "search": {
+      "name": "성명",
+      "namePlaceholder": "야마다 타로",
+      "zip": "우편번호",
+      "zipPlaceholder": "123-4567",
+      "phone": "전화번호",
+      "phonePlaceholder": "090-1234-5678",
+      "visitDateFrom": "진료일 From",
+      "visitDateTo": "진료일 To"
+    },
+    "filter": {
+      "clearFilters": "검색 초기화",
+      "csvExport": "CSV 내보내기"
+    },
+    "table": {
+      "visitDateTime": "진료 일시",
+      "name": "성명",
+      "visitType": "초/재진",
+      "phone": "전화",
+      "clearSort": "정렬 초기화"
+    },
+    "action": {
+      "detail": "상세"
+    },
+    "emptyState": "진찰 이력이 없습니다",
+    "modal": {
+      "historyDetail": "진찰 이력 상세",
+      "close": "닫기",
+      "fields": {
+        "completedAt": "진찰 완료 일시",
+        "completedBy": "완료 처리자"
+      }
+    },
+    "csv": {
+      "date": "진찰일",
+      "time": "진찰 시간",
+      "filename": "진찰이력_"
     }
   },
   "settings": {
@@ -235,6 +286,7 @@
       "usagePurposeLabel": "개인정보 이용 목적 (APPI 제17조)",
       "usagePurposeHint": "개인정보 처리방침 및 예약 양식에 표시됩니다.",
       "retentionLegalNote": "개인정보 보호법에 따라 이용 목적 달성에 필요한 범위 내에서 보존 기간을 설정하십시오. 보존 기간이 지난 데이터는 관리자에게 통보되어 수동으로 삭제할 수 있습니다.",
+      "retentionVisitHistoryNote": "※ 진료 이력(진료 완료 기록)은 데이터 보존 기간 대상에서 제외됩니다. 의료 기록으로서 보존 기간 설정에 관계없이 영구적으로 보존됩니다. 개인정보 처리방침을 통해 환자에게 고지해 주세요.",
       "reminderEmailTitle": "리마인더 이메일",
       "reminderEmailLabel": "리마인더 이메일 기능 활성화",
       "reminderEmailHint": "활성화하면 예약 양식에 리마인더 이메일 수신 동의 체크박스가 표시됩니다. 동의한 환자에게만 전날 리마인더가 발송됩니다.",

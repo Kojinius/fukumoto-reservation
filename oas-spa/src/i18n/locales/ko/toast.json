@@ -15,5 +15,7 @@
   "maxUsersReached": "최대 {{max}}명의 사용자만 등록할 수 있습니다.",
   "emailPasswordRequired": "이메일과 비밀번호를 입력하세요",
   "invalidEmail": "이메일 주소 형식이 올바르지 않습니다",
-  "passwordChanged": "비밀번호가 변경되었습니다"
+  "passwordChanged": "비밀번호가 변경되었습니다",
+  "visitCompleted": "진찰 완료로 기록되었습니다",
+  "alreadyCompleted": "이 예약은 이미 진찰 완료 상태입니다"
 }

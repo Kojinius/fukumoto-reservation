@@ -6,7 +6,8 @@
     "logout": "退出登录",
     "lastLogin": "最后登录: ",
     "consentPending": "待同意条款",
-    "proxyBooking": "代客预约"
+    "proxyBooking": "代客预约",
+    "visitHistory": "诊察记录"
   },
   "dashboard": {
     "kpi": {
@@ -21,7 +22,8 @@
       "confirmed": "已确认",
       "cancelled": "已取消",
       "csvExport": "导出CSV",
-      "clearFilters": "清除"
+      "clearFilters": "清除",
+      "completed": "诊察完成"
     },
     "search": {
       "name": "姓名",
@@ -40,14 +42,16 @@
       "symptoms": "症状",
       "phone": "电话",
       "reservationDate": "预约日期",
-      "status": "状态"
+      "status": "状态",
+      "clearSort": "清除排序"
     },
     "status": {
       "pending": "未确认",
       "confirmed": "已确认",
       "cancelled": "已取消",
       "cancelledByAdmin": "管理员",
-      "cancelledByPatient": "患者"
+      "cancelledByPatient": "患者",
+      "completed": "诊察完成"
     },
     "action": {
       "detail": "详情"
@@ -57,6 +61,7 @@
       "reservationDetail": "预约详情",
       "close": "关闭",
       "markConfirmed": "标为已确认",
+      "markCompleted": "诊察完成",
       "cancel": "取消",
       "fields": {
         "reservationId": "预约编号",
@@ -81,7 +86,9 @@
         "cancelledBy": "取消方",
         "cancelReason": "取消原因",
         "cancelledAt": "取消日时",
-        "createdAt": "预约日期"
+        "createdAt": "预约日期",
+        "completedAt": "诊察完成日时",
+        "completedBy": "完成操作者"
       },
       "symptomsTitle": "{{name}}的症状",
       "notesLabel": "备注"
@@ -89,7 +96,10 @@
     "confirmDialog": {
       "statusChange": "更改状态",
       "statusChangeMessage": "将{{name}}的预约标为已确认？",
-      "okLabel": "标为已确认"
+      "okLabel": "标为已确认",
+      "completeTitle": "诊察完成",
+      "completeMessage": "将{{name}}的诊察标为完成？将保存到诊察记录。",
+      "completeOkLabel": "标为完成"
     },
     "cancelModal": {
       "title": "取消预约",
@@ -112,6 +122,47 @@
       "date": "预约日",
       "time": "预约时间",
       "filename": "预约数据_"
+    }
+  },
+  "history": {
+    "title": "诊察记录",
+    "search": {
+      "name": "姓名",
+      "namePlaceholder": "山田太郎",
+      "zip": "邮政编码",
+      "zipPlaceholder": "123-4567",
+      "phone": "电话",
+      "phonePlaceholder": "090-1234-5678",
+      "visitDateFrom": "就诊日期 从",
+      "visitDateTo": "就诊日期 至"
+    },
+    "filter": {
+      "clearFilters": "清除搜索",
+      "csvExport": "导出CSV"
+    },
+    "table": {
+      "visitDateTime": "诊疗日时",
+      "name": "姓名",
+      "visitType": "初/复诊",
+      "phone": "电话",
+      "clearSort": "清除排序"
+    },
+    "action": {
+      "detail": "详情"
+    },
+    "emptyState": "暂无诊察记录",
+    "modal": {
+      "historyDetail": "诊察记录详情",
+      "close": "关闭",
+      "fields": {
+        "completedAt": "诊察完成日时",
+        "completedBy": "完成操作者"
+      }
+    },
+    "csv": {
+      "date": "诊察日",
+      "time": "诊察时间",
+      "filename": "诊察记录_"
     }
   },
   "settings": {
@@ -235,6 +286,7 @@
       "usagePurposeLabel": "个人信息利用目的（APPI第17条）",
       "usagePurposeHint": "显示在隐私政策和预约表单中。",
       "retentionLegalNote": "请根据个人信息保护法，在实现利用目的所必要的范围内设定保存期限。超过期限的数据将通知管理员，可手动删除。",
+      "retentionVisitHistoryNote": "※ 就诊记录（诊疗完成记录）不在数据保留期限范围内。作为医疗记录，无论保留期限设置如何，将永久保存。请通过隐私政策告知患者。",
       "reminderEmailTitle": "提醒邮件配送",
       "reminderEmailLabel": "启用提醒邮件功能",
       "reminderEmailHint": "启用后，预约表单将显示「接收提醒邮件」的同意复选框。仅向同意的患者发送就诊前一天的提醒邮件。",

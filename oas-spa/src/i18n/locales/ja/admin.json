@@ -6,7 +6,8 @@
     "logout": "ログアウト",
     "lastLogin": "最終: ",
     "consentPending": "利用規約・PP 確認待ち",
-    "proxyBooking": "代行予約"
+    "proxyBooking": "代行予約",
+    "visitHistory": "診察履歴"
   },
   "dashboard": {
     "kpi": {
@@ -20,6 +21,7 @@
       "pending": "未確認",
       "confirmed": "確認済み",
       "cancelled": "キャンセル",
+      "completed": "診察完了",
       "csvExport": "CSV出力",
       "clearFilters": "クリア"
     },
@@ -40,14 +42,16 @@
       "symptoms": "症状",
       "phone": "電話",
       "reservationDate": "予約受付日",
-      "status": "ステータス"
+      "status": "ステータス",
+      "clearSort": "ソートクリア"
     },
     "status": {
       "pending": "未確認",
       "confirmed": "確認済み",
       "cancelled": "キャンセル",
       "cancelledByAdmin": "管理者",
-      "cancelledByPatient": "患者"
+      "cancelledByPatient": "患者",
+      "completed": "診察完了"
     },
     "action": {
       "detail": "詳細"
@@ -57,6 +61,7 @@
       "reservationDetail": "予約詳細",
       "close": "閉じる",
       "markConfirmed": "確認済みにする",
+      "markCompleted": "診察完了",
       "cancel": "キャンセル",
       "fields": {
         "reservationId": "予約番号",
@@ -81,7 +86,9 @@
         "cancelledBy": "キャンセル元",
         "cancelReason": "キャンセル理由",
         "cancelledAt": "キャンセル日時",
-        "createdAt": "予約受付日"
+        "createdAt": "予約受付日",
+        "completedAt": "診察完了日時",
+        "completedBy": "完了操作者"
       },
       "symptomsTitle": "{{name}}様 — 症状",
       "notesLabel": "伝達事項"
@@ -89,7 +96,10 @@
     "confirmDialog": {
       "statusChange": "ステータス変更",
       "statusChangeMessage": "{{name}}様の予約を確認済みにしますか？",
-      "okLabel": "確認済みにする"
+      "okLabel": "確認済みにする",
+      "completeTitle": "診察完了",
+      "completeMessage": "{{name}}様の診察を完了としてマークしますか？診察履歴に保存されます。",
+      "completeOkLabel": "完了にする"
     },
     "cancelModal": {
       "title": "予約キャンセル",
@@ -112,6 +122,47 @@
       "date": "予約日",
       "time": "予約時間",
       "filename": "予約データ_"
+    }
+  },
+  "history": {
+    "title": "診察履歴",
+    "search": {
+      "name": "氏名",
+      "namePlaceholder": "山田太郎",
+      "zip": "郵便番号",
+      "zipPlaceholder": "123-4567",
+      "phone": "電話番号",
+      "phonePlaceholder": "090-1234-5678",
+      "visitDateFrom": "診察日From",
+      "visitDateTo": "診察日To"
+    },
+    "filter": {
+      "clearFilters": "検索クリア",
+      "csvExport": "CSV出力"
+    },
+    "table": {
+      "visitDateTime": "診療日時",
+      "name": "氏名",
+      "visitType": "初/再",
+      "phone": "電話",
+      "clearSort": "ソートクリア"
+    },
+    "action": {
+      "detail": "詳細"
+    },
+    "emptyState": "診察履歴がありません",
+    "modal": {
+      "historyDetail": "診察履歴詳細",
+      "close": "閉じる",
+      "fields": {
+        "completedAt": "診察完了日時",
+        "completedBy": "完了操作者"
+      }
+    },
+    "csv": {
+      "date": "診察日",
+      "time": "診察時間",
+      "filename": "診察履歴_"
     }
   },
   "settings": {
@@ -235,6 +286,7 @@
       "usagePurposeLabel": "個人情報の利用目的（APPI 第17条）",
       "usagePurposeHint": "プライバシーポリシーおよび予約フォームに表示されます。空欄の場合はプレースホルダーの内容が使用されます。",
       "retentionLegalNote": "個人情報保護法に基づき、利用目的の達成に必要な範囲で保存期間を設定してください。保存期間を過ぎたデータは管理者に通知され、手動で削除できます。",
+      "retentionVisitHistoryNote": "※ 診察履歴（診察完了記録）はデータ保存期間の対象外です。医療記録として保存期間設定に関わらず永久に保持されます。患者にはプライバシーポリシーで告知してください。",
       "reminderEmailTitle": "リマインダーメール配信",
       "reminderEmailLabel": "リマインダーメール機能を有効にする",
       "reminderEmailHint": "有効にすると、予約フォームに「リマインダーメールを受け取る」同意チェックが表示されます。同意した患者にのみ予約前日のリマインダーメールが送信されます。",
