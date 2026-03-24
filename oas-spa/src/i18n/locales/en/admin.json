@@ -4,7 +4,8 @@
     "reservationList": "Reservations",
     "settings": "Settings",
     "logout": "Logout",
-    "lastLogin": "Last: "
+    "lastLogin": "Last: ",
+    "consentPending": "ToS / Privacy Pending"
   },
   "dashboard": {
     "kpi": {

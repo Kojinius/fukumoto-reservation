@@ -4,7 +4,8 @@
     "reservationList": "Listahan ng Reserbacyon",
     "settings": "Mga Setting",
     "logout": "Mag-logout",
-    "lastLogin": "Huling login: "
+    "lastLogin": "Huling login: ",
+    "consentPending": "Naghihintay ng pahintulot"
   },
   "dashboard": {
     "kpi": {

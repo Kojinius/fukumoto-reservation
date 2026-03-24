@@ -222,6 +222,7 @@ function BasicInfoTab({ form, update }: { form: Partial<ClinicSettings>; update:
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
                 src={`https://www.google.com/maps?q=${encodeURIComponent((form.clinicAddress || '') + ' ' + (form.clinicAddressSub || ''))}&output=embed&hl=ja`}
+                sandbox="allow-scripts allow-same-origin"
               />
             </div>
           </div>
@@ -783,7 +784,10 @@ function PolicyTab({ form, update }: { form: Partial<ClinicSettings>; update: (p
 
   const [confirmRegenerate, setConfirmRegenerate] = useState(false);
 
-  /** テンプレートテキストを生成 */
+  /** HTMLタグ除去（管理者入力フィールドの一貫したサニタイズ） */
+  function stripHtml(s: string) { return s.replace(/<[^>]*>/g, ''); }
+
+  /** テンプレートテキストを生成（日本語固定 — 日本法準拠の書式） */
   function generateTexts() {
     return {
       privacyPolicy: `プライバシーポリシー\n\n${name}（以下「当院」）は、患者様の個人情報の保護に努め、個人情報の保護に関する法律（個人情報保護法）を遵守いたします。\n\n【収集する情報】\nお名前、ふりがな、生年月日、住所、電話番号、メールアドレス、症状・お悩み（要配慮個人情報）、保険証情報\n\n【利用目的】\n1. 予約の受付・確認・変更・キャンセル処理\n2. 診療準備のための症状・お悩みの事前把握\n3. 予約確認・リマインダー等のご連絡\n4. 再来院時の前回情報参照\n5. サービス改善のための匿名化統計分析\n\n【第三者提供】\nご本人の同意なく、個人情報を第三者に提供することはありません。ただし、法令に基づく場合を除きます。\n\n【要配慮個人情報の取り扱い】\n症状・お悩み等の健康に関する情報は「要配慮個人情報」として、ご本人の明示的な同意を得た上で取得・利用いたします。\n\n【データの保存期間】\nお預かりした個人情報は、利用目的の達成後、当院が定める保存期間を経て安全に削除いたします。\n\n【開示・訂正・利用停止】\nご自身の個人情報の開示・訂正・利用停止をご希望の場合は、下記の窓口までご連絡ください。本人確認の上、法令に基づき対応いたします。\n\n【お問い合わせ窓口】\n${name} 個人情報相談窓口\n電話: ${phone}`,
@@ -792,6 +796,9 @@ function PolicyTab({ form, update }: { form: Partial<ClinicSettings>; update: (p
       patientRightsContact: `個人情報の開示・訂正・利用停止をご希望の場合は、下記までご連絡ください。\n\n窓口: ${name} 個人情報相談窓口\n電話: ${phone}\n\n本人確認の上、法令に基づき対応いたします。`,
     };
   }
+
+  /** 各プレースホルダー用にテンプレートを1回だけ生成 */
+  const placeholderTexts = generateTexts();
 
   /** 未入力フィールドのみ自動生成 */
   function autoFillDefaults() {
@@ -852,10 +859,10 @@ function PolicyTab({ form, update }: { form: Partial<ClinicSettings>; update: (p
         <CardBody className="space-y-3">
           <Textarea
             label={t('settings.policy.privacyPolicyLabel')}
-            value={form.privacyPolicy || ''}
-            onChange={e => update({ privacyPolicy: e.target.value })}
+            value={stripHtml(form.privacyPolicy || '')}
+            onChange={e => update({ privacyPolicy: stripHtml(e.target.value) })}
             rows={12}
-            placeholder={'プライバシーポリシー\n\n〇〇クリニック（以下「当院」）は、患者様の個人情報の保護に努め、個人情報の保護に関する法律（個人情報保護法）を遵守いたします。\n\n【収集する情報】\nお名前、ふりがな、生年月日、住所、電話番号、メールアドレス、症状・お悩み（要配慮個人情報）、保険証情報\n\n【利用目的】\n1. 予約の受付・確認・変更・キャンセル処理\n2. 診療準備のための症状・お悩みの事前把握\n3. 予約確認・リマインダー等のご連絡\n4. 再来院時の前回情報参照\n5. サービス改善のための匿名化統計分析\n\n【第三者提供】\nご本人の同意なく、個人情報を第三者に提供することはありません。ただし、法令に基づく場合を除きます。\n\n【要配慮個人情報の取り扱い】\n症状・お悩み等の健康に関する情報は「要配慮個人情報」として、ご本人の明示的な同意を得た上で取得・利用いたします。\n\n【データの保存期間】\nお預かりした個人情報は、利用目的の達成後、当院が定める保存期間を経て安全に削除いたします。\n\n【開示・訂正・利用停止】\nご自身の個人情報の開示・訂正・利用停止をご希望の場合は、下記の窓口までご連絡ください。本人確認の上、法令に基づき対応いたします。\n\n【お問い合わせ窓口】\n〇〇クリニック 個人情報相談窓口\n電話: 000-0000-0000\nメール: privacy@example.com'}
+            placeholder={placeholderTexts.privacyPolicy}
           />
           <p className="text-[11px] text-navy-400">
             {t('settings.policy.privacyPolicyHint')}
@@ -870,14 +877,14 @@ function PolicyTab({ form, update }: { form: Partial<ClinicSettings>; update: (p
         <CardBody className="space-y-3">
           <Textarea
             label={t('settings.policy.sensitiveDataLabel')}
-            value={form.sensitiveDataConsentText || ''}
-            onChange={e => update({ sensitiveDataConsentText: e.target.value.slice(0, 500) })}
+            value={stripHtml(form.sensitiveDataConsentText || '')}
+            onChange={e => update({ sensitiveDataConsentText: stripHtml(e.target.value).slice(0, 500) })}
             rows={4}
             placeholder={t('settings.policy.sensitiveDataPlaceholder')}
           />
           <p className="text-[11px] text-navy-400">
             {t('settings.policy.sensitiveDataHint')}
-            {form.sensitiveDataConsentText ? t('settings.policy.sensitiveDataCharCount', { count: form.sensitiveDataConsentText.length }) : ''}
+            {form.sensitiveDataConsentText ? t('settings.policy.sensitiveDataCharCount', { count: stripHtml(form.sensitiveDataConsentText).length }) : ''}
           </p>
         </CardBody>
       </Card>
@@ -905,10 +912,10 @@ function PolicyTab({ form, update }: { form: Partial<ClinicSettings>; update: (p
           </div>
           <Textarea
             label={t('settings.policy.usagePurposeLabel')}
-            value={form.dataRetentionPurpose || ''}
-            onChange={e => update({ dataRetentionPurpose: e.target.value })}
+            value={stripHtml(form.dataRetentionPurpose || '')}
+            onChange={e => update({ dataRetentionPurpose: stripHtml(e.target.value) })}
             rows={5}
-            placeholder={'当院は、ご予約時にご提供いただく個人情報を、以下の目的で利用いたします。\n\n1. 予約の受付・確認・変更・キャンセル処理\n2. 診療準備のための症状・お悩みの事前把握\n3. 予約確認・リマインダー等のご連絡\n4. 再来院時の前回情報参照\n5. サービス改善のための匿名化統計分析\n\n上記目的の達成後、所定の保存期間を経て安全に削除いたします。'}
+            placeholder={placeholderTexts.dataRetentionPurpose}
           />
           <p className="text-[11px] text-navy-400">
             {t('settings.policy.usagePurposeHint')}
@@ -946,10 +953,10 @@ function PolicyTab({ form, update }: { form: Partial<ClinicSettings>; update: (p
         <CardBody className="space-y-3">
           <Textarea
             label={t('settings.policy.patientRightsLabel')}
-            value={form.patientRightsContact || ''}
-            onChange={e => update({ patientRightsContact: e.target.value })}
+            value={stripHtml(form.patientRightsContact || '')}
+            onChange={e => update({ patientRightsContact: stripHtml(e.target.value) })}
             rows={4}
-            placeholder={'個人情報の開示・訂正・利用停止をご希望の場合は、下記までご連絡ください。\n\n窓口: 〇〇クリニック 個人情報相談窓口\n電話: 000-0000-0000\nメール: privacy@example.com\n\n本人確認の上、法令に基づき対応いたします。'}
+            placeholder={placeholderTexts.patientRightsContact}
           />
           <p className="text-[11px] text-navy-400">
             {t('settings.policy.patientRightsHint')}

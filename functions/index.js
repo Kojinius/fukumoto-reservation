@@ -935,7 +935,7 @@ exports.sendDailyReminders = onSchedule(
     const resend = new Resend(resendApiKey.value());
     const tasks  = reservationsSnap.docs
       .map(d => d.data())
-      .filter(r => r.email)
+      .filter(r => r.email && r.reminderEmailConsent === true)
       .map(r =>
         sendMail(resend, {
           from:    `${escHtml(cn)} <noreply@kojinius.jp>`,
