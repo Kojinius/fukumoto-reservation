@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useClinic } from '@/hooks/useClinic';
 import { useToast } from '@/hooks/useToast';
@@ -12,12 +13,11 @@ import { toHankaku } from '@/utils/security';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 import type { ReservationRecord } from '@/types/reservation';
 
-/** 患者キャンセル理由の選択肢（健康関連を除外 — 要配慮個人情報に該当し得るため） */
-const CANCEL_REASONS = ['都合がつかなくなった', '日程を変更したい', 'その他'] as const;
 
 type Phase = 'search' | 'detail' | 'done';
 
 export default function Cancel() {
+  const { t } = useTranslation('booking');
   const { clinic } = useClinic();
   const { showToast } = useToast();
   const location = useLocation();
@@ -57,7 +57,7 @@ export default function Cancel() {
     e.preventDefault();
     setError('');
     if (!reservationId.trim() || !phone.trim()) {
-      setError('予約番号と電話番号を入力してください');
+      setError(t('cancel.validationRequired'));
       return;
     }
     setLoading(true);
@@ -70,7 +70,7 @@ export default function Cancel() {
       setPhase('detail');
     } catch (err: unknown) {
       const e = err as { error?: string; message?: string };
-      setError(e?.message || e?.error || '予約が見つかりませんでした');
+      setError(e?.message || e?.error || t('cancel.notFound'));
     } finally {
       setLoading(false);
     }
@@ -90,7 +90,7 @@ export default function Cancel() {
       setPhase('done');
     } catch (err: unknown) {
       const e = err as { error?: string; message?: string };
-      showToast(e?.message || 'キャンセルに失敗しました', 'error');
+      showToast(e?.message || t('cancel.cancelFailed'), 'error');
     } finally {
       setCancelling(false);
     }
@@ -118,7 +118,7 @@ export default function Cancel() {
                 </svg>
               </div>
               <h2 className="text-lg font-heading font-semibold text-navy-700">
-                予約キャンセル
+                {t('cancel.searchTitle')}
               </h2>
             </div>
           </CardHeader>
@@ -126,30 +126,30 @@ export default function Cancel() {
             {error && <Alert variant="error" className="mb-4">{error}</Alert>}
             <form onSubmit={handleSearch} className="space-y-4">
               <Input
-                label="予約番号"
+                label={t('cancel.reservationId')}
                 value={reservationId}
                 onChange={e => setReservationId(e.target.value)}
-                placeholder="予約完了時に発行された番号"
+                placeholder={t('cancel.reservationIdPlaceholder')}
                 required
               />
               <Input
-                label="電話番号"
+                label={t('cancel.phone')}
                 type="tel"
                 value={phone}
                 onChange={e => setPhone(e.target.value)}
-                placeholder="予約時に入力した電話番号"
+                placeholder={t('cancel.phonePlaceholder')}
                 required
               />
               <Button type="submit" className="w-full" loading={loading}>
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                 </svg>
-                予約を確認する
+                {t('cancel.searchButton')}
               </Button>
             </form>
             <div className="text-center mt-3 pt-3 border-t border-cream-300/60">
               <Link to="/" className="text-sm text-navy-400 hover:text-navy-600 transition-colors">
-                ← トップに戻る
+                {t('cancel.backToTop')}
               </Link>
             </div>
           </CardBody>
@@ -168,18 +168,18 @@ export default function Cancel() {
         <Card>
           <CardHeader>
             <h2 className="text-lg font-heading font-semibold text-navy-700">
-              予約内容
+              {t('cancel.detailTitle')}
             </h2>
           </CardHeader>
           <CardBody>
             <dl className="space-y-2 text-sm">
               {[
-                ['予約日時', `${formatDateShort(booking.date)} ${booking.time}〜`],
-                ['予約番号', booking.id],
-                ['氏名', booking.name],
-                ['電話番号', booking.phone],
-                ['初診/再診', booking.visitType || '-'],
-                ['症状', booking.symptoms],
+                [t('cancel.labelDateTime'), `${formatDateShort(booking.date)} ${booking.time}〜`],
+                [t('cancel.labelReservationId'), booking.id],
+                [t('cancel.labelName'), booking.name],
+                [t('cancel.labelPhone'), booking.phone],
+                [t('cancel.labelVisitType'), booking.visitType || '-'],
+                [t('cancel.labelSymptoms'), booking.symptoms],
               ].map(([label, val]) => (
                 <div key={label} className="flex border-b border-cream-200/80 py-2">
                   <dt className="w-24 shrink-0 text-navy-400">{label}</dt>
@@ -191,12 +191,12 @@ export default function Cancel() {
         </Card>
 
         {isAlreadyCancelled ? (
-          <Alert variant="warning">この予約はすでにキャンセル済みです。</Alert>
+          <Alert variant="warning">{t('cancel.alreadyCancelled')}</Alert>
         ) : !canCancel ? (
           <Alert variant="warning">
-            キャンセル受付期限（{cutoffMinutes}分前）を過ぎているため、オンラインでのキャンセルを受け付けられません。
+            {t('cancel.pastCutoff', { minutes: cutoffMinutes })}
             {clinic?.phone && (
-              <span>お電話（<a href={`tel:${clinic.phone}`} className="underline font-medium">{clinic.phone}</a>）でご連絡ください。</span>
+              <span>{t('cancel.callUs')}<a href={`tel:${clinic.phone}`} className="underline font-medium">{clinic.phone}</a>{t('cancel.callUsEnd')}</span>
             )}
           </Alert>
         ) : (
@@ -206,26 +206,28 @@ export default function Cancel() {
                 <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                キャンセル受付期限: {deadline} まで
+                {t('cancel.deadlineLabel', { deadline })}
               </span>
             </Alert>
             <Card>
               <CardBody className="space-y-3">
-                <label className="block text-sm font-medium text-navy-600">キャンセル理由（任意）</label>
+                <label className="block text-sm font-medium text-navy-600">{t('cancel.reasonLabel')}</label>
                 <select
                   value={cancelReason}
                   onChange={e => { setCancelReason(e.target.value); if (e.target.value !== 'その他') setCancelReasonOther(''); }}
                   className="w-full rounded-lg border border-cream-300 bg-white px-3 py-2 text-sm text-navy-700 focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold"
                 >
-                  <option value="">選択しない</option>
-                  {CANCEL_REASONS.map(r => <option key={r} value={r}>{r}</option>)}
+                  <option value="">{t('cancel.reasonNone')}</option>
+                  <option value="都合がつかなくなった">{t('cancel.reasonSchedule')}</option>
+                  <option value="日程を変更したい">{t('cancel.reasonReschedule')}</option>
+                  <option value="その他">{t('cancel.reasonOther')}</option>
                 </select>
                 {cancelReason === 'その他' && (
                   <input
                     type="text"
                     value={cancelReasonOther}
                     onChange={e => setCancelReasonOther(e.target.value)}
-                    placeholder="理由を入力してください"
+                    placeholder={t('cancel.reasonOtherPlaceholder')}
                     className="w-full rounded-lg border border-cream-300 bg-white px-3 py-2 text-sm text-navy-700 focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold"
                   />
                 )}
@@ -233,7 +235,7 @@ export default function Cancel() {
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
-                  この予約をキャンセルする
+                  {t('cancel.cancelButton')}
                 </Button>
               </CardBody>
             </Card>
@@ -244,14 +246,14 @@ export default function Cancel() {
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
           </svg>
-          別の予約を確認する
+          {t('cancel.searchOtherButton')}
         </Button>
 
         <ConfirmDialog
           open={confirmOpen}
-          title="キャンセルの確認"
-          message="この予約をキャンセルしてもよろしいですか？この操作は取り消せません。"
-          okLabel="キャンセルする"
+          title={t('cancel.confirmTitle')}
+          message={t('cancel.confirmMessage')}
+          okLabel={t('cancel.confirmOk')}
           variant="danger"
           onConfirm={handleCancel}
           onCancel={() => setConfirmOpen(false)}
@@ -276,16 +278,16 @@ export default function Cancel() {
             </svg>
           </div>
           <h2 className="text-xl font-heading font-semibold text-navy-700 mb-2">
-            キャンセルが完了しました
+            {t('cancel.doneTitle')}
           </h2>
           <p className="text-sm text-navy-400 mb-6">
-            ご不明な点がございましたらお電話ください。
+            {t('cancel.doneMessage')}
           </p>
           <Button variant="secondary" onClick={() => navigate('/')}>
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
             </svg>
-            トップに戻る
+            {t('cancel.backToTopButton')}
           </Button>
         </CardBody>
       </Card>

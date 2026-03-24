@@ -19,13 +19,13 @@ export function isRequired(value: string): boolean {
 }
 
 /** パスワード複雑性チェック（8〜128文字、英大小+数字+記号） */
-export function isStrongPassword(pw: string): { valid: boolean; reason?: string } {
-  if (pw.length < 8)  return { valid: false, reason: '8文字以上で入力してください' };
-  if (pw.length > 128) return { valid: false, reason: '128文字以内で入力してください' };
-  if (!/[A-Z]/.test(pw)) return { valid: false, reason: '英大文字を含めてください' };
-  if (!/[a-z]/.test(pw)) return { valid: false, reason: '英小文字を含めてください' };
-  if (!/[0-9]/.test(pw)) return { valid: false, reason: '数字を含めてください' };
-  if (!/[!@#$%^&*()_+\-=[\]{};':"|,.<>/?]/.test(pw)) return { valid: false, reason: '記号を含めてください' };
+export function isStrongPassword(pw: string): { valid: boolean; reasonKey?: string } {
+  if (pw.length < 8)  return { valid: false, reasonKey: 'passwordTooShort' };
+  if (pw.length > 128) return { valid: false, reasonKey: 'passwordTooLong' };
+  if (!/[A-Z]/.test(pw)) return { valid: false, reasonKey: 'passwordNeedsUppercase' };
+  if (!/[a-z]/.test(pw)) return { valid: false, reasonKey: 'passwordNeedsLowercase' };
+  if (!/[0-9]/.test(pw)) return { valid: false, reasonKey: 'passwordNeedsNumber' };
+  if (!/[!@#$%^&*()_+\-=[\]{};':"|,.<>/?]/.test(pw)) return { valid: false, reasonKey: 'passwordNeedsSymbol' };
   return { valid: true };
 }
 

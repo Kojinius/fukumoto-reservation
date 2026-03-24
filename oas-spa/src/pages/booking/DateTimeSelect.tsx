@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useClinic } from '@/hooks/useClinic';
 import { fetchBookedSlots } from '@/hooks/useReservation';
 import { Calendar } from '@/components/shared/Calendar';
@@ -17,6 +18,7 @@ interface Props {
 }
 
 export function DateTimeSelect({ date, time, onDateChange, onTimeChange, onNext }: Props) {
+  const { t } = useTranslation('booking');
   const { clinic } = useClinic();
   const [bookedSlots, setBookedSlots] = useState<string[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
@@ -56,7 +58,7 @@ export function DateTimeSelect({ date, time, onDateChange, onTimeChange, onNext 
         {/* カレンダー */}
         <div className="card-section animate-stagger-1">
           <h3 className="section-heading mb-3">
-            <span>日付を選択</span>
+            <span>{t('dateTimeSelect.dateHeading')}</span>
           </h3>
           <Calendar
             selectedDate={date}
@@ -70,7 +72,7 @@ export function DateTimeSelect({ date, time, onDateChange, onTimeChange, onNext 
         {/* タイムスロット */}
         <div className="card-section animate-stagger-2">
           <h3 className="section-heading mb-3">
-            <span>時間を選択</span>
+            <span>{t('dateTimeSelect.timeHeading')}</span>
           </h3>
           {!date ? (
             <div className="text-center py-10">
@@ -80,7 +82,7 @@ export function DateTimeSelect({ date, time, onDateChange, onTimeChange, onNext 
                 </svg>
               </div>
               <p className="text-sm text-navy-400 font-medium">
-                カレンダーから日付を選択してください
+                {t('dateTimeSelect.selectDatePrompt')}
               </p>
             </div>
           ) : loadingSlots ? (
@@ -120,7 +122,7 @@ export function DateTimeSelect({ date, time, onDateChange, onTimeChange, onNext 
               </div>
             </div>
             <Button onClick={onNext} className="bg-white/10 hover:bg-white/20 text-cream border-0">
-              次へ
+              {t('dateTimeSelect.next')}
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>

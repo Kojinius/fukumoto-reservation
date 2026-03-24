@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useClinic } from '@/hooks/useClinic';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
@@ -31,6 +32,7 @@ function parseSections(text: string): { title: string; body: string }[] {
 
 /** プライバシーポリシー表示ページ */
 export default function PrivacyPolicy() {
+  const { t } = useTranslation('booking');
   const { clinic, loading } = useClinic();
 
   const sections = useMemo(() => {
@@ -45,7 +47,7 @@ export default function PrivacyPolicy() {
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
           <h2 className="text-lg font-heading font-semibold text-navy-700">
-            プライバシーポリシー
+            {t('privacy.title')}
           </h2>
         </CardHeader>
         <CardBody>
@@ -68,7 +70,7 @@ export default function PrivacyPolicy() {
             </div>
           ) : (
             <p className="text-sm text-navy-400">
-              プライバシーポリシーは設定されていません。
+              {t('privacy.notSet')}
             </p>
           )}
         </CardBody>

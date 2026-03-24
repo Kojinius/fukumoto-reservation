@@ -1,0 +1,294 @@
+{
+  "layout": {
+    "adminPanel": "Admin Panel",
+    "reservationList": "Reservations",
+    "settings": "Settings",
+    "logout": "Logout",
+    "lastLogin": "Last: "
+  },
+  "dashboard": {
+    "kpi": {
+      "todayReservations": "Today's Bookings",
+      "monthReservations": "This Month",
+      "newPatients": "New Patients",
+      "pending": "Unconfirmed"
+    },
+    "filter": {
+      "all": "All",
+      "pending": "Unconfirmed",
+      "confirmed": "Confirmed",
+      "cancelled": "Cancelled",
+      "csvExport": "Export CSV",
+      "clearFilters": "Clear"
+    },
+    "search": {
+      "name": "Name",
+      "namePlaceholder": "Yamada Taro",
+      "zip": "Postal Code",
+      "zipPlaceholder": "123-4567",
+      "phone": "Phone",
+      "phonePlaceholder": "090-1234-5678",
+      "reservationDate": "Booking Date",
+      "scheduledDate": "Appointment Date"
+    },
+    "table": {
+      "scheduledDateTime": "Appointment",
+      "name": "Name",
+      "visitType": "Visit",
+      "symptoms": "Symptoms",
+      "phone": "Phone",
+      "reservationDate": "Booking Date",
+      "status": "Status"
+    },
+    "status": {
+      "pending": "Unconfirmed",
+      "confirmed": "Confirmed",
+      "cancelled": "Cancelled",
+      "cancelledByAdmin": "Admin",
+      "cancelledByPatient": "Patient"
+    },
+    "action": {
+      "detail": "View"
+    },
+    "emptyState": "No reservations found",
+    "modal": {
+      "reservationDetail": "Reservation Details",
+      "close": "Close",
+      "markConfirmed": "Mark as Confirmed",
+      "cancel": "Cancel",
+      "fields": {
+        "reservationId": "Booking ID",
+        "scheduledDateTime": "Appointment",
+        "name": "Name",
+        "furigana": "Furigana",
+        "birthdate": "Date of Birth",
+        "ageUnit": " yrs",
+        "zip": "Postal Code",
+        "address": "Address",
+        "phone": "Phone",
+        "email": "Email",
+        "gender": "Gender",
+        "genderUnset": "Not specified",
+        "visitType": "First/Return Visit",
+        "insurance": "Insurance Card",
+        "symptoms": "Symptoms",
+        "notes": "Notes",
+        "noNotes": "None",
+        "contactMethod": "Contact Method",
+        "reservationStatus": "Status",
+        "cancelledBy": "Cancelled By",
+        "cancelReason": "Cancel Reason",
+        "cancelledAt": "Cancelled At",
+        "createdAt": "Booking Date"
+      },
+      "symptomsTitle": "{{name}} — Symptoms",
+      "notesLabel": "Notes"
+    },
+    "confirmDialog": {
+      "statusChange": "Change Status",
+      "statusChangeMessage": "Mark {{name}}'s reservation as confirmed?",
+      "okLabel": "Mark as Confirmed"
+    },
+    "cancelModal": {
+      "title": "Cancel Reservation",
+      "message": "Cancelling {{name}}'s reservation.",
+      "notifyPatient": "A cancellation email will be sent to the patient.",
+      "cancelReasonLabel": "Cancellation Reason (required)",
+      "cancelReasonPlaceholder": "Select a reason",
+      "reason": {
+        "doctorUnavailable": "Doctor unavailable",
+        "temporaryClosure": "Temporary closure",
+        "patientRequest": "Patient's phone request",
+        "duplicateBooking": "Duplicate booking",
+        "other": "Other"
+      },
+      "otherReasonPlaceholder": "Enter reason",
+      "back": "Back",
+      "confirm": "Cancel Reservation"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "save": "Save",
+    "weekdays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    "tabs": {
+      "basicInfo": "Basic Info",
+      "businessDays": "Business Hours",
+      "announcement": "Announcements",
+      "terms": "Terms of Service",
+      "policy": "Privacy Policy",
+      "accounts": "Accounts"
+    },
+    "basicInfo": {
+      "clinicName": "Clinic Name *",
+      "phone": "Phone Number *",
+      "websiteUrl": "Website URL",
+      "zip": "Postal Code",
+      "zipPrefix": "〒",
+      "zipPlaceholder": "123-4567",
+      "zipSearching": "Searching…",
+      "zipFound": "✓ Address filled",
+      "zipNotFound": "Not found",
+      "zipError": "Search error",
+      "address": "Prefecture / City / Street *",
+      "addressSub": "Building / Room",
+      "mapLabel": "Location Map",
+      "mapTitle": "Clinic Location"
+    },
+    "businessDays": {
+      "holidays": "Configured Holidays",
+      "daysUnit": " days",
+      "calendarClickHint": "Click calendar to add",
+      "fetchHolidays": "Fetch Japanese Holidays",
+      "clearHolidays": "Clear",
+      "clickToRemove": "Click to remove",
+      "clickToSetHoliday": "Click to set as holiday",
+      "weeklySchedule": "Weekly Schedule",
+      "openDays": "Open",
+      "closedDays": "Closed",
+      "daysUnitJa": " days",
+      "weekendClosed": "Weekends → Closed",
+      "weekendOpen": "Weekends → Open",
+      "timeline": {
+        "bookingCutoff": "Booking & Cancellation Cutoff",
+        "bookingCutoffLabel": "Booking Cutoff",
+        "cancelCutoffLabel": "Cancellation Cutoff",
+        "before": "",
+        "minutesBefore": " min before appointment"
+      },
+      "dayStatus": {
+        "open": "Open",
+        "closed": "Closed",
+        "openDay": "Open",
+        "closedDay": "Closed",
+        "morning": "Morning Hours",
+        "afternoon": "Afternoon Hours",
+        "timeRangeError": "Start time is after end time",
+        "timelineMorning": "AM",
+        "timelineAfternoon": "PM"
+      },
+      "confirmHoliday": {
+        "title": "Reservations Exist",
+        "message": "{{date}} already has {{count}} reservation(s). Set as holiday anyway?",
+        "okLabel": "Set as Holiday"
+      }
+    },
+    "announcement": {
+      "bannerTitle": "Announcement Banner",
+      "clear": "Clear",
+      "active": "Visible",
+      "inactive": "Hidden",
+      "typeLabel": "Type",
+      "typeInfo": "Info",
+      "typeWarning": "Warning",
+      "typeMaintenance": "Maintenance",
+      "messageLabel": "Message",
+      "startDateLabel": "Display Start",
+      "endDateLabel": "Display End",
+      "dateRangeError": "Start date is after end date.",
+      "maintenanceTitle": "Maintenance Mode",
+      "maintenanceWarning": "During maintenance, only admins can access the system",
+      "maintenanceStartLabel": "Maintenance Start",
+      "maintenanceEndLabel": "Maintenance End"
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "versionUpdated": "updated",
+      "termsTextLabel": "Terms of Service Text",
+      "termsTextPlaceholder": "Enter the terms that admins must agree to at login",
+      "termsHint": "Shown on first login or after a version update.",
+      "versionManagement": "Version Management",
+      "versionWarning": "Updating the version will require all admins to re-consent to the terms and privacy policy on next login.",
+      "bumpVersionButton": "Update Version (v{{current}} → v{{next}})"
+    },
+    "policy": {
+      "autoFillAlert": "Some policy fields are empty. Auto-generate from Basic Info (clinic name & phone).",
+      "autoGenerate": "Auto-generate",
+      "regenerateLink": "Regenerate from Basic Info",
+      "regenerateConfirmTitle": "Regenerate Policy Text",
+      "regenerateConfirmMessage": "All policy text will be regenerated from Basic Info. Manually edited content will be overwritten.",
+      "regenerateOkLabel": "Regenerate",
+      "cancelLabel": "Cancel",
+      "privacyPolicyTitle": "Privacy Policy",
+      "privacyPolicyLabel": "Privacy Policy Text",
+      "privacyPolicyHint": "Linked from the personal information consent checkbox in the booking form.",
+      "sensitiveDataTitle": "Sensitive Data Consent",
+      "sensitiveDataLabel": "Consent Text",
+      "sensitiveDataHint": "Displayed in the symptoms field of the booking form.",
+      "sensitiveDataPlaceholder": "Health information entered in the \"Symptoms / Concerns\" field may constitute special care-required personal information under Japanese privacy law. It will only be used for appointment coordination and treatment preparation, and will never be shared with third parties without your consent.",
+      "sensitiveDataCharCount": " {{count}}/500 chars",
+      "dataRetentionTitle": "Data Retention Policy",
+      "dataRetentionLabel": "Retention Period",
+      "retentionUnlimited": "Indefinite",
+      "retention6months": "6 months",
+      "retention1year": "1 year",
+      "retention2years": "2 years",
+      "retention3years": "3 years (recommended)",
+      "retention5years": "5 years",
+      "usagePurposeLabel": "Purpose of Use (APPI Article 17)",
+      "usagePurposeHint": "Displayed in the privacy policy and booking form.",
+      "retentionLegalNote": "Set the retention period within the scope necessary for achieving the purpose of use. Data past the retention period will be notified to admins for manual deletion.",
+      "reminderEmailTitle": "Reminder Email",
+      "reminderEmailLabel": "Enable reminder email feature",
+      "reminderEmailHint": "When enabled, patients can opt-in to receive a reminder email the day before their appointment.",
+      "patientRightsTitle": "Patient Rights (APPI Articles 28–30)",
+      "patientRightsLabel": "Contact & Procedure Information",
+      "patientRightsHint": "Displayed on the booking completion screen and privacy policy."
+    },
+    "accounts": {
+      "createUserTitle": "Create New User",
+      "maxUsersWarning": "Maximum {{max}} users allowed.",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "admin@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "8+ characters",
+      "passwordHint": "8–128 characters, with uppercase, lowercase, number, and symbol",
+      "createButton": "Create",
+      "userListTitle": "User List",
+      "noUsers": "No users found",
+      "tableEmail": "Email",
+      "tableCreatedAt": "Created",
+      "tableActions": "Actions",
+      "deleteButton": "Delete",
+      "deleteConfirmTitle": "Delete User",
+      "deleteConfirmMessage": "Delete {{email}}?",
+      "deleteOkLabel": "Delete"
+    },
+    "validation": {
+      "clinicNameRequired": "Clinic name is required",
+      "phoneRequired": "Phone number is required",
+      "announcementDateError": "Announcement start date is after end date",
+      "maintenanceDateError": "Maintenance start date is after end date",
+      "businessHoursError": "{{weekday}} {{session}} start time is after end time",
+      "amSession": "morning",
+      "pmSession": "afternoon"
+    }
+  },
+  "changePassword": {
+    "title": "Change Password",
+    "forcedAlert": "For security reasons, you must change your password on first login. You cannot navigate to other pages until this is complete.",
+    "cardTitle": "Set New Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "requirements": {
+      "minLength": "· At least 8 characters",
+      "uppercase": "· Contains uppercase letter",
+      "lowercase": "· Contains lowercase letter",
+      "number": "· Contains a number",
+      "symbol": "· Contains a symbol"
+    },
+    "passwordMismatch": "Passwords do not match",
+    "submitButton": "Change Password",
+    "cancelButton": "Cancel",
+    "errors": {
+      "currentPasswordRequired": "Please enter your current password",
+      "newPasswordSameAsCurrent": "New password must be different from current password",
+      "passwordMismatch": "New passwords do not match",
+      "wrongPassword": "Current password is incorrect",
+      "tooManyRequests": "Too many attempts. Please wait a moment",
+      "weakPassword": "Password is too weak. Please set a more complex password",
+      "changeFailed": "Failed to change password"
+    }
+  }
+}

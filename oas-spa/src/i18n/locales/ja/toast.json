@@ -1,0 +1,19 @@
+{
+  "cancelReasonRequired": "キャンセル理由を選択してください",
+  "cancelSuccess": "キャンセルしました（患者に通知メール送信済み）",
+  "statusUpdated": "ステータスを更新しました",
+  "updateFailed": "更新に失敗しました",
+  "settingSaved": "設定を保存しました",
+  "saveFailed": "保存に失敗しました",
+  "holidaysAdded": "{{count}}件の祝日を追加しました",
+  "termsVersionUpdated": "バージョンを {{version}} に更新しました。全管理者に再同意が求められます。",
+  "termsVersionUpdateFailed": "バージョン更新に失敗しました",
+  "userCreated": "ユーザーを作成しました",
+  "userCreateFailed": "作成に失敗しました",
+  "userDeleted": "ユーザーを削除しました",
+  "userDeleteFailed": "削除に失敗しました",
+  "maxUsersReached": "ユーザーの登録上限は{{max}}人までです。",
+  "emailPasswordRequired": "メールとパスワードを入力してください",
+  "invalidEmail": "メールアドレスの形式が正しくありません",
+  "passwordChanged": "パスワードを変更しました"
+}

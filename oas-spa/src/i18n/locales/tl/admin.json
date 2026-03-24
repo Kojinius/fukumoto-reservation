@@ -1,0 +1,294 @@
+{
+  "layout": {
+    "adminPanel": "Admin Panel",
+    "reservationList": "Listahan ng Reserbacyon",
+    "settings": "Mga Setting",
+    "logout": "Mag-logout",
+    "lastLogin": "Huling login: "
+  },
+  "dashboard": {
+    "kpi": {
+      "todayReservations": "Mga Reserbacyon Ngayon",
+      "monthReservations": "Ngayong Buwan",
+      "newPatients": "Mga Bagong Pasyente",
+      "pending": "Hindi Pa Nakumpirma"
+    },
+    "filter": {
+      "all": "Lahat",
+      "pending": "Hindi Pa Nakumpirma",
+      "confirmed": "Nakumpirma",
+      "cancelled": "Nakansela",
+      "csvExport": "I-export ang CSV",
+      "clearFilters": "I-clear"
+    },
+    "search": {
+      "name": "Pangalan",
+      "namePlaceholder": "Yamada Taro",
+      "zip": "Zip Code",
+      "zipPlaceholder": "123-4567",
+      "phone": "Telepono",
+      "phonePlaceholder": "090-1234-5678",
+      "reservationDate": "Petsa ng Reserbacyon",
+      "scheduledDate": "Petsa ng Konsultasyon"
+    },
+    "table": {
+      "scheduledDateTime": "Petsa/Oras ng Konsultasyon",
+      "name": "Pangalan",
+      "visitType": "Uri ng Bisita",
+      "symptoms": "Mga Sintomas",
+      "phone": "Telepono",
+      "reservationDate": "Petsa ng Reserbacyon",
+      "status": "Katayuan"
+    },
+    "status": {
+      "pending": "Hindi Pa Nakumpirma",
+      "confirmed": "Nakumpirma",
+      "cancelled": "Nakansela",
+      "cancelledByAdmin": "Admin",
+      "cancelledByPatient": "Pasyente"
+    },
+    "action": {
+      "detail": "Detalye"
+    },
+    "emptyState": "Walang reserbacyon",
+    "modal": {
+      "reservationDetail": "Detalye ng Reserbacyon",
+      "close": "Isara",
+      "markConfirmed": "Markahan bilang Nakumpirma",
+      "cancel": "Kanselahin",
+      "fields": {
+        "reservationId": "Blg. ng Reserbacyon",
+        "scheduledDateTime": "Petsa/Oras ng Konsultasyon",
+        "name": "Pangalan",
+        "furigana": "Furigana",
+        "birthdate": "Petsa ng Kapanganakan",
+        "ageUnit": " taong gulang",
+        "zip": "Zip Code",
+        "address": "Address",
+        "phone": "Telepono",
+        "email": "Email",
+        "gender": "Kasarian",
+        "genderUnset": "Hindi tinukoy",
+        "visitType": "Uri ng Bisita",
+        "insurance": "Insurance Card",
+        "symptoms": "Mga Sintomas",
+        "notes": "Mga Tala",
+        "noNotes": "Wala",
+        "contactMethod": "Paraan ng Pakikipag-ugnayan",
+        "reservationStatus": "Katayuan",
+        "cancelledBy": "Kinansela ng",
+        "cancelReason": "Dahilan ng Pagkansela",
+        "cancelledAt": "Petsa ng Pagkansela",
+        "createdAt": "Petsa ng Reserbacyon"
+      },
+      "symptomsTitle": "Mga Sintomas ni {{name}}",
+      "notesLabel": "Mga Tala"
+    },
+    "confirmDialog": {
+      "statusChange": "Baguhin ang Katayuan",
+      "statusChangeMessage": "Markahan ang reserbacyon ni {{name}} bilang nakumpirma?",
+      "okLabel": "Markahan bilang Nakumpirma"
+    },
+    "cancelModal": {
+      "title": "Kanselahin ang Reserbacyon",
+      "message": "Kinakansela ang reserbacyon ni {{name}}.",
+      "notifyPatient": "Magpapadala ng email na abiso sa pasyente.",
+      "cancelReasonLabel": "Dahilan ng Pagkansela (kinakailangan)",
+      "cancelReasonPlaceholder": "Pumili ng dahilan",
+      "reason": {
+        "doctorUnavailable": "Hindi available ang doktor",
+        "temporaryClosure": "Pansamantalang pagsasara",
+        "patientRequest": "Kahilingan ng pasyente sa telepono",
+        "duplicateBooking": "Duplicate na reserbacyon",
+        "other": "Iba pa"
+      },
+      "otherReasonPlaceholder": "Ilagay ang dahilan",
+      "back": "Bumalik",
+      "confirm": "Kumpirmahin ang Pagkansela"
+    }
+  },
+  "settings": {
+    "title": "Mga Setting",
+    "save": "I-save",
+    "tabs": {
+      "basicInfo": "Pangunahing Impormasyon",
+      "businessDays": "Mga Oras ng Negosyo",
+      "announcement": "Mga Anunsyo",
+      "terms": "Mga Tuntunin ng Serbisyo",
+      "policy": "Patakaran sa Privacy",
+      "accounts": "Mga Account"
+    },
+    "weekdays": ["Lin", "Lun", "Mar", "Miy", "Huw", "Biy", "Sab"],
+    "basicInfo": {
+      "clinicName": "Pangalan ng Klinika *",
+      "phone": "Numero ng Telepono *",
+      "websiteUrl": "URL ng Website",
+      "zip": "Zip Code",
+      "zipPrefix": "〒",
+      "zipPlaceholder": "123-4567",
+      "zipSearching": "Naghahanap…",
+      "zipFound": "✓ Napunan ang address",
+      "zipNotFound": "Hindi nahanap",
+      "zipError": "Error sa paghahanap",
+      "address": "Lalawigan / Lungsod / Kalye *",
+      "addressSub": "Gusali / Silid",
+      "mapLabel": "Mapa ng Lokasyon",
+      "mapTitle": "Lokasyon ng Klinika"
+    },
+    "businessDays": {
+      "holidays": "Mga Itinakdang Pista Opisyal",
+      "daysUnit": " araw",
+      "calendarClickHint": "I-click ang kalendaryo upang magdagdag",
+      "fetchHolidays": "Kumuha ng Mga Pista Opisyal ng Japan",
+      "clearHolidays": "I-clear",
+      "clickToRemove": "I-click upang alisin",
+      "clickToSetHoliday": "I-click upang itakda bilang pista opisyal",
+      "weeklySchedule": "Lingguhang Iskedyul",
+      "openDays": "Bukas",
+      "closedDays": "Sarado",
+      "daysUnitJa": " araw",
+      "weekendClosed": "Weekend → Sarado",
+      "weekendOpen": "Weekend → Bukas",
+      "timeline": {
+        "bookingCutoff": "Deadline ng Reserbacyon at Pagkansela",
+        "bookingCutoffLabel": "Deadline ng Reserbacyon",
+        "cancelCutoffLabel": "Deadline ng Pagkansela",
+        "before": "",
+        "minutesBefore": " minuto bago ang konsultasyon"
+      },
+      "dayStatus": {
+        "open": "Bukas",
+        "closed": "Sarado",
+        "openDay": "Araw ng Trabaho",
+        "closedDay": "Araw ng Pahinga",
+        "morning": "Umaga",
+        "afternoon": "Hapon",
+        "timeRangeError": "Ang oras ng simula ay mas huli kaysa sa oras ng pagtatapos",
+        "timelineMorning": "Umaga",
+        "timelineAfternoon": "Hapon"
+      },
+      "confirmHoliday": {
+        "title": "May Mga Reserbacyon sa Araw na Ito",
+        "message": "Ang {{date}} ay mayroon nang {{count}} na reserbacyon. Itakda pa rin bilang pista opisyal?",
+        "okLabel": "Itakda bilang Pista Opisyal"
+      }
+    },
+    "announcement": {
+      "bannerTitle": "Banner ng Anunsyo",
+      "clear": "I-clear",
+      "active": "Nakikita",
+      "inactive": "Nakatago",
+      "typeLabel": "Uri",
+      "typeInfo": "Impormasyon",
+      "typeWarning": "Babala",
+      "typeMaintenance": "Maintenance",
+      "messageLabel": "Mensahe",
+      "startDateLabel": "Simula ng Pagpapakita",
+      "endDateLabel": "Katapusan ng Pagpapakita",
+      "dateRangeError": "Ang petsa ng simula ay mas huli kaysa sa petsa ng katapusan.",
+      "maintenanceTitle": "Mode ng Maintenance",
+      "maintenanceWarning": "Sa panahon ng maintenance, tanging mga admin lamang ang makaka-access sa system",
+      "maintenanceStartLabel": "Simula ng Maintenance",
+      "maintenanceEndLabel": "Katapusan ng Maintenance"
+    },
+    "terms": {
+      "title": "Mga Tuntunin ng Serbisyo",
+      "versionUpdated": "na-update",
+      "termsTextLabel": "Teksto ng Mga Tuntunin",
+      "termsTextPlaceholder": "Ilagay ang mga tuntunin na kailangang tanggapin ng mga admin sa pag-login",
+      "termsHint": "Ipinapakita sa unang pag-login o pagkatapos ng pag-update ng bersyon.",
+      "versionManagement": "Pamamahala ng Bersyon",
+      "versionWarning": "Ang pag-update ng bersyon ay mangangailangan sa lahat ng admin na muling tanggapin ang mga tuntunin at patakaran sa privacy sa susunod na pag-login.",
+      "bumpVersionButton": "I-update ang Bersyon (v{{current}} → v{{next}})"
+    },
+    "policy": {
+      "autoFillAlert": "Ang ilang field ng patakaran ay walang laman. Maaaring awtomatikong malikha mula sa Pangunahing Impormasyon.",
+      "autoGenerate": "Awtomatikong Likhain",
+      "regenerateLink": "Likhain Muli mula sa Pangunahing Impormasyon",
+      "regenerateConfirmTitle": "Likhain Muli ang Teksto ng Patakaran",
+      "regenerateConfirmMessage": "Ang lahat ng teksto ng patakaran ay lilikhaing muli mula sa Pangunahing Impormasyon. Ang manu-manong na-edit na nilalaman ay papalitan.",
+      "regenerateOkLabel": "Likhain Muli",
+      "cancelLabel": "Kanselahin",
+      "privacyPolicyTitle": "Patakaran sa Privacy",
+      "privacyPolicyLabel": "Teksto ng Patakaran sa Privacy",
+      "privacyPolicyHint": "Naka-link mula sa checkbox ng pahintulot sa personal na impormasyon sa form ng reserbacyon.",
+      "sensitiveDataTitle": "Pahintulot sa Sensitibong Data",
+      "sensitiveDataLabel": "Teksto ng Pahintulot",
+      "sensitiveDataHint": "Ipinapakita sa field ng mga sintomas ng form ng reserbacyon.",
+      "sensitiveDataPlaceholder": "Ang impormasyong pangkalusugan na inilagay sa \"Mga Sintomas / Alalahanin\" ay maaaring maging espesyal na personal na impormasyon ayon sa batas pangpribadong impormasyon ng Hapon. Gagamitin lamang para sa koordinasyon ng appointment at paghahanda ng paggamot, at hindi ibabahagi sa mga third party nang walang pahintulot.",
+      "sensitiveDataCharCount": " {{count}}/500 karakter",
+      "dataRetentionTitle": "Patakaran sa Pagpapanatili ng Data",
+      "dataRetentionLabel": "Panahon ng Pagpapanatili",
+      "retentionUnlimited": "Walang Tiyak na Panahon",
+      "retention6months": "6 buwan",
+      "retention1year": "1 taon",
+      "retention2years": "2 taon",
+      "retention3years": "3 taon (inirerekomenda)",
+      "retention5years": "5 taon",
+      "usagePurposeLabel": "Layunin ng Paggamit ng Personal na Impormasyon (APPI Art. 17)",
+      "usagePurposeHint": "Ipinapakita sa patakaran sa privacy at form ng reserbacyon.",
+      "retentionLegalNote": "Itakda ang panahon ng pagpapanatili sa saklaw na kinakailangan para makamit ang layunin ng paggamit. Ang data na lumampas sa panahon ng pagpapanatili ay ipapaalam sa mga admin para sa manu-manong pagtanggal.",
+      "reminderEmailTitle": "Reminder Email",
+      "reminderEmailLabel": "Paganahin ang feature ng reminder email",
+      "reminderEmailHint": "Kapag pinagana, ang form ng reserbacyon ay magpapakita ng checkbox ng pahintulot para sa mga reminder email. Ang mga reminder ay ipapadala lamang sa mga pasyenteng pumayag.",
+      "patientRightsTitle": "Mga Karapatan ng Pasyente (APPI Arts. 28–30)",
+      "patientRightsLabel": "Impormasyon sa Pakikipag-ugnayan at Pamamaraan",
+      "patientRightsHint": "Ipinapakita sa screen ng pagkumpleto ng reserbacyon at sa patakaran sa privacy."
+    },
+    "accounts": {
+      "createUserTitle": "Lumikha ng Bagong User",
+      "maxUsersWarning": "Maximum na {{max}} user ang pinahihintulutan.",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "admin@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Hindi bababa sa 8 karakter",
+      "passwordHint": "8–128 karakter, na may malaking titik, maliit na titik, numero, at simbolo",
+      "createButton": "Likhain",
+      "userListTitle": "Listahan ng mga User",
+      "noUsers": "Walang user",
+      "tableEmail": "Email",
+      "tableCreatedAt": "Nilikha",
+      "tableActions": "Mga Aksyon",
+      "deleteButton": "Tanggalin",
+      "deleteConfirmTitle": "Tanggalin ang User",
+      "deleteConfirmMessage": "Tanggalin ang {{email}}?",
+      "deleteOkLabel": "Tanggalin"
+    },
+    "validation": {
+      "clinicNameRequired": "Kinakailangan ang pangalan ng klinika",
+      "phoneRequired": "Kinakailangan ang numero ng telepono",
+      "announcementDateError": "Ang petsa ng simula ng anunsyo ay mas huli kaysa sa petsa ng katapusan",
+      "maintenanceDateError": "Ang petsa ng simula ng maintenance ay mas huli kaysa sa petsa ng katapusan",
+      "businessHoursError": "Ang oras ng simula ng {{weekday}} {{session}} ay mas huli kaysa sa oras ng pagtatapos",
+      "amSession": "umaga",
+      "pmSession": "hapon"
+    }
+  },
+  "changePassword": {
+    "title": "Baguhin ang Password",
+    "forcedAlert": "Para sa seguridad, dapat mong baguhin ang iyong password sa unang pag-login. Hindi ka makakanavigasyon sa ibang mga pahina hanggang makumpleto ito.",
+    "cardTitle": "Magtakda ng Bagong Password",
+    "currentPassword": "Kasalukuyang Password",
+    "newPassword": "Bagong Password",
+    "confirmPassword": "Kumpirmahin ang Bagong Password",
+    "requirements": {
+      "minLength": "· Hindi bababa sa 8 karakter",
+      "uppercase": "· May malaking titik",
+      "lowercase": "· May maliit na titik",
+      "number": "· May numero",
+      "symbol": "· May simbolo"
+    },
+    "passwordMismatch": "Hindi magkatugma ang mga password",
+    "submitButton": "Baguhin ang Password",
+    "cancelButton": "Kanselahin",
+    "errors": {
+      "currentPasswordRequired": "Pakiusap ilagay ang iyong kasalukuyang password",
+      "newPasswordSameAsCurrent": "Ang bagong password ay dapat na iba sa kasalukuyang password",
+      "passwordMismatch": "Hindi magkatugma ang mga bagong password",
+      "wrongPassword": "Mali ang kasalukuyang password",
+      "tooManyRequests": "Masyadong maraming pagtatangka. Pakiusap maghintay ng sandali",
+      "weakPassword": "Masyadong mahina ang password. Pakiusap magtakda ng mas kumplikadong password",
+      "changeFailed": "Nabigo ang pagpapalit ng password"
+    }
+  }
+}

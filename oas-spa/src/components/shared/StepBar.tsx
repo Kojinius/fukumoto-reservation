@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/utils/cn';
 
 interface Step {
@@ -10,8 +11,9 @@ interface StepBarProps {
 }
 
 export function StepBar({ steps, current }: StepBarProps) {
+  const { t } = useTranslation('booking');
   return (
-    <nav className="mb-10" aria-label="予約ステップ">
+    <nav className="mb-10" aria-label={t('stepBar.ariaLabel')}>
       <div className="flex items-center justify-center gap-0">
         {steps.map((step, i) => {
           const stepNum = i + 1;

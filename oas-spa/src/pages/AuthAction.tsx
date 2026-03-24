@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { applyActionCode, confirmPasswordReset, verifyPasswordResetCode } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
@@ -15,6 +16,7 @@ type ActionMode = 'verifyEmail' | 'resetPassword' | null;
 export default function AuthAction() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
+  const { t } = useTranslation(['auth', 'common']);
   const mode = params.get('mode') as ActionMode;
   const oobCode = params.get('oobCode') || '';
 
@@ -31,7 +33,7 @@ export default function AuthAction() {
   useEffect(() => {
     if (!oobCode || !mode) {
       setStatus('error');
-      setMessage('無効なリンクです。');
+      setMessage(t('auth:invalidLink'));
       return;
     }
 
@@ -39,11 +41,11 @@ export default function AuthAction() {
       applyActionCode(auth, oobCode)
         .then(() => {
           setStatus('success');
-          setMessage('メールアドレスが確認されました。');
+          setMessage(t('auth:emailVerified'));
         })
         .catch(() => {
           setStatus('error');
-          setMessage('リンクが無効または期限切れです。');
+          setMessage(t('auth:linkExpired'));
         });
     } else if (mode === 'resetPassword') {
       verifyPasswordResetCode(auth, oobCode)
@@ -53,32 +55,32 @@ export default function AuthAction() {
         })
         .catch(() => {
           setStatus('error');
-          setMessage('リンクが無効または期限切れです。');
+          setMessage(t('auth:linkExpired'));
         });
     } else {
       setStatus('error');
-      setMessage('不明なアクションです。');
+      setMessage(t('auth:unknownAction'));
     }
   }, [mode, oobCode]);
 
   async function handleResetPassword() {
     setPwError('');
     if (newPassword !== confirmPassword) {
-      setPwError('パスワードが一致しません');
+      setPwError(t('auth:passwordMismatch'));
       return;
     }
     const check = isStrongPassword(newPassword);
     if (!check.valid) {
-      setPwError(check.reason!);
+      setPwError(t(check.reasonKey!));
       return;
     }
     setSaving(true);
     try {
       await confirmPasswordReset(auth, oobCode, newPassword);
       setStatus('success');
-      setMessage('パスワードが変更されました。');
+      setMessage(t('auth:passwordChanged'));
     } catch {
-      setPwError('パスワードの変更に失敗しました。リンクが期限切れの可能性があります。');
+      setPwError(t('auth:passwordChangeFailed'));
     } finally {
       setSaving(false);
     }
@@ -101,7 +103,7 @@ export default function AuthAction() {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
               </svg>
-              ログイン画面へ
+              {t('common:backToLogin')}
             </Button>
           </CardBody>
         </Card>
@@ -124,7 +126,7 @@ export default function AuthAction() {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
               </svg>
-              ログイン画面へ
+              {t('common:backToLogin')}
             </Button>
           </CardBody>
         </Card>
@@ -144,7 +146,7 @@ export default function AuthAction() {
               </svg>
             </div>
             <h2 className="text-lg font-heading font-semibold text-navy-700">
-              パスワード再設定
+              {t('auth:resetPassword')}
             </h2>
           </div>
         </CardHeader>
@@ -152,13 +154,13 @@ export default function AuthAction() {
           <p className="text-sm text-navy-400 mb-4 text-center font-mono">{email}</p>
           {pwError && <Alert variant="error" className="mb-4">{pwError}</Alert>}
           <div className="space-y-4">
-            <PasswordInput label="新しいパスワード" value={newPassword} onChange={e => setNewPassword(e.target.value)} autoComplete="new-password" />
-            <PasswordInput label="パスワード確認" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} autoComplete="new-password" />
+            <PasswordInput label={t('auth:newPassword')} value={newPassword} onChange={e => setNewPassword(e.target.value)} autoComplete="new-password" />
+            <PasswordInput label={t('auth:confirmPassword')} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} autoComplete="new-password" />
             <Button className="w-full" onClick={handleResetPassword} loading={saving}>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
               </svg>
-              パスワードを変更
+              {t('auth:changePassword')}
             </Button>
           </div>
         </CardBody>

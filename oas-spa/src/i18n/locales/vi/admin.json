@@ -1,0 +1,294 @@
+{
+  "layout": {
+    "adminPanel": "Trang Quản Trị",
+    "reservationList": "Danh Sách Đặt Lịch",
+    "settings": "Cài Đặt",
+    "logout": "Đăng Xuất",
+    "lastLogin": "Đăng nhập lần cuối: "
+  },
+  "dashboard": {
+    "kpi": {
+      "todayReservations": "Đặt Lịch Hôm Nay",
+      "monthReservations": "Tháng Này",
+      "newPatients": "Bệnh Nhân Mới",
+      "pending": "Chưa Xác Nhận"
+    },
+    "filter": {
+      "all": "Tất Cả",
+      "pending": "Chưa Xác Nhận",
+      "confirmed": "Đã Xác Nhận",
+      "cancelled": "Đã Hủy",
+      "csvExport": "Xuất CSV",
+      "clearFilters": "Xóa Bộ Lọc"
+    },
+    "search": {
+      "name": "Họ Tên",
+      "namePlaceholder": "Yamada Taro",
+      "zip": "Mã Bưu Điện",
+      "zipPlaceholder": "123-4567",
+      "phone": "Điện Thoại",
+      "phonePlaceholder": "090-1234-5678",
+      "reservationDate": "Ngày Đặt Lịch",
+      "scheduledDate": "Ngày Khám"
+    },
+    "table": {
+      "scheduledDateTime": "Ngày Giờ Khám",
+      "name": "Họ Tên",
+      "visitType": "Lần Khám",
+      "symptoms": "Triệu Chứng",
+      "phone": "Điện Thoại",
+      "reservationDate": "Ngày Đặt Lịch",
+      "status": "Trạng Thái"
+    },
+    "status": {
+      "pending": "Chưa Xác Nhận",
+      "confirmed": "Đã Xác Nhận",
+      "cancelled": "Đã Hủy",
+      "cancelledByAdmin": "Quản Trị Viên",
+      "cancelledByPatient": "Bệnh Nhân"
+    },
+    "action": {
+      "detail": "Chi Tiết"
+    },
+    "emptyState": "Không có lịch đặt",
+    "modal": {
+      "reservationDetail": "Chi Tiết Đặt Lịch",
+      "close": "Đóng",
+      "markConfirmed": "Đánh Dấu Đã Xác Nhận",
+      "cancel": "Hủy",
+      "fields": {
+        "reservationId": "Mã Đặt Lịch",
+        "scheduledDateTime": "Ngày Giờ Khám",
+        "name": "Họ Tên",
+        "furigana": "Furigana",
+        "birthdate": "Ngày Sinh",
+        "ageUnit": " tuổi",
+        "zip": "Mã Bưu Điện",
+        "address": "Địa Chỉ",
+        "phone": "Điện Thoại",
+        "email": "Email",
+        "gender": "Giới Tính",
+        "genderUnset": "Chưa điền",
+        "visitType": "Lần Khám",
+        "insurance": "Thẻ Bảo Hiểm",
+        "symptoms": "Triệu Chứng",
+        "notes": "Ghi Chú",
+        "noNotes": "Không có",
+        "contactMethod": "Phương Thức Liên Hệ",
+        "reservationStatus": "Trạng Thái",
+        "cancelledBy": "Người Hủy",
+        "cancelReason": "Lý Do Hủy",
+        "cancelledAt": "Thời Gian Hủy",
+        "createdAt": "Ngày Đặt Lịch"
+      },
+      "symptomsTitle": "Triệu Chứng của {{name}}",
+      "notesLabel": "Ghi Chú"
+    },
+    "confirmDialog": {
+      "statusChange": "Thay Đổi Trạng Thái",
+      "statusChangeMessage": "Đánh dấu đặt lịch của {{name}} là đã xác nhận?",
+      "okLabel": "Đánh Dấu Đã Xác Nhận"
+    },
+    "cancelModal": {
+      "title": "Hủy Đặt Lịch",
+      "message": "Đang hủy đặt lịch của {{name}}.",
+      "notifyPatient": "Email thông báo hủy sẽ được gửi đến bệnh nhân.",
+      "cancelReasonLabel": "Lý Do Hủy (bắt buộc)",
+      "cancelReasonPlaceholder": "Chọn lý do",
+      "reason": {
+        "doctorUnavailable": "Bác sĩ không có mặt",
+        "temporaryClosure": "Đóng cửa tạm thời",
+        "patientRequest": "Bệnh nhân yêu cầu qua điện thoại",
+        "duplicateBooking": "Đặt lịch trùng lặp",
+        "other": "Khác"
+      },
+      "otherReasonPlaceholder": "Nhập lý do",
+      "back": "Quay Lại",
+      "confirm": "Xác Nhận Hủy"
+    }
+  },
+  "settings": {
+    "title": "Cài Đặt",
+    "save": "Lưu",
+    "tabs": {
+      "basicInfo": "Thông Tin Cơ Bản",
+      "businessDays": "Giờ Làm Việc",
+      "announcement": "Thông Báo",
+      "terms": "Điều Khoản Dịch Vụ",
+      "policy": "Chính Sách Quyền Riêng Tư",
+      "accounts": "Tài Khoản"
+    },
+    "weekdays": ["CN", "T2", "T3", "T4", "T5", "T6", "T7"],
+    "basicInfo": {
+      "clinicName": "Tên Phòng Khám *",
+      "phone": "Số Điện Thoại *",
+      "websiteUrl": "URL Website",
+      "zip": "Mã Bưu Điện",
+      "zipPrefix": "〒",
+      "zipPlaceholder": "123-4567",
+      "zipSearching": "Đang tìm…",
+      "zipFound": "✓ Đã điền địa chỉ",
+      "zipNotFound": "Không tìm thấy",
+      "zipError": "Lỗi tìm kiếm",
+      "address": "Tỉnh/Thành / Quận/Huyện / Đường *",
+      "addressSub": "Tòa Nhà / Số Phòng",
+      "mapLabel": "Bản Đồ Vị Trí",
+      "mapTitle": "Vị Trí Phòng Khám"
+    },
+    "businessDays": {
+      "holidays": "Ngày Nghỉ Đã Cấu Hình",
+      "daysUnit": " ngày",
+      "calendarClickHint": "Nhấp vào lịch để thêm",
+      "fetchHolidays": "Lấy Ngày Lễ Nhật Bản",
+      "clearHolidays": "Xóa",
+      "clickToRemove": "Nhấp để xóa",
+      "clickToSetHoliday": "Nhấp để đặt làm ngày nghỉ",
+      "weeklySchedule": "Lịch Hàng Tuần",
+      "openDays": "Mở Cửa",
+      "closedDays": "Đóng Cửa",
+      "daysUnitJa": " ngày",
+      "weekendClosed": "Cuối Tuần → Đóng",
+      "weekendOpen": "Cuối Tuần → Mở",
+      "timeline": {
+        "bookingCutoff": "Thời Hạn Đặt Lịch & Hủy",
+        "bookingCutoffLabel": "Thời Hạn Đặt Lịch",
+        "cancelCutoffLabel": "Thời Hạn Hủy",
+        "before": "",
+        "minutesBefore": " phút trước giờ khám"
+      },
+      "dayStatus": {
+        "open": "Mở Cửa",
+        "closed": "Đóng Cửa",
+        "openDay": "Ngày Làm Việc",
+        "closedDay": "Ngày Nghỉ",
+        "morning": "Buổi Sáng",
+        "afternoon": "Buổi Chiều",
+        "timeRangeError": "Giờ bắt đầu muộn hơn giờ kết thúc",
+        "timelineMorning": "Sáng",
+        "timelineAfternoon": "Chiều"
+      },
+      "confirmHoliday": {
+        "title": "Ngày Này Có Lịch Hẹn",
+        "message": "Ngày {{date}} đã có {{count}} lịch hẹn. Vẫn đặt làm ngày nghỉ?",
+        "okLabel": "Đặt Làm Ngày Nghỉ"
+      }
+    },
+    "announcement": {
+      "bannerTitle": "Biểu Ngữ Thông Báo",
+      "clear": "Xóa",
+      "active": "Đang Hiển Thị",
+      "inactive": "Ẩn",
+      "typeLabel": "Loại",
+      "typeInfo": "Thông Tin",
+      "typeWarning": "Cảnh Báo",
+      "typeMaintenance": "Bảo Trì",
+      "messageLabel": "Nội Dung",
+      "startDateLabel": "Thời Gian Bắt Đầu Hiển Thị",
+      "endDateLabel": "Thời Gian Kết Thúc Hiển Thị",
+      "dateRangeError": "Thời gian bắt đầu muộn hơn thời gian kết thúc.",
+      "maintenanceTitle": "Chế Độ Bảo Trì",
+      "maintenanceWarning": "Trong thời gian bảo trì, chỉ quản trị viên mới có thể truy cập",
+      "maintenanceStartLabel": "Thời Gian Bắt Đầu Bảo Trì",
+      "maintenanceEndLabel": "Thời Gian Kết Thúc Bảo Trì"
+    },
+    "terms": {
+      "title": "Điều Khoản Dịch Vụ",
+      "versionUpdated": "đã cập nhật",
+      "termsTextLabel": "Nội Dung Điều Khoản",
+      "termsTextPlaceholder": "Nhập điều khoản mà quản trị viên cần đồng ý khi đăng nhập",
+      "termsHint": "Hiển thị khi đăng nhập lần đầu hoặc sau khi cập nhật phiên bản.",
+      "versionManagement": "Quản Lý Phiên Bản",
+      "versionWarning": "Cập nhật phiên bản sẽ yêu cầu tất cả quản trị viên đồng ý lại điều khoản và chính sách bảo mật vào lần đăng nhập tiếp theo.",
+      "bumpVersionButton": "Cập Nhật Phiên Bản (v{{current}} → v{{next}})"
+    },
+    "policy": {
+      "autoFillAlert": "Một số trường chính sách còn trống. Có thể tự động tạo từ Thông Tin Cơ Bản.",
+      "autoGenerate": "Tự Động Tạo",
+      "regenerateLink": "Tạo Lại Từ Thông Tin Cơ Bản",
+      "regenerateConfirmTitle": "Tạo Lại Nội Dung Chính Sách",
+      "regenerateConfirmMessage": "Tất cả nội dung chính sách sẽ được tạo lại từ Thông Tin Cơ Bản. Nội dung đã chỉnh sửa thủ công sẽ bị ghi đè.",
+      "regenerateOkLabel": "Tạo Lại",
+      "cancelLabel": "Hủy",
+      "privacyPolicyTitle": "Chính Sách Bảo Mật",
+      "privacyPolicyLabel": "Nội Dung Chính Sách Bảo Mật",
+      "privacyPolicyHint": "Được liên kết từ hộp kiểm đồng ý thông tin cá nhân trong form đặt lịch.",
+      "sensitiveDataTitle": "Đồng Ý Dữ Liệu Nhạy Cảm",
+      "sensitiveDataLabel": "Nội Dung Đồng Ý",
+      "sensitiveDataHint": "Hiển thị trong trường triệu chứng của form đặt lịch.",
+      "sensitiveDataPlaceholder": "Thông tin sức khỏe nhập vào mục \"Triệu chứng / Lo lắng\" có thể là thông tin cá nhân cần chú ý đặc biệt theo luật bảo vệ thông tin cá nhân Nhật Bản. Chỉ sử dụng cho mục đích đặt lịch và chuẩn bị điều trị, không cung cấp cho bên thứ ba khi chưa có sự đồng ý.",
+      "sensitiveDataCharCount": " {{count}}/500 ký tự",
+      "dataRetentionTitle": "Chính Sách Lưu Trữ Dữ Liệu",
+      "dataRetentionLabel": "Thời Gian Lưu Trữ",
+      "retentionUnlimited": "Vô thời hạn",
+      "retention6months": "6 tháng",
+      "retention1year": "1 năm",
+      "retention2years": "2 năm",
+      "retention3years": "3 năm (khuyến nghị)",
+      "retention5years": "5 năm",
+      "usagePurposeLabel": "Mục Đích Sử Dụng Thông Tin (APPI Điều 17)",
+      "usagePurposeHint": "Hiển thị trong chính sách bảo mật và form đặt lịch.",
+      "retentionLegalNote": "Hãy đặt thời gian lưu trữ trong phạm vi cần thiết để đạt được mục đích sử dụng. Dữ liệu quá hạn sẽ được thông báo cho quản trị viên để xóa thủ công.",
+      "reminderEmailTitle": "Email Nhắc Nhở",
+      "reminderEmailLabel": "Bật tính năng email nhắc nhở",
+      "reminderEmailHint": "Khi bật, form đặt lịch sẽ hiển thị hộp kiểm đồng ý nhận email nhắc nhở. Email chỉ được gửi cho bệnh nhân đã đồng ý.",
+      "patientRightsTitle": "Quyền Của Bệnh Nhân (APPI Điều 28–30)",
+      "patientRightsLabel": "Thông Tin Liên Hệ & Thủ Tục",
+      "patientRightsHint": "Hiển thị trên trang hoàn tất đặt lịch và chính sách bảo mật."
+    },
+    "accounts": {
+      "createUserTitle": "Tạo Người Dùng Mới",
+      "maxUsersWarning": "Tối đa {{max}} người dùng.",
+      "emailLabel": "Địa Chỉ Email",
+      "emailPlaceholder": "admin@example.com",
+      "passwordLabel": "Mật Khẩu",
+      "passwordPlaceholder": "Ít nhất 8 ký tự",
+      "passwordHint": "8–128 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt",
+      "createButton": "Tạo",
+      "userListTitle": "Danh Sách Người Dùng",
+      "noUsers": "Không có người dùng",
+      "tableEmail": "Email",
+      "tableCreatedAt": "Ngày Tạo",
+      "tableActions": "Thao Tác",
+      "deleteButton": "Xóa",
+      "deleteConfirmTitle": "Xóa Người Dùng",
+      "deleteConfirmMessage": "Xóa {{email}}?",
+      "deleteOkLabel": "Xóa"
+    },
+    "validation": {
+      "clinicNameRequired": "Tên phòng khám là bắt buộc",
+      "phoneRequired": "Số điện thoại là bắt buộc",
+      "announcementDateError": "Thời gian bắt đầu thông báo muộn hơn thời gian kết thúc",
+      "maintenanceDateError": "Thời gian bắt đầu bảo trì muộn hơn thời gian kết thúc",
+      "businessHoursError": "{{weekday}} {{session}} giờ bắt đầu muộn hơn giờ kết thúc",
+      "amSession": "buổi sáng",
+      "pmSession": "buổi chiều"
+    }
+  },
+  "changePassword": {
+    "title": "Đổi Mật Khẩu",
+    "forcedAlert": "Vì lý do bảo mật, bạn phải đổi mật khẩu khi đăng nhập lần đầu. Bạn không thể chuyển sang trang khác cho đến khi hoàn tất.",
+    "cardTitle": "Đặt Mật Khẩu Mới",
+    "currentPassword": "Mật Khẩu Hiện Tại",
+    "newPassword": "Mật Khẩu Mới",
+    "confirmPassword": "Xác Nhận Mật Khẩu Mới",
+    "requirements": {
+      "minLength": "· Ít nhất 8 ký tự",
+      "uppercase": "· Có chữ hoa",
+      "lowercase": "· Có chữ thường",
+      "number": "· Có số",
+      "symbol": "· Có ký tự đặc biệt"
+    },
+    "passwordMismatch": "Mật khẩu không khớp",
+    "submitButton": "Đổi Mật Khẩu",
+    "cancelButton": "Hủy",
+    "errors": {
+      "currentPasswordRequired": "Vui lòng nhập mật khẩu hiện tại",
+      "newPasswordSameAsCurrent": "Mật khẩu mới phải khác mật khẩu hiện tại",
+      "passwordMismatch": "Mật khẩu mới không khớp",
+      "wrongPassword": "Mật khẩu hiện tại không đúng",
+      "tooManyRequests": "Quá nhiều lần thử. Vui lòng đợi một chút",
+      "weakPassword": "Mật khẩu quá yếu. Vui lòng đặt mật khẩu phức tạp hơn",
+      "changeFailed": "Đổi mật khẩu thất bại"
+    }
+  }
+}

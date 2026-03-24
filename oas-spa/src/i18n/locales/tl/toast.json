@@ -1,0 +1,19 @@
+{
+  "cancelReasonRequired": "Pakiusap pumili ng dahilan ng pagkansela",
+  "cancelSuccess": "Nakansela ang reserbасyon (naipadala ang email na abiso sa pasyente)",
+  "statusUpdated": "Na-update ang katayuan",
+  "updateFailed": "Nabigo ang pag-update",
+  "settingSaved": "Nai-save ang mga setting",
+  "saveFailed": "Nabigo ang pag-save",
+  "holidaysAdded": "{{count}} pista opisyal ang naidagdag",
+  "termsVersionUpdated": "Na-update ang bersyon sa {{version}}. Kailangan ng lahat ng admin na muling sumang-ayon.",
+  "termsVersionUpdateFailed": "Nabigo ang pag-update ng bersyon",
+  "userCreated": "Nalikha ang user",
+  "userCreateFailed": "Nabigo ang paglikha",
+  "userDeleted": "Natanggal ang user",
+  "userDeleteFailed": "Nabigo ang pagtanggal",
+  "maxUsersReached": "Maximum na {{max}} user ang pinahihintulutan.",
+  "emailPasswordRequired": "Pakiusap ilagay ang email at password",
+  "invalidEmail": "Hindi valid ang format ng email address",
+  "passwordChanged": "Matagumpay na nabago ang password"
+}

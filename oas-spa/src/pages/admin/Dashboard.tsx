@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useReservations, useKpis, updateReservationStatus, exportReservationsCsv } from '@/hooks/useAdmin';
 import { useToast } from '@/hooks/useToast';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -15,10 +16,11 @@ import { formatDateTimeJa, calcAge } from '@/utils/date';
 import { cn } from '@/utils/cn';
 import type { ReservationRecord, ReservationStatus } from '@/types/reservation';
 
-const STATUS_BADGE: Record<ReservationStatus, { label: string; cls: string }> = {
-  pending:   { label: '未確認', cls: 'bg-amber-100 text-amber-700' },
-  confirmed: { label: '確認済み', cls: 'bg-emerald-100 text-emerald-700' },
-  cancelled: { label: 'キャンセル', cls: 'bg-red-100 text-red-700' },
+// ステータスバッジのラベルは useTranslation で動的に取得するため、clsのみ定義
+const STATUS_BADGE_CLS: Record<ReservationStatus, string> = {
+  pending:   'bg-amber-100 text-amber-700',
+  confirmed: 'bg-emerald-100 text-emerald-700',
+  cancelled: 'bg-red-100 text-red-700',
 };
 
 const KPI_ICONS = [
@@ -44,6 +46,8 @@ function getReservationValue(r: ReservationRecord, col: string): string | number
 }
 
 export default function Dashboard() {
+  const { t } = useTranslation('admin');
+  const { t: tToast } = useTranslation('toast');
   const { reservations, loading } = useReservations();
   const kpis = useKpis(reservations);
   const { showToast } = useToast();
@@ -173,16 +177,16 @@ export default function Dashboard() {
       ? (cancelReason === 'その他' ? cancelReasonOther.trim() : cancelReason)
       : undefined;
     if (isCancelling && !reason) {
-      showToast('キャンセル理由を選択してください', 'error');
+      showToast(tToast('cancelReasonRequired'), 'error');
       return;
     }
     setUpdating(true);
     try {
       await updateReservationStatus(confirmAction.booking, confirmAction.status, reason);
-      showToast(isCancelling ? 'キャンセルしました（患者に通知メール送信済み）' : 'ステータスを更新しました', 'success');
+      showToast(isCancelling ? tToast('cancelSuccess') : tToast('statusUpdated'), 'success');
       setSelected(null);
     } catch {
-      showToast('更新に失敗しました', 'error');
+      showToast(tToast('updateFailed'), 'error');
     } finally {
       setUpdating(false);
       setConfirmAction(null);
@@ -198,10 +202,10 @@ export default function Dashboard() {
       {/* KPI カード — クリックでフィルター */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {([
-          { key: 'today' as const, label: '本日の予約', value: kpis.todayCount, color: 'text-gold' },
-          { key: 'month' as const, label: '今月の予約', value: kpis.monthCount, color: 'text-navy-700' },
-          { key: 'new' as const, label: '新規患者', value: kpis.newPatients, color: 'text-sky-600' },
-          { key: 'pending' as const, label: '未確認', value: kpis.pending, color: kpis.pending > 0 ? 'text-amber-600' : 'text-navy-400' },
+          { key: 'today' as const, label: t('dashboard.kpi.todayReservations'), value: kpis.todayCount, color: 'text-gold' },
+          { key: 'month' as const, label: t('dashboard.kpi.monthReservations'), value: kpis.monthCount, color: 'text-navy-700' },
+          { key: 'new' as const, label: t('dashboard.kpi.newPatients'), value: kpis.newPatients, color: 'text-sky-600' },
+          { key: 'pending' as const, label: t('dashboard.kpi.pending'), value: kpis.pending, color: kpis.pending > 0 ? 'text-amber-600' : 'text-navy-400' },
         ]).map((kpi, i) => (
           <button
             key={kpi.key}
@@ -238,7 +242,7 @@ export default function Dashboard() {
                   variant={statusFilter === s && !kpiFilter ? 'primary' : 'ghost'}
                   onClick={() => setStatusFilterAndClearKpi(s)}
                 >
-                  {s === 'all' ? '全て' : STATUS_BADGE[s].label}
+                  {t(`dashboard.filter.${s}`)}
                 </Button>
               ))}
             </div>
@@ -246,37 +250,37 @@ export default function Dashboard() {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
               </svg>
-              CSV出力
+              {t('dashboard.filter.csvExport')}
             </Button>
           </div>
           {/* 2段目: 検索フィールド */}
           <div className="grid grid-cols-5 gap-2">
             <Input
-              label="氏名"
-              placeholder="山田太郎"
+              label={t('dashboard.search.name')}
+              placeholder={t('dashboard.search.namePlaceholder')}
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
             <Input
-              label="郵便番号"
-              placeholder="123-4567"
+              label={t('dashboard.search.zip')}
+              placeholder={t('dashboard.search.zipPlaceholder')}
               value={zipSearch}
               onChange={e => setZipSearch(e.target.value)}
             />
             <Input
-              label="電話番号"
-              placeholder="090-1234-5678"
+              label={t('dashboard.search.phone')}
+              placeholder={t('dashboard.search.phonePlaceholder')}
               value={phoneSearch}
               onChange={e => setPhoneSearch(e.target.value)}
             />
             <Input
-              label="予約受付日"
+              label={t('dashboard.search.reservationDate')}
               type="date"
               value={createdAtFilter}
               onChange={e => { setCreatedAtFilter(e.target.value); setKpiFilter(null); }}
             />
             <Input
-              label="診察予定日"
+              label={t('dashboard.search.scheduledDate')}
               type="date"
               value={dateFilter}
               onChange={e => { setDateFilter(e.target.value); setKpiFilter(null); }}
@@ -284,7 +288,7 @@ export default function Dashboard() {
           </div>
           {hasFilter && (
             <Button size="sm" variant="ghost" onClick={clearFilters}>
-              クリア
+              {t('dashboard.filter.clearFilters')}
             </Button>
           )}
         </CardBody>
@@ -300,20 +304,20 @@ export default function Dashboard() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" />
                 </svg>
               }
-              title="予約がありません"
+              title={t('dashboard.emptyState')}
               className="py-8"
             />
           ) : (
             <table className="w-full text-sm border-separate border-spacing-0">
               <thead>
                 <tr className="border-b border-cream-200">
-                  <SortableHeader label="診察予定日時" sortKey="datetime" sortKeys={sortKeys} onSort={handleSort} />
-                  <SortableHeader label="氏名" sortKey="name" sortKeys={sortKeys} onSort={handleSort} />
-                  <SortableHeader label="初/再" sortKey="visitType" sortKeys={sortKeys} onSort={handleSort} />
-                  <th className="px-3 py-3 text-[11px] font-medium text-navy-400 whitespace-nowrap tracking-wider uppercase text-left bg-cream-100/50">症状</th>
-                  <SortableHeader label="電話" sortKey="phone" sortKeys={sortKeys} onSort={handleSort} />
-                  <SortableHeader label="予約受付日" sortKey="createdAt" sortKeys={sortKeys} onSort={handleSort} />
-                  <SortableHeader label="ステータス" sortKey="status" sortKeys={sortKeys} onSort={handleSort} />
+                  <SortableHeader label={t('dashboard.table.scheduledDateTime')} sortKey="datetime" sortKeys={sortKeys} onSort={handleSort} />
+                  <SortableHeader label={t('dashboard.table.name')} sortKey="name" sortKeys={sortKeys} onSort={handleSort} />
+                  <SortableHeader label={t('dashboard.table.visitType')} sortKey="visitType" sortKeys={sortKeys} onSort={handleSort} />
+                  <th className="px-3 py-3 text-[11px] font-medium text-navy-400 whitespace-nowrap tracking-wider uppercase text-left bg-cream-100/50">{t('dashboard.table.symptoms')}</th>
+                  <SortableHeader label={t('dashboard.table.phone')} sortKey="phone" sortKeys={sortKeys} onSort={handleSort} />
+                  <SortableHeader label={t('dashboard.table.reservationDate')} sortKey="createdAt" sortKeys={sortKeys} onSort={handleSort} />
+                  <SortableHeader label={t('dashboard.table.status')} sortKey="status" sortKeys={sortKeys} onSort={handleSort} />
                   <th className="px-3 py-3 text-[11px] font-medium text-navy-400 whitespace-nowrap tracking-wider uppercase text-left bg-cream-100/50 last:rounded-tr-lg" />
                 </tr>
               </thead>
@@ -351,10 +355,10 @@ export default function Dashboard() {
                       {r.createdAt ? new Date(r.createdAt).toLocaleDateString('ja-JP') : '-'}
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap">
-                      <Badge className={STATUS_BADGE[r.status].cls}>{STATUS_BADGE[r.status].label}</Badge>
+                      <Badge className={STATUS_BADGE_CLS[r.status]}>{t(`dashboard.status.${r.status}`)}</Badge>
                       {r.status === 'cancelled' && r.cancelledBy && (
                         <span className="ml-1 text-[10px] text-navy-400">
-                          ({r.cancelledBy === 'admin' ? '管理者' : '患者'})
+                          ({r.cancelledBy === 'admin' ? t('dashboard.status.cancelledByAdmin') : t('dashboard.status.cancelledByPatient')})
                         </span>
                       )}
                     </td>
@@ -364,7 +368,7 @@ export default function Dashboard() {
                           <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                           <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                        詳細
+                        {t('dashboard.action.detail')}
                       </Button>
                     </td>
                   </tr>
@@ -377,32 +381,32 @@ export default function Dashboard() {
 
       {/* 詳細モーダル */}
       {selected && (
-        <Modal open={!!selected} onClose={() => setSelected(null)} title="予約詳細" className="max-w-lg">
+        <Modal open={!!selected} onClose={() => setSelected(null)} title={t('dashboard.modal.reservationDetail')} className="max-w-lg">
           <div className="overflow-y-auto -mx-5 px-5" style={{ maxHeight: 'calc(85vh - 10rem)' }}>
             <dl className="space-y-1 text-sm">
               {[
-                ['予約番号', selected.id],
-                ['診察予定日時', formatDateTimeJa(selected.date, selected.time)],
-                ['氏名', selected.name],
-                ['ふりがな', selected.furigana],
-                ['生年月日', selected.birthdate + (calcAge(selected.birthdate) !== null ? `（${calcAge(selected.birthdate)}歳）` : '')],
-                ['郵便番号', selected.zip || '-'],
-                ['住所', selected.address],
-                ['電話番号', selected.phone],
-                ['メール', selected.email || '-'],
-                ['性別', selected.gender || '未入力'],
-                ['初診/再診', selected.visitType || '-'],
-                ['保険証', selected.insurance || '-'],
-                ['症状', selected.symptoms],
-                ['伝達事項', selected.notes || 'なし'],
-                ['連絡方法', selected.contactMethod || '-'],
-                ['ステータス', STATUS_BADGE[selected.status].label],
+                [t('dashboard.modal.fields.reservationId'), selected.id],
+                [t('dashboard.modal.fields.scheduledDateTime'), formatDateTimeJa(selected.date, selected.time)],
+                [t('dashboard.modal.fields.name'), selected.name],
+                [t('dashboard.modal.fields.furigana'), selected.furigana],
+                [t('dashboard.modal.fields.birthdate'), selected.birthdate + (calcAge(selected.birthdate) !== null ? `（${calcAge(selected.birthdate)}${t('dashboard.modal.fields.ageUnit')}）` : '')],
+                [t('dashboard.modal.fields.zip'), selected.zip || '-'],
+                [t('dashboard.modal.fields.address'), selected.address],
+                [t('dashboard.modal.fields.phone'), selected.phone],
+                [t('dashboard.modal.fields.email'), selected.email || '-'],
+                [t('dashboard.modal.fields.gender'), selected.gender || t('dashboard.modal.fields.genderUnset')],
+                [t('dashboard.modal.fields.visitType'), selected.visitType || '-'],
+                [t('dashboard.modal.fields.insurance'), selected.insurance || '-'],
+                [t('dashboard.modal.fields.symptoms'), selected.symptoms],
+                [t('dashboard.modal.fields.notes'), selected.notes || t('dashboard.modal.fields.noNotes')],
+                [t('dashboard.modal.fields.contactMethod'), selected.contactMethod || '-'],
+                [t('dashboard.modal.fields.reservationStatus'), t(`dashboard.status.${selected.status}`)],
                 ...(selected.status === 'cancelled' ? [
-                  ['キャンセル元', selected.cancelledBy === 'admin' ? '管理者' : selected.cancelledBy === 'patient' ? '患者' : '-'],
-                  ['キャンセル理由', selected.cancelReason || '-'],
-                  ['キャンセル日時', selected.cancelledAt ? new Date(selected.cancelledAt).toLocaleString('ja-JP') : '-'],
+                  [t('dashboard.modal.fields.cancelledBy'), selected.cancelledBy === 'admin' ? t('dashboard.status.cancelledByAdmin') : selected.cancelledBy === 'patient' ? t('dashboard.status.cancelledByPatient') : '-'],
+                  [t('dashboard.modal.fields.cancelReason'), selected.cancelReason || '-'],
+                  [t('dashboard.modal.fields.cancelledAt'), selected.cancelledAt ? new Date(selected.cancelledAt).toLocaleString('ja-JP') : '-'],
                 ] : []),
-                ['予約受付日', selected.createdAt ? new Date(selected.createdAt).toLocaleString('ja-JP') : '-'],
+                [t('dashboard.modal.fields.createdAt'), selected.createdAt ? new Date(selected.createdAt).toLocaleString('ja-JP') : '-'],
               ].map(([label, val]) => (
                 <div key={label} className="flex border-b border-cream-200/80 py-2">
                   <dt className="w-24 shrink-0 text-navy-400">{label}</dt>
@@ -413,14 +417,14 @@ export default function Dashboard() {
           </div>
           <div className="flex gap-2 justify-end pt-4 border-t border-cream-200/60 mt-4 shrink-0">
             <Button variant="ghost" size="sm" onClick={() => setSelected(null)}>
-              閉じる
+              {t('dashboard.modal.close')}
             </Button>
             {selected.status !== 'confirmed' && (
               <Button size="sm" onClick={() => setConfirmAction({ booking: selected, status: 'confirmed' })}>
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                確認済みにする
+                {t('dashboard.modal.markConfirmed')}
               </Button>
             )}
             {selected.status !== 'cancelled' && (
@@ -428,7 +432,7 @@ export default function Dashboard() {
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                キャンセル
+                {t('dashboard.modal.cancel')}
               </Button>
             )}
           </div>
@@ -437,11 +441,11 @@ export default function Dashboard() {
 
       {/* 症状モーダル */}
       {symptomsTarget && (
-        <Modal open={!!symptomsTarget} onClose={() => setSymptomsTarget(null)} title={`${symptomsTarget.name}様 — 症状`}>
+        <Modal open={!!symptomsTarget} onClose={() => setSymptomsTarget(null)} title={t('dashboard.modal.symptomsTitle', { name: symptomsTarget.name })}>
           <p className="text-sm text-navy-700 whitespace-pre-wrap leading-relaxed">{symptomsTarget.symptoms}</p>
           {symptomsTarget.notes && (
             <div className="mt-4 pt-3 border-t border-cream-200">
-              <p className="text-[11px] text-navy-400 mb-1">伝達事項</p>
+              <p className="text-[11px] text-navy-400 mb-1">{t('dashboard.modal.notesLabel')}</p>
               <p className="text-sm text-navy-600 whitespace-pre-wrap">{symptomsTarget.notes}</p>
             </div>
           )}
@@ -451,9 +455,9 @@ export default function Dashboard() {
       {/* ステータス変更確認（確認済み） */}
       <ConfirmDialog
         open={!!confirmAction && confirmAction.status !== 'cancelled'}
-        title="ステータス変更"
-        message={`${confirmAction?.booking.name}様の予約を確認済みにしますか？`}
-        okLabel="確認済みにする"
+        title={t('dashboard.confirmDialog.statusChange')}
+        message={t('dashboard.confirmDialog.statusChangeMessage', { name: confirmAction?.booking.name })}
+        okLabel={t('dashboard.confirmDialog.okLabel')}
         variant="primary"
         onConfirm={handleStatusUpdate}
         onCancel={() => setConfirmAction(null)}
@@ -461,37 +465,37 @@ export default function Dashboard() {
 
       {/* キャンセル確認（理由必須） */}
       {confirmAction?.status === 'cancelled' && (
-        <Modal open onClose={() => { setConfirmAction(null); setCancelReason(''); setCancelReasonOther(''); }} title="予約キャンセル">
+        <Modal open onClose={() => { setConfirmAction(null); setCancelReason(''); setCancelReasonOther(''); }} title={t('dashboard.cancelModal.title')}>
           <p className="text-sm text-navy-500 mb-4">
-            {confirmAction.booking.name}様の予約をキャンセルします。<br />
-            患者にキャンセル通知メールが送信されます。
+            {t('dashboard.cancelModal.message', { name: confirmAction.booking.name })}<br />
+            {t('dashboard.cancelModal.notifyPatient')}
           </p>
-          <label className="block text-sm font-medium text-navy-600 mb-1">キャンセル理由（必須）</label>
+          <label className="block text-sm font-medium text-navy-600 mb-1">{t('dashboard.cancelModal.cancelReasonLabel')}</label>
           <select
             value={cancelReason}
-            onChange={e => { setCancelReason(e.target.value); if (e.target.value !== 'その他') setCancelReasonOther(''); }}
+            onChange={e => { setCancelReason(e.target.value); if (e.target.value !== t('dashboard.cancelModal.reason.other')) setCancelReasonOther(''); }}
             className="w-full rounded-lg border border-cream-300 bg-white px-3 py-2 text-sm text-navy-700 focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold mb-3"
           >
-            <option value="">選択してください</option>
-            <option value="医師都合による休診">医師都合による休診</option>
-            <option value="臨時休診">臨時休診</option>
-            <option value="患者様からの電話依頼">患者様からの電話依頼</option>
-            <option value="予約重複の整理">予約重複の整理</option>
-            <option value="その他">その他</option>
+            <option value="">{t('dashboard.cancelModal.cancelReasonPlaceholder')}</option>
+            <option value="医師都合による休診">{t('dashboard.cancelModal.reason.doctorUnavailable')}</option>
+            <option value="臨時休診">{t('dashboard.cancelModal.reason.temporaryClosure')}</option>
+            <option value="患者様からの電話依頼">{t('dashboard.cancelModal.reason.patientRequest')}</option>
+            <option value="予約重複の整理">{t('dashboard.cancelModal.reason.duplicateBooking')}</option>
+            <option value="その他">{t('dashboard.cancelModal.reason.other')}</option>
           </select>
           {cancelReason === 'その他' && (
             <input
               type="text"
               value={cancelReasonOther}
               onChange={e => setCancelReasonOther(e.target.value)}
-              placeholder="理由を入力してください"
+              placeholder={t('dashboard.cancelModal.otherReasonPlaceholder')}
               maxLength={200}
               className="w-full rounded-lg border border-cream-300 bg-white px-3 py-2 text-sm text-navy-700 focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold mb-3"
             />
           )}
           <div className="flex justify-end gap-3 mt-4">
             <Button variant="ghost" onClick={() => { setConfirmAction(null); setCancelReason(''); setCancelReasonOther(''); }}>
-              戻る
+              {t('dashboard.cancelModal.back')}
             </Button>
             <Button
               variant="danger"
@@ -499,7 +503,7 @@ export default function Dashboard() {
               disabled={!cancelReason || (cancelReason === 'その他' && !cancelReasonOther.trim())}
               onClick={handleStatusUpdate}
             >
-              キャンセルする
+              {t('dashboard.cancelModal.confirm')}
             </Button>
           </div>
         </Modal>

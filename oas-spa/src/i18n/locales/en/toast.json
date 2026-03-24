@@ -1,0 +1,19 @@
+{
+  "cancelReasonRequired": "Please select a cancellation reason",
+  "cancelSuccess": "Reservation cancelled (notification email sent to patient)",
+  "statusUpdated": "Status updated",
+  "updateFailed": "Failed to update",
+  "settingSaved": "Settings saved",
+  "saveFailed": "Failed to save",
+  "holidaysAdded": "{{count}} holidays added",
+  "termsVersionUpdated": "Version updated to {{version}}. All admins will be required to re-consent.",
+  "termsVersionUpdateFailed": "Failed to update version",
+  "userCreated": "User created",
+  "userCreateFailed": "Failed to create user",
+  "userDeleted": "User deleted",
+  "userDeleteFailed": "Failed to delete user",
+  "maxUsersReached": "Maximum {{max}} users allowed.",
+  "emailPasswordRequired": "Please enter email and password",
+  "invalidEmail": "Invalid email address format",
+  "passwordChanged": "Password changed successfully"
+}

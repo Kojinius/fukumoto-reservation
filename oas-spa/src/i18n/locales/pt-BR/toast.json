@@ -1,0 +1,19 @@
+{
+  "cancelReasonRequired": "Por favor, selecione um motivo de cancelamento",
+  "cancelSuccess": "Reserva cancelada (e-mail de notificação enviado ao paciente)",
+  "statusUpdated": "Status atualizado",
+  "updateFailed": "Falha ao atualizar",
+  "settingSaved": "Configurações salvas",
+  "saveFailed": "Falha ao salvar",
+  "holidaysAdded": "{{count}} feriados adicionados",
+  "termsVersionUpdated": "Versão atualizada para {{version}}. Todos os administradores precisarão reativar.",
+  "termsVersionUpdateFailed": "Falha ao atualizar versão",
+  "userCreated": "Usuário criado",
+  "userCreateFailed": "Falha ao criar",
+  "userDeleted": "Usuário excluído",
+  "userDeleteFailed": "Falha ao excluir",
+  "maxUsersReached": "Máximo de {{max}} usuários permitidos.",
+  "emailPasswordRequired": "Por favor, insira e-mail e senha",
+  "invalidEmail": "Formato de endereço de e-mail inválido",
+  "passwordChanged": "Senha alterada com sucesso"
+}

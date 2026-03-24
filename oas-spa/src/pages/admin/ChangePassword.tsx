@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
@@ -15,6 +16,9 @@ import { isStrongPassword } from '@/utils/validation';
  * - 通常アクセス: 任意のパスワード変更
  */
 export default function ChangePassword() {
+  const { t } = useTranslation('admin');
+  const { t: tToast } = useTranslation('toast');
+  const { t: tAuth } = useTranslation('auth');
   const { changePassword, clearMustChangePassword } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
@@ -34,23 +38,23 @@ export default function ChangePassword() {
 
     // バリデーション
     if (!currentPassword) {
-      setError('現在のパスワードを入力してください');
+      setError(t('changePassword.errors.currentPasswordRequired'));
       return;
     }
 
     const strength = isStrongPassword(newPassword);
     if (!strength.valid) {
-      setError(strength.reason!);
+      setError(tAuth(strength.reasonKey!));
       return;
     }
 
     if (newPassword === currentPassword) {
-      setError('新しいパスワードは現在のパスワードと異なるものを設定してください');
+      setError(t('changePassword.errors.newPasswordSameAsCurrent'));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError('新しいパスワードが一致しません');
+      setError(t('changePassword.errors.passwordMismatch'));
       return;
     }
 
@@ -64,20 +68,20 @@ export default function ChangePassword() {
         await clearMustChangePassword();
       }
 
-      showToast('パスワードを変更しました', 'success');
+      showToast(tToast('passwordChanged'), 'success');
       navigate('/admin', { replace: true });
     } catch (err: unknown) {
       const code = (err as { code?: string }).code;
       const friendly: Record<string, string> = {
-        'auth/wrong-password':     '現在のパスワードが正しくありません',
-        'auth/invalid-credential': '現在のパスワードが正しくありません',
-        'auth/too-many-requests':  '試行回数が多すぎます。しばらくお待ちください',
-        'auth/weak-password':      'パスワードが弱すぎます。より複雑なパスワードを設定してください',
+        'auth/wrong-password':     t('changePassword.errors.wrongPassword'),
+        'auth/invalid-credential': t('changePassword.errors.wrongPassword'),
+        'auth/too-many-requests':  t('changePassword.errors.tooManyRequests'),
+        'auth/weak-password':      t('changePassword.errors.weakPassword'),
       };
       setError(
         code && friendly[code]
           ? friendly[code]
-          : 'パスワードの変更に失敗しました',
+          : t('changePassword.errors.changeFailed'),
       );
     } finally {
       setLoading(false);
@@ -87,18 +91,18 @@ export default function ChangePassword() {
   return (
     <div className="space-y-6 animate-fade-in-up">
       <h2 className="text-xl font-heading font-semibold text-navy-700">
-        パスワード変更
+        {t('changePassword.title')}
       </h2>
 
       {isForced && (
         <Alert variant="warning">
-          セキュリティのため、初回ログイン時にパスワードの変更が必要です。変更が完了するまで他のページへ移動できません。
+          {t('changePassword.forcedAlert')}
         </Alert>
       )}
 
       <Card>
         <CardHeader>
-          <h3 className="text-sm font-medium text-navy-700">新しいパスワードを設定</h3>
+          <h3 className="text-sm font-medium text-navy-700">{t('changePassword.cardTitle')}</h3>
         </CardHeader>
         <CardBody>
           {error && (
@@ -107,7 +111,7 @@ export default function ChangePassword() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <PasswordInput
-              label="現在のパスワード"
+              label={t('changePassword.currentPassword')}
               value={currentPassword}
               onChange={e => setCurrentPassword(e.target.value)}
               autoComplete="current-password"
@@ -115,7 +119,7 @@ export default function ChangePassword() {
             />
 
             <PasswordInput
-              label="新しいパスワード"
+              label={t('changePassword.newPassword')}
               value={newPassword}
               onChange={e => setNewPassword(e.target.value)}
               autoComplete="new-password"
@@ -125,28 +129,28 @@ export default function ChangePassword() {
             {/* パスワード要件の説明 */}
             <ul className="text-xs text-navy-400 space-y-0.5 -mt-2 ml-1">
               <li className={newPassword.length >= 8 ? 'text-success' : ''}>
-                ・8文字以上
+                {t('changePassword.requirements.minLength')}
               </li>
               <li className={/[A-Z]/.test(newPassword) ? 'text-success' : ''}>
-                ・英大文字を含む
+                {t('changePassword.requirements.uppercase')}
               </li>
               <li className={/[a-z]/.test(newPassword) ? 'text-success' : ''}>
-                ・英小文字を含む
+                {t('changePassword.requirements.lowercase')}
               </li>
               <li className={/[0-9]/.test(newPassword) ? 'text-success' : ''}>
-                ・数字を含む
+                {t('changePassword.requirements.number')}
               </li>
               <li className={/[!@#$%^&*()_+\-=[\]{};':"|,.<>/?]/.test(newPassword) ? 'text-success' : ''}>
-                ・記号を含む
+                {t('changePassword.requirements.symbol')}
               </li>
             </ul>
 
             <PasswordInput
-              label="新しいパスワード（確認）"
+              label={t('changePassword.confirmPassword')}
               value={confirmPassword}
               onChange={e => setConfirmPassword(e.target.value)}
               autoComplete="new-password"
-              error={confirmPassword && newPassword !== confirmPassword ? 'パスワードが一致しません' : undefined}
+              error={confirmPassword && newPassword !== confirmPassword ? t('changePassword.passwordMismatch') : undefined}
               required
             />
 
@@ -155,7 +159,7 @@ export default function ChangePassword() {
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
                 </svg>
-                パスワードを変更
+                {t('changePassword.submitButton')}
               </Button>
               {!isForced && (
                 <Button
@@ -163,7 +167,7 @@ export default function ChangePassword() {
                   variant="ghost"
                   onClick={() => navigate('/admin')}
                 >
-                  キャンセル
+                  {t('changePassword.cancelButton')}
                 </Button>
               )}
             </div>

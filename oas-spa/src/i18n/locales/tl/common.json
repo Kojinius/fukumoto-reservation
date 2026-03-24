@@ -1,0 +1,43 @@
+{
+  "appName": "Online na Reserbasyon",
+  "onlineReservation": "Sistema ng Online na Reserbasyon",
+  "loading": "Naglo-load...",
+  "error": "May naganap na error",
+  "save": "I-save",
+  "cancel": "Kanselahin",
+  "close": "Isara",
+  "confirm": "Kumpirmahin",
+  "delete": "Tanggalin",
+  "edit": "I-edit",
+  "add": "Idagdag",
+  "back": "Bumalik",
+  "next": "Susunod",
+  "previous": "Nakaraan",
+  "submit": "Isumite",
+  "search": "Maghanap",
+  "filter": "Salain",
+  "ok": "OK",
+  "yes": "Oo",
+  "no": "Hindi",
+  "success": "Matagumpay",
+  "warning": "Babala",
+  "info": "Impormasyon",
+  "required": "Kinakailangan",
+  "optional": "Opsyonal",
+  "topPage": "Bumalik sa Simula",
+  "backToLogin": "Bumalik sa Login",
+  "phone": "Numero ng Telepono",
+  "urgentContact": "Para sa mga emergency, tumawag sa {{phone}}.",
+  "notFound": {
+    "title": "Hindi Nahanap ang Pahina",
+    "description": "Ang pahinang hinahanap mo ay wala o maaaring nalipat na."
+  },
+  "maintenance": {
+    "title": "Nasa Maintenance",
+    "message": "Kasalukuyang naka-maintenance ang sistema.",
+    "wait": "Mangyaring maghintay sandali.",
+    "checkButton": "I-refresh at Suriin",
+    "stillActive": "Nandoon pa rin ang maintenance."
+  },
+  "languageSettings": "Mga Setting ng Wika"
+}

@@ -1,6 +1,8 @@
 import { Outlet } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export function AuthLayout() {
+  const { t } = useTranslation('common');
   return (
     <div className="min-h-screen flex bg-canvas">
       {/* 左パネル — ネイビーグラデーション + 金の装飾（AMS風スプリットスクリーン） */}
@@ -21,7 +23,7 @@ export function AuthLayout() {
         {/* ブランドテキスト */}
         <div className="relative mt-8 text-center">
           <h2 className="text-xl font-heading font-semibold text-cream">
-            オンライン予約システム
+            {t('onlineReservation')}
           </h2>
           <p className="text-[11px] tracking-[0.25em] uppercase text-cream/40 font-display mt-2">
             ONLINE RESERVATION SYSTEM

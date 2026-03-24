@@ -1,0 +1,294 @@
+{
+  "layout": {
+    "adminPanel": "Painel Administrativo",
+    "reservationList": "Lista de Reservas",
+    "settings": "Configurações",
+    "logout": "Sair",
+    "lastLogin": "Último acesso: "
+  },
+  "dashboard": {
+    "kpi": {
+      "todayReservations": "Reservas Hoje",
+      "monthReservations": "Reservas do Mês",
+      "newPatients": "Novos Pacientes",
+      "pending": "Não Confirmados"
+    },
+    "filter": {
+      "all": "Todos",
+      "pending": "Não Confirmados",
+      "confirmed": "Confirmados",
+      "cancelled": "Cancelados",
+      "csvExport": "Exportar CSV",
+      "clearFilters": "Limpar"
+    },
+    "search": {
+      "name": "Nome",
+      "namePlaceholder": "Yamada Taro",
+      "zip": "CEP",
+      "zipPlaceholder": "123-4567",
+      "phone": "Telefone",
+      "phonePlaceholder": "090-1234-5678",
+      "reservationDate": "Data da Reserva",
+      "scheduledDate": "Data da Consulta"
+    },
+    "table": {
+      "scheduledDateTime": "Data/Hora da Consulta",
+      "name": "Nome",
+      "visitType": "1ª/Ret.",
+      "symptoms": "Sintomas",
+      "phone": "Telefone",
+      "reservationDate": "Data da Reserva",
+      "status": "Status"
+    },
+    "status": {
+      "pending": "Não Confirmado",
+      "confirmed": "Confirmado",
+      "cancelled": "Cancelado",
+      "cancelledByAdmin": "Administrador",
+      "cancelledByPatient": "Paciente"
+    },
+    "action": {
+      "detail": "Detalhes"
+    },
+    "emptyState": "Nenhuma reserva encontrada",
+    "modal": {
+      "reservationDetail": "Detalhes da Reserva",
+      "close": "Fechar",
+      "markConfirmed": "Marcar como Confirmado",
+      "cancel": "Cancelar",
+      "fields": {
+        "reservationId": "Nº da Reserva",
+        "scheduledDateTime": "Data/Hora da Consulta",
+        "name": "Nome",
+        "furigana": "Furigana",
+        "birthdate": "Data de Nascimento",
+        "ageUnit": " anos",
+        "zip": "CEP",
+        "address": "Endereço",
+        "phone": "Telefone",
+        "email": "E-mail",
+        "gender": "Gênero",
+        "genderUnset": "Não informado",
+        "visitType": "Tipo de Visita",
+        "insurance": "Cartão do Seguro",
+        "symptoms": "Sintomas",
+        "notes": "Observações",
+        "noNotes": "Nenhuma",
+        "contactMethod": "Método de Contato",
+        "reservationStatus": "Status",
+        "cancelledBy": "Cancelado por",
+        "cancelReason": "Motivo do Cancelamento",
+        "cancelledAt": "Data do Cancelamento",
+        "createdAt": "Data da Reserva"
+      },
+      "symptomsTitle": "Sintomas de {{name}}",
+      "notesLabel": "Observações"
+    },
+    "confirmDialog": {
+      "statusChange": "Alterar Status",
+      "statusChangeMessage": "Marcar a reserva de {{name}} como confirmada?",
+      "okLabel": "Marcar como Confirmado"
+    },
+    "cancelModal": {
+      "title": "Cancelar Reserva",
+      "message": "Cancelando a reserva de {{name}}.",
+      "notifyPatient": "Um e-mail de notificação de cancelamento será enviado ao paciente.",
+      "cancelReasonLabel": "Motivo do Cancelamento (obrigatório)",
+      "cancelReasonPlaceholder": "Selecione um motivo",
+      "reason": {
+        "doctorUnavailable": "Médico indisponível",
+        "temporaryClosure": "Fechamento temporário",
+        "patientRequest": "Solicitação do paciente por telefone",
+        "duplicateBooking": "Reserva duplicada",
+        "other": "Outro"
+      },
+      "otherReasonPlaceholder": "Digite o motivo",
+      "back": "Voltar",
+      "confirm": "Confirmar Cancelamento"
+    }
+  },
+  "settings": {
+    "title": "Configurações",
+    "save": "Salvar",
+    "tabs": {
+      "basicInfo": "Informações Básicas",
+      "businessDays": "Horário de Funcionamento",
+      "announcement": "Avisos",
+      "terms": "Termos de Uso",
+      "policy": "Política de Privacidade",
+      "accounts": "Contas"
+    },
+    "weekdays": ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
+    "basicInfo": {
+      "clinicName": "Nome da Clínica *",
+      "phone": "Telefone *",
+      "websiteUrl": "URL do Site",
+      "zip": "CEP",
+      "zipPrefix": "〒",
+      "zipPlaceholder": "123-4567",
+      "zipSearching": "Buscando…",
+      "zipFound": "✓ Endereço preenchido",
+      "zipNotFound": "Não encontrado",
+      "zipError": "Erro na busca",
+      "address": "Estado / Cidade / Rua *",
+      "addressSub": "Complemento / Número",
+      "mapLabel": "Mapa de Localização",
+      "mapTitle": "Localização da Clínica"
+    },
+    "businessDays": {
+      "holidays": "Feriados Configurados",
+      "daysUnit": " dias",
+      "calendarClickHint": "Clique no calendário para adicionar",
+      "fetchHolidays": "Importar Feriados Japoneses",
+      "clearHolidays": "Limpar",
+      "clickToRemove": "Clique para remover",
+      "clickToSetHoliday": "Clique para definir como feriado",
+      "weeklySchedule": "Agenda Semanal",
+      "openDays": "Aberto",
+      "closedDays": "Fechado",
+      "daysUnitJa": " dias",
+      "weekendClosed": "Fins de Semana → Fechado",
+      "weekendOpen": "Fins de Semana → Aberto",
+      "timeline": {
+        "bookingCutoff": "Prazo para Reserva e Cancelamento",
+        "bookingCutoffLabel": "Prazo para Reserva",
+        "cancelCutoffLabel": "Prazo para Cancelamento",
+        "before": "",
+        "minutesBefore": " min antes da consulta"
+      },
+      "dayStatus": {
+        "open": "Aberto",
+        "closed": "Fechado",
+        "openDay": "Dia de Atendimento",
+        "closedDay": "Dia sem Atendimento",
+        "morning": "Período da Manhã",
+        "afternoon": "Período da Tarde",
+        "timeRangeError": "Horário de início é posterior ao horário de término",
+        "timelineMorning": "Manhã",
+        "timelineAfternoon": "Tarde"
+      },
+      "confirmHoliday": {
+        "title": "Há Reservas Neste Dia",
+        "message": "{{date}} já possui {{count}} reserva(s). Definir como feriado mesmo assim?",
+        "okLabel": "Definir como Feriado"
+      }
+    },
+    "announcement": {
+      "bannerTitle": "Banner de Aviso",
+      "clear": "Limpar",
+      "active": "Visível",
+      "inactive": "Oculto",
+      "typeLabel": "Tipo",
+      "typeInfo": "Informação",
+      "typeWarning": "Aviso",
+      "typeMaintenance": "Manutenção",
+      "messageLabel": "Mensagem",
+      "startDateLabel": "Início da Exibição",
+      "endDateLabel": "Fim da Exibição",
+      "dateRangeError": "A data de início é posterior à data de término.",
+      "maintenanceTitle": "Modo de Manutenção",
+      "maintenanceWarning": "Durante a manutenção, somente administradores podem acessar o sistema",
+      "maintenanceStartLabel": "Início da Manutenção",
+      "maintenanceEndLabel": "Fim da Manutenção"
+    },
+    "terms": {
+      "title": "Termos de Uso",
+      "versionUpdated": "atualizado",
+      "termsTextLabel": "Texto dos Termos de Uso",
+      "termsTextPlaceholder": "Digite os termos que os administradores devem aceitar ao fazer login",
+      "termsHint": "Exibido no primeiro login ou após uma atualização de versão.",
+      "versionManagement": "Gerenciamento de Versões",
+      "versionWarning": "Atualizar a versão exigirá que todos os administradores reativem os termos e a política de privacidade no próximo login.",
+      "bumpVersionButton": "Atualizar Versão (v{{current}} → v{{next}})"
+    },
+    "policy": {
+      "autoFillAlert": "Alguns campos de política estão vazios. Gere automaticamente a partir das Informações Básicas.",
+      "autoGenerate": "Gerar Automaticamente",
+      "regenerateLink": "Regenerar a partir das Informações Básicas",
+      "regenerateConfirmTitle": "Regenerar Texto da Política",
+      "regenerateConfirmMessage": "Todo o texto da política será regenerado a partir das Informações Básicas. O conteúdo editado manualmente será sobrescrito.",
+      "regenerateOkLabel": "Regenerar",
+      "cancelLabel": "Cancelar",
+      "privacyPolicyTitle": "Política de Privacidade",
+      "privacyPolicyLabel": "Texto da Política de Privacidade",
+      "privacyPolicyHint": "Vinculado à caixa de seleção de consentimento no formulário de reserva.",
+      "sensitiveDataTitle": "Consentimento para Dados Sensíveis",
+      "sensitiveDataLabel": "Texto de Consentimento",
+      "sensitiveDataHint": "Exibido no campo de sintomas do formulário de reserva.",
+      "sensitiveDataPlaceholder": "As informações de saúde inseridas no campo \"Sintomas / Preocupações\" podem constituir informações pessoais sensíveis nos termos da lei de privacidade japonesa. Serão utilizadas apenas para coordenação de agendamento e preparação do tratamento, e nunca serão compartilhadas com terceiros sem o seu consentimento.",
+      "sensitiveDataCharCount": " {{count}}/500 caracteres",
+      "dataRetentionTitle": "Política de Retenção de Dados",
+      "dataRetentionLabel": "Período de Retenção",
+      "retentionUnlimited": "Indefinido",
+      "retention6months": "6 meses",
+      "retention1year": "1 ano",
+      "retention2years": "2 anos",
+      "retention3years": "3 anos (recomendado)",
+      "retention5years": "5 anos",
+      "usagePurposeLabel": "Finalidade do Uso de Dados Pessoais (APPI Art. 17)",
+      "usagePurposeHint": "Exibido na política de privacidade e no formulário de reserva.",
+      "retentionLegalNote": "Defina o período de retenção dentro do escopo necessário para atingir a finalidade de uso. Os dados vencidos serão notificados aos administradores para exclusão manual.",
+      "reminderEmailTitle": "E-mail de Lembrete",
+      "reminderEmailLabel": "Ativar função de e-mail de lembrete",
+      "reminderEmailHint": "Quando ativado, o formulário de reserva exibirá uma caixa de seleção de consentimento para e-mails de lembrete. Lembretes são enviados somente a pacientes que consentiram.",
+      "patientRightsTitle": "Direitos do Paciente (APPI Arts. 28–30)",
+      "patientRightsLabel": "Informações de Contato e Procedimentos",
+      "patientRightsHint": "Exibido na tela de conclusão da reserva e na política de privacidade."
+    },
+    "accounts": {
+      "createUserTitle": "Criar Novo Usuário",
+      "maxUsersWarning": "Máximo de {{max}} usuários permitidos.",
+      "emailLabel": "Endereço de E-mail",
+      "emailPlaceholder": "admin@example.com",
+      "passwordLabel": "Senha",
+      "passwordPlaceholder": "Mínimo 8 caracteres",
+      "passwordHint": "8–128 caracteres, com maiúscula, minúscula, número e símbolo",
+      "createButton": "Criar",
+      "userListTitle": "Lista de Usuários",
+      "noUsers": "Nenhum usuário encontrado",
+      "tableEmail": "E-mail",
+      "tableCreatedAt": "Criado em",
+      "tableActions": "Ações",
+      "deleteButton": "Excluir",
+      "deleteConfirmTitle": "Excluir Usuário",
+      "deleteConfirmMessage": "Excluir {{email}}?",
+      "deleteOkLabel": "Excluir"
+    },
+    "validation": {
+      "clinicNameRequired": "Nome da clínica é obrigatório",
+      "phoneRequired": "Telefone é obrigatório",
+      "announcementDateError": "Data de início do aviso é posterior à data de término",
+      "maintenanceDateError": "Data de início da manutenção é posterior à data de término",
+      "businessHoursError": "{{weekday}} {{session}} horário de início é posterior ao horário de término",
+      "amSession": "manhã",
+      "pmSession": "tarde"
+    }
+  },
+  "changePassword": {
+    "title": "Alterar Senha",
+    "forcedAlert": "Por razões de segurança, você deve alterar sua senha no primeiro login. Você não pode navegar para outras páginas até que isso seja concluído.",
+    "cardTitle": "Definir Nova Senha",
+    "currentPassword": "Senha Atual",
+    "newPassword": "Nova Senha",
+    "confirmPassword": "Confirmar Nova Senha",
+    "requirements": {
+      "minLength": "· Pelo menos 8 caracteres",
+      "uppercase": "· Contém letra maiúscula",
+      "lowercase": "· Contém letra minúscula",
+      "number": "· Contém número",
+      "symbol": "· Contém símbolo"
+    },
+    "passwordMismatch": "As senhas não coincidem",
+    "submitButton": "Alterar Senha",
+    "cancelButton": "Cancelar",
+    "errors": {
+      "currentPasswordRequired": "Por favor, insira sua senha atual",
+      "newPasswordSameAsCurrent": "A nova senha deve ser diferente da senha atual",
+      "passwordMismatch": "As novas senhas não coincidem",
+      "wrongPassword": "Senha atual incorreta",
+      "tooManyRequests": "Muitas tentativas. Por favor, aguarde um momento",
+      "weakPassword": "Senha muito fraca. Por favor, defina uma senha mais complexa",
+      "changeFailed": "Falha ao alterar a senha"
+    }
+  }
+}

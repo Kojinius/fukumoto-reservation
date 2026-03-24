@@ -1,0 +1,43 @@
+{
+  "appName": "Đặt lịch trực tuyến",
+  "onlineReservation": "Hệ thống đặt lịch trực tuyến",
+  "loading": "Đang tải...",
+  "error": "Đã xảy ra lỗi",
+  "save": "Lưu",
+  "cancel": "Hủy",
+  "close": "Đóng",
+  "confirm": "Xác nhận",
+  "delete": "Xóa",
+  "edit": "Chỉnh sửa",
+  "add": "Thêm",
+  "back": "Quay lại",
+  "next": "Tiếp theo",
+  "previous": "Trước",
+  "submit": "Gửi",
+  "search": "Tìm kiếm",
+  "filter": "Lọc",
+  "ok": "OK",
+  "yes": "Có",
+  "no": "Không",
+  "success": "Thành công",
+  "warning": "Cảnh báo",
+  "info": "Thông tin",
+  "required": "Bắt buộc",
+  "optional": "Tùy chọn",
+  "topPage": "Về trang chủ",
+  "backToLogin": "Quay lại đăng nhập",
+  "phone": "Số điện thoại",
+  "urgentContact": "Nếu khẩn cấp, vui lòng gọi {{phone}}.",
+  "notFound": {
+    "title": "Không tìm thấy trang",
+    "description": "Trang bạn tìm kiếm không tồn tại hoặc đã được chuyển đi."
+  },
+  "maintenance": {
+    "title": "Đang bảo trì",
+    "message": "Hệ thống đang được bảo trì.",
+    "wait": "Vui lòng chờ trong giây lát.",
+    "checkButton": "Làm mới & kiểm tra",
+    "stillActive": "Bảo trì vẫn đang diễn ra."
+  },
+  "languageSettings": "Cài đặt ngôn ngữ"
+}
