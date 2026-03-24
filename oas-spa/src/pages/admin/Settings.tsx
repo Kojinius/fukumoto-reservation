@@ -164,6 +164,16 @@ function BasicInfoTab({ form, update }: { form: Partial<ClinicSettings>; update:
           <Input label="キャンセル締切（分前）" type="number" min={0} value={form.cancelCutoffMinutes ?? 60} onChange={e => update({ cancelCutoffMinutes: Number(e.target.value) })} />
         </div>
         <Textarea label="プライバシーポリシー" value={form.privacyPolicy || ''} onChange={e => update({ privacyPolicy: e.target.value })} rows={6} />
+        <div>
+          <Textarea
+            label="要配慮個人情報の同意文言"
+            value={form.sensitiveDataConsentText || ''}
+            onChange={e => update({ sensitiveDataConsentText: e.target.value.slice(0, 500) })}
+            rows={3}
+            placeholder="空欄の場合はデフォルト文言が使用されます"
+          />
+          <p className="text-[11px] text-navy-400 mt-1">予約フォームの症状入力欄に表示されます。{form.sensitiveDataConsentText ? `${form.sensitiveDataConsentText.length}/500文字` : '空欄=デフォルト文言'}</p>
+        </div>
       </CardBody>
     </Card>
   );

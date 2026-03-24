@@ -11,6 +11,36 @@
 
 ---
 
+## 2026-03-24 Work Log
+
+### Completed Tasks
+
+#### [LEGAL-C1] Sensitive Personal Data Explicit Consent (APPI Article 20(2))
+
+- **Legal basis**: 個人情報保護法 第20条第2項 — explicit consent required before collecting sensitive personal data (health information)
+- **Implementation**: Full-stack consent flow for the "symptoms" field in the reservation form
+  - **PatientForm.tsx**: Consent block with configurable text + checkbox before symptoms textarea; symptoms field disabled until consent given; validation enforces consent
+  - **CF createReservation**: Server-side `hasSensitiveDataConsent === true` validation; rejects API requests without consent flag (prevents bypass)
+  - **Firestore Rules**: `isValidReservation` extended with `hasSensitiveDataConsent` boolean type check
+  - **Evidence storage**: Consent flag persisted in reservation documents for compliance audit trail
+  - **Settings.tsx**: Admin UI textarea for customizing consent text (500 char limit, falls back to default APPI-compliant text)
+- **Types updated**: `ClinicSettings.sensitiveDataConsentText`, `ReservationFormData.hasSensitiveDataConsent`, `ReservationRecord.hasSensitiveDataConsent`
+- **Textarea.tsx**: Added disabled state styling (opacity, bg, cursor)
+- **Code review**: Passed (5-agent review, no issues above 80 confidence threshold)
+- **PR**: #3
+
+#### OAS Emulator Seed Script + Dual-Project Slash Commands
+
+- **seed.js**: New OAS emulator test data script (`functions/seed.js`)
+  - 2 admin users (admin@oas-test.local / staff@oas-test.local) with Auth + custom claims + Firestore profiles
+  - 6 sample reservations (today 3, tomorrow 2, day after 1 cancelled) with slots
+  - Full clinic settings + audit log sample
+  - All reservations include `hasSensitiveDataConsent: true` for C1 compatibility
+- **`/emu-reset` command**: Updated to support `oas` argument (directory, seed script, Vite port auto-detection)
+- **`/emu-stop` command**: Updated to support `oas` / `all` arguments for multi-project port management
+
+---
+
 ## 2026-03-12 Work Log (2)
 
 ### Completed Tasks

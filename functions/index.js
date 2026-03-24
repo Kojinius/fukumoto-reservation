@@ -145,6 +145,13 @@ exports.createReservation = onRequest(
       return;
     }
 
+    // ── [C1] 要配慮個人情報の同意検証（個人情報保護法 第20条第2項） ──
+    // 症状フィールドが含まれる場合、明示的な同意フラグが必須
+    if (d.hasSensitiveDataConsent !== true) {
+      res.status(400).json({ error: "健康情報の取り扱いへの同意が必要です" });
+      return;
+    }
+
     // ── 型・長さバリデーション（Firestore Rules の isValidReservation と同等）──
     const checks = [
       [typeof d.name     === "string" && d.name.length     <= 50,  "name"],
@@ -218,6 +225,7 @@ exports.createReservation = onRequest(
           symptoms:      d.symptoms || "",
           notes:         d.notes || "",
           contactMethod: d.contactMethod || "",
+          hasSensitiveDataConsent: true,  // [C1] 同意証跡（サーバー検証済み）
           status:        "pending",
           createdAt:     new Date().toISOString(),
         });

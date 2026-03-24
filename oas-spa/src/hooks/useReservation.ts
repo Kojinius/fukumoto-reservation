@@ -37,6 +37,7 @@ export async function createReservation(
     symptoms: data.symptoms,
     notes: data.notes,
     contactMethod: data.contactMethod,
+    hasSensitiveDataConsent: data.hasSensitiveDataConsent,
   };
   const result = await callFunction<CreateResult>('createReservation', payload);
   return { bookingId: result.reservationId };

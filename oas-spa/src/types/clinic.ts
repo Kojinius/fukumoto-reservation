@@ -50,6 +50,8 @@ export interface ClinicSettings {
   maintenance: MaintenanceConfig;
   /** プライバシーポリシー */
   privacyPolicy: string;
+  /** 要配慮個人情報の同意文言（C1: 個人情報保護法 第20条第2項対応） */
+  sensitiveDataConsentText: string;
   /** メタデータ */
   updatedAt: string;
 }
