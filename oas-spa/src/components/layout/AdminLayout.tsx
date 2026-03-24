@@ -1,6 +1,7 @@
 import { Outlet, Navigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useClinic } from '@/hooks/useClinic';
+import { usePendingCount } from '@/hooks/useAdmin';
 import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
 import { ConsentModal } from '@/components/shared/ConsentModal';
@@ -9,6 +10,7 @@ export function AdminLayout() {
   const { user, isAdmin, loading, logout, profile, needsConsent, acceptConsent } = useAuth();
   const { clinic } = useClinic();
   const location = useLocation();
+  const pendingCount = usePendingCount();
 
   if (loading) return <Spinner overlay />;
   if (!user)    return <Navigate to="/login" replace />;
@@ -37,14 +39,19 @@ export function AdminLayout() {
             </Link>
             <nav className="hidden sm:flex items-center gap-1 ml-2">
               <Link
-                to="/admin"
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
+                to={pendingCount > 0 ? '/admin?filter=pending' : '/admin'}
+                className={`relative px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
                   location.pathname === '/admin'
                     ? 'bg-white/10 text-cream'
                     : 'text-cream/60 hover:text-cream hover:bg-white/5'
                 }`}
               >
                 予約一覧
+                {pendingCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-amber-500 text-white text-[10px] font-bold px-1 animate-pulse">
+                    {pendingCount > 99 ? '99+' : pendingCount}
+                  </span>
+                )}
               </Link>
               <Link
                 to="/admin/settings"
@@ -61,6 +68,18 @@ export function AdminLayout() {
           <div className="flex items-center gap-3">
             <span className="hidden sm:inline text-sm text-cream/50 font-mono">
               {profile?.displayName || user.email}
+              {profile?.lastLoginAt && (() => {
+                const raw = profile.lastLoginAt as unknown;
+                const ms = raw && typeof raw === 'object' && 'seconds' in (raw as Record<string,unknown>)
+                  ? (raw as { seconds: number }).seconds * 1000
+                  : typeof raw === 'string' ? new Date(raw).getTime() : 0;
+                if (!ms) return null;
+                return (
+                  <span className="ml-2 text-[11px] text-cream/30">
+                    最終: {new Date(ms).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                );
+              })()}
             </span>
             <Button
               variant="ghost"

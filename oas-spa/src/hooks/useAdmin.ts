@@ -1,9 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
-import { collection, onSnapshot, doc, writeBatch, addDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { auth } from '@/lib/firebase';
+import { collection, onSnapshot, doc, writeBatch, addDoc, query, where } from 'firebase/firestore';
+import { db, auth } from '@/lib/firebase';
 import { callFunction } from '@/lib/functions';
 import type { ReservationRecord, ReservationStatus } from '@/types/reservation';
+
+/** 未確認予約件数リアルタイムリスナー（ヘッダーバッジ用） */
+export function usePendingCount() {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    const q = query(collection(db, 'reservations'), where('status', '==', 'pending'));
+    return onSnapshot(q, snap => setCount(snap.size), () => {});
+  }, []);
+  return count;
+}
 
 /** 予約リアルタイムリスナー */
 export function useReservations() {
@@ -32,20 +41,25 @@ export function useReservations() {
   return { reservations, loading };
 }
 
-/** 予約ステータス更新 */
+/** 予約ステータス更新（キャンセルはCF経由で通知メール送信） */
 export async function updateReservationStatus(
   booking: ReservationRecord,
   newStatus: ReservationStatus,
+  cancelReason?: string,
 ): Promise<void> {
-  const batch = writeBatch(db);
-  batch.update(doc(db, 'reservations', booking.id), { status: newStatus });
-
-  // キャンセル時はスロットも更新
-  if (newStatus === 'cancelled' && booking.date && booking.time) {
-    const slotId = `${booking.date}_${booking.time.replace(':', '')}`;
-    batch.update(doc(db, 'slots', slotId), { status: 'cancelled' });
+  if (newStatus === 'cancelled') {
+    // CF経由: audit_log + 患者キャンセル通知メール + スロット開放
+    await callFunction('cancelReservation', {
+      reservationId: booking.id,
+      phone: booking.phone,
+      cancelReason: cancelReason || '',
+      cancelledBy: 'admin',
+    });
+    return;
   }
 
+  const batch = writeBatch(db);
+  batch.update(doc(db, 'reservations', booking.id), { status: newStatus });
   await batch.commit();
 }
 
@@ -104,6 +118,8 @@ export async function deleteAdminUser(uid: string): Promise<void> {
 }
 
 /** CSV エクスポート（監査ログ付き） */
+const STATUS_JA: Record<string, string> = { pending: '未確認', confirmed: '確認済み', cancelled: 'キャンセル' };
+
 export function exportReservationsCsv(reservations: ReservationRecord[]): void {
   const headers = ['予約番号', '予約日', '予約時間', '氏名', 'ふりがな', '生年月日', '住所', '電話番号', 'メール', '性別', '初診/再診', '保険証', '症状', '伝達事項', '連絡方法', 'ステータス', '登録日時'];
 
@@ -113,7 +129,7 @@ export function exportReservationsCsv(reservations: ReservationRecord[]): void {
     r.id, r.date, r.time, r.name, r.furigana, r.birthdate,
     r.address, r.phone, r.email, r.gender,
     r.visitType, r.insurance, r.symptoms, r.notes,
-    r.contactMethod, r.status, r.createdAt,
+    r.contactMethod, STATUS_JA[r.status] || r.status, r.createdAt,
   ].map(escape).join(','));
 
   const csv = '\uFEFF' + [headers.join(','), ...rows].join('\r\n');

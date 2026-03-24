@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useClinic } from '@/hooks/useClinic';
 import { useToast } from '@/hooks/useToast';
 import { callFunction } from '@/lib/functions';
@@ -12,6 +12,9 @@ import { toHankaku } from '@/utils/security';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 import type { ReservationRecord } from '@/types/reservation';
 
+/** 患者キャンセル理由の選択肢（健康関連を除外 — 要配慮個人情報に該当し得るため） */
+const CANCEL_REASONS = ['都合がつかなくなった', '日程を変更したい', 'その他'] as const;
+
 type Phase = 'search' | 'detail' | 'done';
 
 export default function Cancel() {
@@ -19,7 +22,9 @@ export default function Cancel() {
   const { showToast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
-  const passedBookingId = (location.state as { bookingId?: string } | null)?.bookingId ?? '';
+  const [searchParams] = useSearchParams();
+  // メール内リンク ?id=XXX または Complete画面からの state 経由
+  const passedBookingId = searchParams.get('id') || (location.state as { bookingId?: string } | null)?.bookingId || '';
   const [phase, setPhase] = useState<Phase>('search');
   const [reservationId, setReservationId] = useState(passedBookingId);
   const [phone, setPhone] = useState('');
@@ -28,6 +33,8 @@ export default function Cancel() {
   const [error, setError] = useState('');
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [cancelReasonOther, setCancelReasonOther] = useState('');
 
   /** キャンセル可能期限 */
   const cutoffMinutes = clinic?.cancelCutoffMinutes ?? 60;
@@ -77,6 +84,8 @@ export default function Cancel() {
       await callFunction('cancelReservation', {
         reservationId: reservationId.trim(),
         phone: toHankaku(phone.trim()),
+        cancelReason: cancelReason === 'その他' ? (cancelReasonOther || 'その他') : (cancelReason || ''),
+        cancelledBy: 'patient',
       });
       setPhase('done');
     } catch (err: unknown) {
@@ -200,12 +209,34 @@ export default function Cancel() {
                 キャンセル受付期限: {deadline} まで
               </span>
             </Alert>
-            <Button variant="danger" className="w-full" onClick={() => setConfirmOpen(true)} loading={cancelling}>
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-              この予約をキャンセルする
-            </Button>
+            <Card>
+              <CardBody className="space-y-3">
+                <label className="block text-sm font-medium text-navy-600">キャンセル理由（任意）</label>
+                <select
+                  value={cancelReason}
+                  onChange={e => { setCancelReason(e.target.value); if (e.target.value !== 'その他') setCancelReasonOther(''); }}
+                  className="w-full rounded-lg border border-cream-300 bg-white px-3 py-2 text-sm text-navy-700 focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold"
+                >
+                  <option value="">選択しない</option>
+                  {CANCEL_REASONS.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+                {cancelReason === 'その他' && (
+                  <input
+                    type="text"
+                    value={cancelReasonOther}
+                    onChange={e => setCancelReasonOther(e.target.value)}
+                    placeholder="理由を入力してください"
+                    className="w-full rounded-lg border border-cream-300 bg-white px-3 py-2 text-sm text-navy-700 focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold"
+                  />
+                )}
+                <Button variant="danger" className="w-full" onClick={() => setConfirmOpen(true)} loading={cancelling}>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  この予約をキャンセルする
+                </Button>
+              </CardBody>
+            </Card>
           </>
         )}
 

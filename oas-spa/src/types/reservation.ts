@@ -38,6 +38,10 @@ export interface ReservationRecord {
   hasSensitiveDataConsent: boolean;
   /** [H2] リマインダーメール配信同意 */
   reminderEmailConsent: boolean;
+  /** キャンセル情報 */
+  cancelledBy?: 'admin' | 'patient';
+  cancelReason?: string;
+  cancelledAt?: string;
   /** メタデータ */
   createdAt: string;
 }

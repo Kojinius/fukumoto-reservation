@@ -779,8 +779,73 @@ function TermsTab({ form, update }: { form: Partial<ClinicSettings>; update: (p:
 
 /* ── ポリシータブ（PP + 要配慮個人情報同意文言） ── */
 function PolicyTab({ form, update }: { form: Partial<ClinicSettings>; update: (p: Partial<ClinicSettings>) => void }) {
+  const name = form.clinicName || '〇〇クリニック';
+  const phone = form.phone || '000-0000-0000';
+
+  const [confirmRegenerate, setConfirmRegenerate] = useState(false);
+
+  /** テンプレートテキストを生成 */
+  function generateTexts() {
+    return {
+      privacyPolicy: `プライバシーポリシー\n\n${name}（以下「当院」）は、患者様の個人情報の保護に努め、個人情報の保護に関する法律（個人情報保護法）を遵守いたします。\n\n【収集する情報】\nお名前、ふりがな、生年月日、住所、電話番号、メールアドレス、症状・お悩み（要配慮個人情報）、保険証情報\n\n【利用目的】\n1. 予約の受付・確認・変更・キャンセル処理\n2. 診療準備のための症状・お悩みの事前把握\n3. 予約確認・リマインダー等のご連絡\n4. 再来院時の前回情報参照\n5. サービス改善のための匿名化統計分析\n\n【第三者提供】\nご本人の同意なく、個人情報を第三者に提供することはありません。ただし、法令に基づく場合を除きます。\n\n【要配慮個人情報の取り扱い】\n症状・お悩み等の健康に関する情報は「要配慮個人情報」として、ご本人の明示的な同意を得た上で取得・利用いたします。\n\n【データの保存期間】\nお預かりした個人情報は、利用目的の達成後、当院が定める保存期間を経て安全に削除いたします。\n\n【開示・訂正・利用停止】\nご自身の個人情報の開示・訂正・利用停止をご希望の場合は、下記の窓口までご連絡ください。本人確認の上、法令に基づき対応いたします。\n\n【お問い合わせ窓口】\n${name} 個人情報相談窓口\n電話: ${phone}`,
+      sensitiveDataConsentText: `「症状・お悩み」欄に入力される健康に関する情報は、個人情報保護法上の「要配慮個人情報」に該当する可能性があります。${name}の予約対応・施術準備の目的でのみ使用し、ご本人の同意なく第三者に提供することはありません。`,
+      dataRetentionPurpose: `${name}は、ご予約時にご提供いただく個人情報を、以下の目的で利用いたします。\n\n1. 予約の受付・確認・変更・キャンセル処理\n2. 診療準備のための症状・お悩みの事前把握\n3. 予約確認・リマインダー等のご連絡\n4. 再来院時の前回情報参照\n5. サービス改善のための匿名化統計分析\n\n上記目的の達成後、所定の保存期間を経て安全に削除いたします。`,
+      patientRightsContact: `個人情報の開示・訂正・利用停止をご希望の場合は、下記までご連絡ください。\n\n窓口: ${name} 個人情報相談窓口\n電話: ${phone}\n\n本人確認の上、法令に基づき対応いたします。`,
+    };
+  }
+
+  /** 未入力フィールドのみ自動生成 */
+  function autoFillDefaults() {
+    const texts = generateTexts();
+    const patch: Partial<ClinicSettings> = {};
+    if (!form.privacyPolicy?.trim()) patch.privacyPolicy = texts.privacyPolicy;
+    if (!form.sensitiveDataConsentText?.trim()) patch.sensitiveDataConsentText = texts.sensitiveDataConsentText;
+    if (!form.dataRetentionPurpose?.trim()) patch.dataRetentionPurpose = texts.dataRetentionPurpose;
+    if (!form.patientRightsContact?.trim()) patch.patientRightsContact = texts.patientRightsContact;
+    if (Object.keys(patch).length > 0) update(patch);
+  }
+
+  /** 全フィールドを上書き再生成 */
+  function regenerateAll() {
+    update(generateTexts());
+    setConfirmRegenerate(false);
+  }
+
+  const hasEmpty = !form.privacyPolicy?.trim() || !form.sensitiveDataConsentText?.trim() || !form.dataRetentionPurpose?.trim() || !form.patientRightsContact?.trim();
+
   return (
     <div className="space-y-4">
+      {hasEmpty ? (
+        <Alert variant="info">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-sm">未入力のポリシー項目があります。基本情報（院名・電話番号）から自動生成できます。</span>
+            <Button size="sm" variant="secondary" onClick={autoFillDefaults} className="shrink-0">
+              自動生成
+            </Button>
+          </div>
+        </Alert>
+      ) : (
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={() => setConfirmRegenerate(true)}
+            className="text-xs text-navy-400 hover:text-navy-600 underline underline-offset-2 transition-colors"
+          >
+            基本情報から再生成
+          </button>
+        </div>
+      )}
+
+      <ConfirmDialog
+        open={confirmRegenerate}
+        title="ポリシーテキストを再生成"
+        message="すべてのポリシーテキストを基本情報（院名・電話番号）から再生成します。手動で編集した内容は上書きされます。"
+        okLabel="再生成する"
+        cancelLabel="キャンセル"
+        onConfirm={regenerateAll}
+        onCancel={() => setConfirmRegenerate(false)}
+      />
+
       <Card>
         <CardHeader>
           <h3 className="text-sm font-medium text-navy-700">プライバシーポリシー</h3>
@@ -790,11 +855,11 @@ function PolicyTab({ form, update }: { form: Partial<ClinicSettings>; update: (p
             label="プライバシーポリシーテキスト"
             value={form.privacyPolicy || ''}
             onChange={e => update({ privacyPolicy: e.target.value })}
-            rows={8}
-            placeholder="患者に表示するプライバシーポリシーを入力してください"
+            rows={12}
+            placeholder={'プライバシーポリシー\n\n〇〇クリニック（以下「当院」）は、患者様の個人情報の保護に努め、個人情報の保護に関する法律（個人情報保護法）を遵守いたします。\n\n【収集する情報】\nお名前、ふりがな、生年月日、住所、電話番号、メールアドレス、症状・お悩み（要配慮個人情報）、保険証情報\n\n【利用目的】\n1. 予約の受付・確認・変更・キャンセル処理\n2. 診療準備のための症状・お悩みの事前把握\n3. 予約確認・リマインダー等のご連絡\n4. 再来院時の前回情報参照\n5. サービス改善のための匿名化統計分析\n\n【第三者提供】\nご本人の同意なく、個人情報を第三者に提供することはありません。ただし、法令に基づく場合を除きます。\n\n【要配慮個人情報の取り扱い】\n症状・お悩み等の健康に関する情報は「要配慮個人情報」として、ご本人の明示的な同意を得た上で取得・利用いたします。\n\n【データの保存期間】\nお預かりした個人情報は、利用目的の達成後、当院が定める保存期間を経て安全に削除いたします。\n\n【開示・訂正・利用停止】\nご自身の個人情報の開示・訂正・利用停止をご希望の場合は、下記の窓口までご連絡ください。本人確認の上、法令に基づき対応いたします。\n\n【お問い合わせ窓口】\n〇〇クリニック 個人情報相談窓口\n電話: 000-0000-0000\nメール: privacy@example.com'}
           />
           <p className="text-[11px] text-navy-400">
-            予約フォームの個人情報同意チェックボックスからリンクされます。
+            予約フォームの個人情報同意チェックボックスからリンクされます。空欄の場合はプレースホルダーの内容が使用されます。
           </p>
         </CardBody>
       </Card>
@@ -844,7 +909,7 @@ function PolicyTab({ form, update }: { form: Partial<ClinicSettings>; update: (p
             value={form.dataRetentionPurpose || ''}
             onChange={e => update({ dataRetentionPurpose: e.target.value })}
             rows={5}
-            placeholder={'当院は、ご予約時にご提供いただく個人情報を、以下の目的で利用いたします。\n\n1. 予約の受付・確認・変更・キャンセル処理\n2. 診療準備のための症状・お悩みの事前把握\n3. 予約確認・リマインダー等のご連絡\n4. 再来院時の前回情報参照\n\n上記目的の達成後、所定の保存期間を経て安全に削除いたします。'}
+            placeholder={'当院は、ご予約時にご提供いただく個人情報を、以下の目的で利用いたします。\n\n1. 予約の受付・確認・変更・キャンセル処理\n2. 診療準備のための症状・お悩みの事前把握\n3. 予約確認・リマインダー等のご連絡\n4. 再来院時の前回情報参照\n5. サービス改善のための匿名化統計分析\n\n上記目的の達成後、所定の保存期間を経て安全に削除いたします。'}
           />
           <p className="text-[11px] text-navy-400">
             プライバシーポリシーおよび予約フォームに表示されます。空欄の場合はプレースホルダーの内容が使用されます。

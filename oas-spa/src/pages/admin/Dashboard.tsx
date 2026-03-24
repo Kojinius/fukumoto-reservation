@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useReservations, useKpis, updateReservationStatus, exportReservationsCsv } from '@/hooks/useAdmin';
 import { useToast } from '@/hooks/useToast';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -9,6 +10,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
+import { SortableHeader, toggleSortKey, multiSort, type SortKey } from '@/components/shared/SortableHeader';
 import { formatDateTimeJa, calcAge } from '@/utils/date';
 import { cn } from '@/utils/cn';
 import type { ReservationRecord, ReservationStatus } from '@/types/reservation';
@@ -28,10 +30,24 @@ const KPI_ICONS = [
 
 type KpiFilter = 'today' | 'month' | 'new' | 'pending' | null;
 
+/** ソート用の値取得 */
+function getReservationValue(r: ReservationRecord, col: string): string | number {
+  switch (col) {
+    case 'datetime':   return `${r.date} ${r.time}`;
+    case 'name':       return r.furigana || r.name;
+    case 'visitType':  return r.visitType || '';
+    case 'phone':      return r.phone;
+    case 'createdAt':  return r.createdAt || '';
+    case 'status':     return r.status;
+    default:           return '';
+  }
+}
+
 export default function Dashboard() {
   const { reservations, loading } = useReservations();
   const kpis = useKpis(reservations);
   const { showToast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // フィルター
   const [statusFilter, setStatusFilter] = useState<ReservationStatus | 'all'>('all');
@@ -42,6 +58,16 @@ export default function Dashboard() {
   const [createdAtFilter, setCreatedAtFilter] = useState('');
   const [kpiFilter, setKpiFilter] = useState<KpiFilter>(null);
 
+  // URLパラメータ ?filter=pending 経由のフィルター適用（バッジクリック対応）
+  useEffect(() => {
+    const f = searchParams.get('filter') as ReservationStatus | null;
+    if (f) {
+      setStatusFilter(f);
+      setKpiFilter(f as KpiFilter);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
   // 詳細モーダル
   const [selected, setSelected] = useState<ReservationRecord | null>(null);
   // 症状モーダル
@@ -50,6 +76,12 @@ export default function Dashboard() {
   // ステータス変更確認
   const [confirmAction, setConfirmAction] = useState<{ booking: ReservationRecord; status: ReservationStatus } | null>(null);
   const [updating, setUpdating] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [cancelReasonOther, setCancelReasonOther] = useState('');
+
+  // ソート
+  const [sortKeys, setSortKeys] = useState<SortKey[]>([{ col: 'datetime', dir: 'desc' }]);
+  function handleSort(key: string) { setSortKeys(prev => toggleSortKey(prev, key)); }
 
   const todayStr = useMemo(() => {
     const d = new Date();
@@ -113,6 +145,8 @@ export default function Dashboard() {
     return list;
   }, [reservations, statusFilter, dateFilter, search, phoneSearch, zipSearch, createdAtFilter, kpiFilter, todayStr, monthPrefix]);
 
+  const sorted = useMemo(() => multiSort(filtered, sortKeys, getReservationValue), [filtered, sortKeys]);
+
   /** 通常フィルター操作時はKPIフィルターをクリア */
   function setStatusFilterAndClearKpi(s: ReservationStatus | 'all') {
     setKpiFilter(null);
@@ -134,16 +168,26 @@ export default function Dashboard() {
   /** ステータス更新 */
   async function handleStatusUpdate() {
     if (!confirmAction) return;
+    const isCancelling = confirmAction.status === 'cancelled';
+    const reason = isCancelling
+      ? (cancelReason === 'その他' ? cancelReasonOther.trim() : cancelReason)
+      : undefined;
+    if (isCancelling && !reason) {
+      showToast('キャンセル理由を選択してください', 'error');
+      return;
+    }
     setUpdating(true);
     try {
-      await updateReservationStatus(confirmAction.booking, confirmAction.status);
-      showToast('ステータスを更新しました', 'success');
+      await updateReservationStatus(confirmAction.booking, confirmAction.status, reason);
+      showToast(isCancelling ? 'キャンセルしました（患者に通知メール送信済み）' : 'ステータスを更新しました', 'success');
       setSelected(null);
     } catch {
       showToast('更新に失敗しました', 'error');
     } finally {
       setUpdating(false);
       setConfirmAction(null);
+      setCancelReason('');
+      setCancelReasonOther('');
     }
   }
 
@@ -198,7 +242,7 @@ export default function Dashboard() {
                 </Button>
               ))}
             </div>
-            <Button size="sm" variant="secondary" onClick={() => exportReservationsCsv(filtered)}>
+            <Button size="sm" variant="secondary" onClick={() => exportReservationsCsv(sorted)}>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
               </svg>
@@ -249,7 +293,7 @@ export default function Dashboard() {
       {/* 予約テーブル */}
       <Card>
         <div className="overflow-x-auto">
-          {filtered.length === 0 ? (
+          {sorted.length === 0 ? (
             <EmptyState
               icon={
                 <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -263,13 +307,18 @@ export default function Dashboard() {
             <table className="w-full text-sm border-separate border-spacing-0">
               <thead>
                 <tr className="border-b border-cream-200">
-                  {['診察予定日時', '氏名', '初/再', '症状', '電話', '予約受付日', 'ステータス', ''].map(h => (
-                    <th key={h} className="px-3 py-3 text-[11px] font-medium text-navy-400 whitespace-nowrap tracking-wider uppercase text-left bg-cream-100/50 first:rounded-tl-lg last:rounded-tr-lg">{h}</th>
-                  ))}
+                  <SortableHeader label="診察予定日時" sortKey="datetime" sortKeys={sortKeys} onSort={handleSort} />
+                  <SortableHeader label="氏名" sortKey="name" sortKeys={sortKeys} onSort={handleSort} />
+                  <SortableHeader label="初/再" sortKey="visitType" sortKeys={sortKeys} onSort={handleSort} />
+                  <th className="px-3 py-3 text-[11px] font-medium text-navy-400 whitespace-nowrap tracking-wider uppercase text-left bg-cream-100/50">症状</th>
+                  <SortableHeader label="電話" sortKey="phone" sortKeys={sortKeys} onSort={handleSort} />
+                  <SortableHeader label="予約受付日" sortKey="createdAt" sortKeys={sortKeys} onSort={handleSort} />
+                  <SortableHeader label="ステータス" sortKey="status" sortKeys={sortKeys} onSort={handleSort} />
+                  <th className="px-3 py-3 text-[11px] font-medium text-navy-400 whitespace-nowrap tracking-wider uppercase text-left bg-cream-100/50 last:rounded-tr-lg" />
                 </tr>
               </thead>
               <tbody>
-                {filtered.map(r => (
+                {sorted.map(r => (
                   <tr key={r.id} className="border-b border-cream-100 hover:bg-cream-100/60 transition-colors">
                     <td className="px-3 py-3 whitespace-nowrap font-mono text-navy-700 text-xs">
                       {formatDateTimeJa(r.date, r.time)}
@@ -303,6 +352,11 @@ export default function Dashboard() {
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap">
                       <Badge className={STATUS_BADGE[r.status].cls}>{STATUS_BADGE[r.status].label}</Badge>
+                      {r.status === 'cancelled' && r.cancelledBy && (
+                        <span className="ml-1 text-[10px] text-navy-400">
+                          ({r.cancelledBy === 'admin' ? '管理者' : '患者'})
+                        </span>
+                      )}
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap">
                       <Button size="sm" variant="ghost" onClick={() => setSelected(r)}>
@@ -324,33 +378,40 @@ export default function Dashboard() {
       {/* 詳細モーダル */}
       {selected && (
         <Modal open={!!selected} onClose={() => setSelected(null)} title="予約詳細" className="max-w-lg">
-          <dl className="space-y-1 text-sm mb-6">
-            {[
-              ['予約番号', selected.id],
-              ['診察予定日時', formatDateTimeJa(selected.date, selected.time)],
-              ['氏名', selected.name],
-              ['ふりがな', selected.furigana],
-              ['生年月日', selected.birthdate + (calcAge(selected.birthdate) !== null ? `（${calcAge(selected.birthdate)}歳）` : '')],
-              ['郵便番号', selected.zip || '-'],
-              ['住所', selected.address],
-              ['電話番号', selected.phone],
-              ['メール', selected.email || '-'],
-              ['性別', selected.gender || '未入力'],
-              ['初診/再診', selected.visitType || '-'],
-              ['保険証', selected.insurance || '-'],
-              ['症状', selected.symptoms],
-              ['伝達事項', selected.notes || 'なし'],
-              ['連絡方法', selected.contactMethod || '-'],
-              ['ステータス', STATUS_BADGE[selected.status].label],
-              ['予約受付日', selected.createdAt ? new Date(selected.createdAt).toLocaleString('ja-JP') : '-'],
-            ].map(([label, val]) => (
-              <div key={label} className="flex border-b border-cream-200/80 py-2">
-                <dt className="w-24 shrink-0 text-navy-400">{label}</dt>
-                <dd className="text-navy-700 whitespace-pre-wrap break-all">{val}</dd>
-              </div>
-            ))}
-          </dl>
-          <div className="flex gap-2 justify-end">
+          <div className="overflow-y-auto -mx-5 px-5" style={{ maxHeight: 'calc(85vh - 10rem)' }}>
+            <dl className="space-y-1 text-sm">
+              {[
+                ['予約番号', selected.id],
+                ['診察予定日時', formatDateTimeJa(selected.date, selected.time)],
+                ['氏名', selected.name],
+                ['ふりがな', selected.furigana],
+                ['生年月日', selected.birthdate + (calcAge(selected.birthdate) !== null ? `（${calcAge(selected.birthdate)}歳）` : '')],
+                ['郵便番号', selected.zip || '-'],
+                ['住所', selected.address],
+                ['電話番号', selected.phone],
+                ['メール', selected.email || '-'],
+                ['性別', selected.gender || '未入力'],
+                ['初診/再診', selected.visitType || '-'],
+                ['保険証', selected.insurance || '-'],
+                ['症状', selected.symptoms],
+                ['伝達事項', selected.notes || 'なし'],
+                ['連絡方法', selected.contactMethod || '-'],
+                ['ステータス', STATUS_BADGE[selected.status].label],
+                ...(selected.status === 'cancelled' ? [
+                  ['キャンセル元', selected.cancelledBy === 'admin' ? '管理者' : selected.cancelledBy === 'patient' ? '患者' : '-'],
+                  ['キャンセル理由', selected.cancelReason || '-'],
+                  ['キャンセル日時', selected.cancelledAt ? new Date(selected.cancelledAt).toLocaleString('ja-JP') : '-'],
+                ] : []),
+                ['予約受付日', selected.createdAt ? new Date(selected.createdAt).toLocaleString('ja-JP') : '-'],
+              ].map(([label, val]) => (
+                <div key={label} className="flex border-b border-cream-200/80 py-2">
+                  <dt className="w-24 shrink-0 text-navy-400">{label}</dt>
+                  <dd className="text-navy-700 whitespace-pre-wrap break-all">{val}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+          <div className="flex gap-2 justify-end pt-4 border-t border-cream-200/60 mt-4 shrink-0">
             <Button variant="ghost" size="sm" onClick={() => setSelected(null)}>
               閉じる
             </Button>
@@ -387,18 +448,62 @@ export default function Dashboard() {
         </Modal>
       )}
 
-      {/* ステータス変更確認 */}
+      {/* ステータス変更確認（確認済み） */}
       <ConfirmDialog
-        open={!!confirmAction}
+        open={!!confirmAction && confirmAction.status !== 'cancelled'}
         title="ステータス変更"
-        message={confirmAction?.status === 'cancelled'
-          ? `${confirmAction.booking.name}様の予約をキャンセルしますか？`
-          : `${confirmAction?.booking.name}様の予約を確認済みにしますか？`}
-        okLabel={confirmAction?.status === 'cancelled' ? 'キャンセルする' : '確認済みにする'}
-        variant={confirmAction?.status === 'cancelled' ? 'danger' : 'primary'}
+        message={`${confirmAction?.booking.name}様の予約を確認済みにしますか？`}
+        okLabel="確認済みにする"
+        variant="primary"
         onConfirm={handleStatusUpdate}
         onCancel={() => setConfirmAction(null)}
       />
+
+      {/* キャンセル確認（理由必須） */}
+      {confirmAction?.status === 'cancelled' && (
+        <Modal open onClose={() => { setConfirmAction(null); setCancelReason(''); setCancelReasonOther(''); }} title="予約キャンセル">
+          <p className="text-sm text-navy-500 mb-4">
+            {confirmAction.booking.name}様の予約をキャンセルします。<br />
+            患者にキャンセル通知メールが送信されます。
+          </p>
+          <label className="block text-sm font-medium text-navy-600 mb-1">キャンセル理由（必須）</label>
+          <select
+            value={cancelReason}
+            onChange={e => { setCancelReason(e.target.value); if (e.target.value !== 'その他') setCancelReasonOther(''); }}
+            className="w-full rounded-lg border border-cream-300 bg-white px-3 py-2 text-sm text-navy-700 focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold mb-3"
+          >
+            <option value="">選択してください</option>
+            <option value="医師都合による休診">医師都合による休診</option>
+            <option value="臨時休診">臨時休診</option>
+            <option value="患者様からの電話依頼">患者様からの電話依頼</option>
+            <option value="予約重複の整理">予約重複の整理</option>
+            <option value="その他">その他</option>
+          </select>
+          {cancelReason === 'その他' && (
+            <input
+              type="text"
+              value={cancelReasonOther}
+              onChange={e => setCancelReasonOther(e.target.value)}
+              placeholder="理由を入力してください"
+              maxLength={200}
+              className="w-full rounded-lg border border-cream-300 bg-white px-3 py-2 text-sm text-navy-700 focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold mb-3"
+            />
+          )}
+          <div className="flex justify-end gap-3 mt-4">
+            <Button variant="ghost" onClick={() => { setConfirmAction(null); setCancelReason(''); setCancelReasonOther(''); }}>
+              戻る
+            </Button>
+            <Button
+              variant="danger"
+              loading={updating}
+              disabled={!cancelReason || (cancelReason === 'その他' && !cancelReasonOther.trim())}
+              onClick={handleStatusUpdate}
+            >
+              キャンセルする
+            </Button>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
