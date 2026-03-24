@@ -23,7 +23,7 @@ export function AdminLayout() {
     <div className="min-h-screen flex flex-col bg-canvas">
       {/* 管理者ヘッダー — ダークネイビーで患者側と差別化 */}
       <header className="admin-header sticky top-0 z-40">
-        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link to="/admin" className="flex items-center gap-2.5 group">
               <span className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center transition-colors group-hover:bg-white/15">
@@ -77,7 +77,7 @@ export function AdminLayout() {
         </div>
       </header>
 
-      <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-6">
+      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-6">
         <Outlet />
       </main>
 
