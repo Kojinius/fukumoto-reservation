@@ -20,6 +20,13 @@
 | ✅ | OAS-DOC-T02 | ユーザーマニュアル v2 | P1 |
 | ✅ | OAS-DOC-T03 | スクリーンショットスクリプト SPA対応 | P2 |
 | ✅ | OAS-PW-T01 | PasswordInput コンポーネント（表示/非表示トグル） | P2 |
+| ✅ | LEGAL-C1 | 要配慮個人情報の明示的同意（APPI 第20条第2項） | P0 |
+| ⬜ | LEGAL-C2 | 管理者利用規約＆PP同意モーダル | P1 |
+| ⬜ | LEGAL-H1 | データ保存期間ポリシー設定 | P2 |
+| ⬜ | LEGAL-H2 | リマインダーメール配信同意 | P2 |
+| ⬜ | LEGAL-H3 | 患者権利行使機能（開示・訂正・利用停止） | P2 |
+| ⬜ | LEGAL-M1 | 利用規約タブ（Settings画面） | P3 |
+| ⬜ | LEGAL-M2 | PPデフォルトテンプレート | P3 |
 
 ## Security (SEC) — Remaining
 
