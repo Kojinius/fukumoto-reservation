@@ -174,5 +174,9 @@
   "calendar": {
     "prevMonth": "前月",
     "nextMonth": "翌月"
+  },
+  "adminProxy": {
+    "banner": "管理者代行入力モード",
+    "bannerDesc": "電話予約を受けた患者の情報を入力しています。同意事項は電話口で口頭確認してください。"
   }
 }

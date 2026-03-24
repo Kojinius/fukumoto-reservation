@@ -18,8 +18,9 @@ interface CreateResult {
 /** 予約を作成 */
 export async function createReservation(
   data: ReservationFormData,
+  inputBy?: 'admin',
 ): Promise<{ bookingId: string }> {
-  const payload = {
+  const payload: Record<string, unknown> = {
     date: data.date,
     time: data.time,
     name: data.name,
@@ -39,6 +40,7 @@ export async function createReservation(
     contactMethod: data.contactMethod,
     hasSensitiveDataConsent: data.hasSensitiveDataConsent,
   };
+  if (inputBy) payload.inputBy = inputBy;
   const result = await callFunction<CreateResult>('createReservation', payload);
   return { bookingId: result.reservationId };
 }

@@ -5,7 +5,8 @@
     "settings": "设置",
     "logout": "退出登录",
     "lastLogin": "最后登录: ",
-    "consentPending": "待同意条款"
+    "consentPending": "待同意条款",
+    "proxyBooking": "代客预约"
   },
   "dashboard": {
     "kpi": {

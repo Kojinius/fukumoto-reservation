@@ -174,5 +174,9 @@
   "calendar": {
     "prevMonth": "Tháng trước",
     "nextMonth": "Tháng sau"
+  },
+  "adminProxy": {
+    "banner": "Chế Độ Đặt Lịch Hộ",
+    "bannerDesc": "Đang nhập thông tin bệnh nhân từ cuộc gọi đặt lịch. Vui lòng xác nhận đồng ý qua điện thoại."
   }
 }

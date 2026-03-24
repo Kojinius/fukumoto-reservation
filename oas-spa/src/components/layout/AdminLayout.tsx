@@ -66,6 +66,18 @@ export function AdminLayout() {
               >
                 {t('layout.settings')}
               </Link>
+              {/* 代行予約 — 新規タブで予約画面を開く */}
+              <a
+                href="/?admin=1"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 text-cream/60 hover:text-cream hover:bg-white/5 flex items-center gap-1"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                </svg>
+                {t('layout.proxyBooking')}
+              </a>
             </nav>
           </div>
           <div className="flex items-center gap-3">

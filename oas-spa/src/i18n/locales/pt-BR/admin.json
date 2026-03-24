@@ -5,7 +5,8 @@
     "settings": "Configurações",
     "logout": "Sair",
     "lastLogin": "Último acesso: ",
-    "consentPending": "Termos pendentes"
+    "consentPending": "Termos pendentes",
+    "proxyBooking": "Reservar para paciente"
   },
   "dashboard": {
     "kpi": {

@@ -5,7 +5,8 @@
     "settings": "Mga Setting",
     "logout": "Mag-logout",
     "lastLogin": "Huling login: ",
-    "consentPending": "Naghihintay ng pahintulot"
+    "consentPending": "Naghihintay ng pahintulot",
+    "proxyBooking": "Mag-book para sa pasyente"
   },
   "dashboard": {
     "kpi": {
