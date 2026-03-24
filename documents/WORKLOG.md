@@ -11,6 +11,70 @@
 
 ---
 
+## 2026-03-24 Work Log (6)
+
+### Completed Tasks
+
+#### [OAS-HIST-T01] Patient Visit History Management (PR #15)
+
+Implemented full visit history feature for tracking completed appointments. Covers Cloud Function, Firestore collection, admin UI, dashboard integration, APPI compliance, i18n, and security.
+
+| Area | Details |
+|------|---------|
+| Cloud Function | `completeVisit` — Firestore transaction, duplicate prevention (409), admin auth check, rate limiting (SEC-11 pattern) |
+| Firestore | `visit_histories` collection — immutable (update/delete forbidden in rules), composite index added |
+| Admin Screen | `/admin/history` — search by name/zip/phone/date range, multi-sort (SortableHeader), CSV export, detail modal |
+| Dashboard | "診察完了" button added to confirmed reservations → transitions to completed status |
+| APPI Compliance | `retentionVisitHistoryNote` field in Settings (permanent retention justification), Privacy Policy placeholder updated |
+| Bug Fix | Google Maps embed sandbox attribute fix (`allow-popups` added) |
+| i18n | 7-language support (ja/en/ko/zh-CN/vi/pt-BR/tl) for all new UI |
+| Security | Firestore rules: `visit_histories` write-protected (admin create only, no update/delete); composite index deployed |
+
+#### Code Review (PR #15)
+
+- **Method**: 5 parallel agents
+- **Critical fix (score 100)**: Missing `isRateLimited` check in `completeVisit` CF (SEC-11 pattern) — fixed immediately, pushed as separate commit
+- **Sub-threshold findings (noted for future)**:
+  - Full collection snapshot scalability (score 75) — pagination/query limit for large datasets
+  - CF status check gap (score 75) — verify slot status before completing visit
+  - KPI counting completed reservations (score 75) — include `completed` status in KPI counts
+  - `toLocaleString` locale hardcoding (score 75) — replace with i18n-aware date formatting
+
+#### Notion Updates
+
+- Design spec page updated (visit history feature — implementation complete)
+- OAS legal compliance page updated (APPI `visit_histories` handling — permanent retention basis)
+- Labor law knowledge base updated (section 14: OAS visit history APPI compliance rationale)
+
+---
+
+## 2026-03-24 Work Log (5)
+
+### Completed Tasks
+
+#### [OAS-i18n] 7-Language Internationalization (PR #9)
+
+Implemented full i18n support for OAS using react-i18next. 3 parallel agents (A: booking, B: admin, C: infrastructure) worked concurrently to complete all translations and component updates.
+
+| Component | Details |
+|-----------|---------|
+| Libraries | react-i18next + i18next installed |
+| Languages | ja / en / zh-CN / vi / ko / pt-BR / tl (7 languages, matching AMS) |
+| Namespaces | common, auth, booking, admin, toast (5 namespaces) |
+| JSON files | 35 locale files created (5 × 7), ~550 keys total |
+| Components | All pages and components migrated from hardcoded Japanese to t() keys |
+| New component | LanguageSwitcher (globe icon + dropdown, Header-integrated) |
+| Legal | sensitiveDataBody key added — health info consent text now localized in 7 languages |
+| Bug fix | zh-CN/booking.json JSON syntax error fixed (unescaped double quotes in sensitiveDataBody) |
+
+### Agent Teams Pattern
+- Agent A (booking): booking.json × 7 langs + booking pages/components — 164 keys
+- Agent B (admin): admin.json + toast.json × 7 langs + admin pages — 251 keys
+- Agent C (infra): i18n/index.ts + common.json + auth.json + LanguageSwitcher + layout — 67 keys
+- All 3 ran in parallel, significant time savings vs sequential execution
+
+---
+
 ## 2026-03-24 Work Log (4)
 
 ### Completed Tasks
