@@ -266,8 +266,8 @@ export function PatientForm({ form, onUpdate, onNext, onBack, privacyPolicyUrl }
             </p>
           )}
         </div>
-        <Textarea label={t('patientForm.symptoms')} value={form.symptoms} onChange={e => onUpdate({ symptoms: e.target.value })} rows={3} placeholder={t('patientForm.symptomsPlaceholder')} required disabled={!form.hasSensitiveDataConsent} />
-        <Textarea label={t('patientForm.notes')} value={form.notes} onChange={e => onUpdate({ notes: e.target.value })} rows={2} placeholder={t('patientForm.notesPlaceholder')} />
+        <Textarea label={t('patientForm.symptoms')} value={form.symptoms} onChange={e => onUpdate({ symptoms: e.target.value })} rows={3} placeholder={t('patientForm.symptomsPlaceholder')} required disabled={!form.hasSensitiveDataConsent} maxLength={1000} />
+        <Textarea label={t('patientForm.notes')} value={form.notes} onChange={e => onUpdate({ notes: e.target.value })} rows={2} placeholder={t('patientForm.notesPlaceholder')} maxLength={500} />
       </div>
 
       {/* [H2] リマインダーメール配信同意（管理画面で有効時のみ表示） */}

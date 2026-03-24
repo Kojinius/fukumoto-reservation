@@ -222,6 +222,7 @@ function BasicInfoTab({ form, update }: { form: Partial<ClinicSettings>; update:
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
                 src={`https://www.google.com/maps?q=${encodeURIComponent((form.clinicAddress || '') + ' ' + (form.clinicAddressSub || ''))}&output=embed&hl=ja`}
+                sandbox="allow-scripts allow-same-origin"
               />
             </div>
           </div>
@@ -855,7 +856,7 @@ function PolicyTab({ form, update }: { form: Partial<ClinicSettings>; update: (p
             value={form.privacyPolicy || ''}
             onChange={e => update({ privacyPolicy: e.target.value })}
             rows={12}
-            placeholder={'プライバシーポリシー\n\n〇〇クリニック（以下「当院」）は、患者様の個人情報の保護に努め、個人情報の保護に関する法律（個人情報保護法）を遵守いたします。\n\n【収集する情報】\nお名前、ふりがな、生年月日、住所、電話番号、メールアドレス、症状・お悩み（要配慮個人情報）、保険証情報\n\n【利用目的】\n1. 予約の受付・確認・変更・キャンセル処理\n2. 診療準備のための症状・お悩みの事前把握\n3. 予約確認・リマインダー等のご連絡\n4. 再来院時の前回情報参照\n5. サービス改善のための匿名化統計分析\n\n【第三者提供】\nご本人の同意なく、個人情報を第三者に提供することはありません。ただし、法令に基づく場合を除きます。\n\n【要配慮個人情報の取り扱い】\n症状・お悩み等の健康に関する情報は「要配慮個人情報」として、ご本人の明示的な同意を得た上で取得・利用いたします。\n\n【データの保存期間】\nお預かりした個人情報は、利用目的の達成後、当院が定める保存期間を経て安全に削除いたします。\n\n【開示・訂正・利用停止】\nご自身の個人情報の開示・訂正・利用停止をご希望の場合は、下記の窓口までご連絡ください。本人確認の上、法令に基づき対応いたします。\n\n【お問い合わせ窓口】\n〇〇クリニック 個人情報相談窓口\n電話: 000-0000-0000\nメール: privacy@example.com'}
+            placeholder={generateTexts().privacyPolicy}
           />
           <p className="text-[11px] text-navy-400">
             {t('settings.policy.privacyPolicyHint')}
@@ -871,7 +872,7 @@ function PolicyTab({ form, update }: { form: Partial<ClinicSettings>; update: (p
           <Textarea
             label={t('settings.policy.sensitiveDataLabel')}
             value={form.sensitiveDataConsentText || ''}
-            onChange={e => update({ sensitiveDataConsentText: e.target.value.slice(0, 500) })}
+            onChange={e => update({ sensitiveDataConsentText: e.target.value.replace(/<[^>]*>/g, '').slice(0, 500) })}
             rows={4}
             placeholder={t('settings.policy.sensitiveDataPlaceholder')}
           />
@@ -949,7 +950,7 @@ function PolicyTab({ form, update }: { form: Partial<ClinicSettings>; update: (p
             value={form.patientRightsContact || ''}
             onChange={e => update({ patientRightsContact: e.target.value })}
             rows={4}
-            placeholder={'個人情報の開示・訂正・利用停止をご希望の場合は、下記までご連絡ください。\n\n窓口: 〇〇クリニック 個人情報相談窓口\n電話: 000-0000-0000\nメール: privacy@example.com\n\n本人確認の上、法令に基づき対応いたします。'}
+            placeholder={generateTexts().patientRightsContact}
           />
           <p className="text-[11px] text-navy-400">
             {t('settings.policy.patientRightsHint')}

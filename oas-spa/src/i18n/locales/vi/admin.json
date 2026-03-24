@@ -4,7 +4,8 @@
     "reservationList": "Danh Sách Đặt Lịch",
     "settings": "Cài Đặt",
     "logout": "Đăng Xuất",
-    "lastLogin": "Đăng nhập lần cuối: "
+    "lastLogin": "Đăng nhập lần cuối: ",
+    "consentPending": "Chờ xác nhận điều khoản"
   },
   "dashboard": {
     "kpi": {

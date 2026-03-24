@@ -4,7 +4,8 @@
     "reservationList": "예약 목록",
     "settings": "설정",
     "logout": "로그아웃",
-    "lastLogin": "최근 로그인: "
+    "lastLogin": "최근 로그인: ",
+    "consentPending": "약관 동의 필요"
   },
   "dashboard": {
     "kpi": {

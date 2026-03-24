@@ -4,7 +4,8 @@
     "reservationList": "Lista de Reservas",
     "settings": "Configurações",
     "logout": "Sair",
-    "lastLogin": "Último acesso: "
+    "lastLogin": "Último acesso: ",
+    "consentPending": "Termos pendentes"
   },
   "dashboard": {
     "kpi": {

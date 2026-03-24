@@ -4,7 +4,8 @@
     "reservationList": "予約一覧",
     "settings": "設定",
     "logout": "ログアウト",
-    "lastLogin": "最終: "
+    "lastLogin": "最終: ",
+    "consentPending": "利用規約・PP 確認待ち"
   },
   "dashboard": {
     "kpi": {

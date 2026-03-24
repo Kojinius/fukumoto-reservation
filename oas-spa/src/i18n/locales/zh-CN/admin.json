@@ -4,7 +4,8 @@
     "reservationList": "预约列表",
     "settings": "设置",
     "logout": "退出登录",
-    "lastLogin": "最后登录: "
+    "lastLogin": "最后登录: ",
+    "consentPending": "待同意条款"
   },
   "dashboard": {
     "kpi": {
