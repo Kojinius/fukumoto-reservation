@@ -25,6 +25,7 @@ const DEFAULT_CLINIC: ClinicSettings = {
   cancelCutoffMinutes: 0,
   announcement: { active: false, type: 'info', message: '', startDate: null, endDate: null },
   maintenance: { startDate: null, endDate: null },
+  termsOfService: '',
   privacyPolicy: '',
   sensitiveDataConsentText: '',
   updatedAt: '',

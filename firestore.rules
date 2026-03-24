@@ -62,10 +62,17 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if request.auth != null && request.auth.uid == userId;
       allow write: if isAdmin();
-      // 本人のみ mustChangePassword フィールドの更新可
+      // 本人のみ以下フィールドの更新可:
+      // - mustChangePassword: 初回パスワード変更完了時
+      // - [C2] termsAcceptedAt / privacyAcceptedAt / termsVersion: 利用規約・PP同意時
       allow update: if request.auth != null
         && request.auth.uid == userId
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['mustChangePassword']);
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'mustChangePassword',
+          'termsAcceptedAt',
+          'privacyAcceptedAt',
+          'termsVersion'
+        ]);
     }
 
     // 監査ログコレクション（CSVエクスポート等の操作記録）
