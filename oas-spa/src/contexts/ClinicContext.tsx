@@ -28,6 +28,10 @@ const DEFAULT_CLINIC: ClinicSettings = {
   termsOfService: '',
   privacyPolicy: '',
   sensitiveDataConsentText: '',
+  dataRetentionMonths: 36,
+  dataRetentionPurpose: '',
+  reminderEmailEnabled: false,
+  patientRightsContact: '',
   updatedAt: '',
 };
 

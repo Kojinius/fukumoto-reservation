@@ -33,7 +33,9 @@ service cloud.firestore {
         && (!data.keys().hasAny(['birthdate'])     || (data.birthdate is string && data.birthdate.size() <= 10))
         && (!data.keys().hasAny(['contactMethod']) || (data.contactMethod is string && data.contactMethod.size() <= 50))
         // [C1] 要配慮個人情報の同意フラグ（個人情報保護法 第20条第2項）
-        && (!data.keys().hasAny(['hasSensitiveDataConsent']) || (data.hasSensitiveDataConsent is bool));
+        && (!data.keys().hasAny(['hasSensitiveDataConsent']) || (data.hasSensitiveDataConsent is bool))
+        // [H2] リマインダーメール配信同意
+        && (!data.keys().hasAny(['reminderEmailConsent']) || (data.reminderEmailConsent is bool));
     }
 
     // [SEC-18] create は Cloud Function (createReservation) 経由のみ
@@ -82,9 +84,11 @@ service cloud.firestore {
     }
 
     // 設定コレクション
+    // [SEC-22] list を禁止し get のみ許可（ドキュメントID指定の読み取りのみ）
     match /settings/{settingId} {
-      // 院名・PP等の表示のため未認証でも読み取り可
-      allow read: if true;
+      // 院名・PP等の表示のため未認証でも get 可（list は管理者のみ）
+      allow get: if true;
+      allow list: if isAdmin();
       // 管理者のみ書き込み可
       allow write: if isAdmin();
     }

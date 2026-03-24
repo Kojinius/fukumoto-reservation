@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { formatDateShort } from '@/utils/date';
+import { useClinic } from '@/hooks/useClinic';
 import type { ReservationFormData } from '@/types/reservation';
 
 interface Props {
@@ -10,8 +11,14 @@ interface Props {
   onNewReservation: () => void;
 }
 
+/** 患者権利行使のデフォルト案内文 */
+const DEFAULT_RIGHTS_TEXT =
+  '個人情報の開示・訂正・利用停止をご希望の場合は、当院窓口までお問い合わせください。本人確認の上、法令に基づき対応いたします。';
+
 export function Complete({ bookingId, form, onNewReservation }: Props) {
+  const { clinic } = useClinic();
   const [copied, setCopied] = useState(false);
+  const rightsText = clinic?.patientRightsContact?.trim() || DEFAULT_RIGHTS_TEXT;
 
   async function copyId() {
     try {
@@ -113,6 +120,17 @@ export function Complete({ bookingId, form, onNewReservation }: Props) {
             </li>
           ))}
         </ul>
+      </div>
+
+      {/* [H3] 患者権利行使の案内（APPI 第28〜30条） */}
+      <div className="card-section animate-stagger-3">
+        <h3 className="section-heading mb-3">
+          <svg className="w-4 h-4 inline-block mr-1.5 -mt-0.5 text-navy-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+          個人情報の取り扱いについて
+        </h3>
+        <p className="text-xs text-navy-500 leading-relaxed whitespace-pre-line">{rightsText}</p>
       </div>
 
       {/* アクション */}
