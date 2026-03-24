@@ -81,11 +81,11 @@ export default function Cancel() {
     setConfirmOpen(false);
     setCancelling(true);
     try {
+      // [SEC-CR1] cancelledBy はサーバー側でIDトークン有無から判定
       await callFunction('cancelReservation', {
         reservationId: reservationId.trim(),
         phone: toHankaku(phone.trim()),
         cancelReason: cancelReason === 'その他' ? (cancelReasonOther || 'その他') : (cancelReason || ''),
-        cancelledBy: 'patient',
       });
       setPhase('done');
     } catch (err: unknown) {

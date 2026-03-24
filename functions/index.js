@@ -343,7 +343,8 @@ exports.verifyReservation = onRequest(
 /**
  * 【SEC-5】予約キャンセル（サーバーサイド電話番号検証 + スロット開放）
  * POST /cancelReservation
- * Body: { reservationId, phone, cancelReason?, cancelledBy? }
+ * Body: { reservationId, phone, cancelReason? }
+ * Headers: Authorization: Bearer <idToken> （管理者キャンセル時のみ）
  * レート制限: IP あたり 5回/分
  */
 exports.cancelReservation = onRequest(
@@ -361,9 +362,18 @@ exports.cancelReservation = onRequest(
       return;
     }
 
-    const { reservationId, phone, cancelReason, cancelledBy } = req.body;
-    const by = cancelledBy === "admin" ? "admin" : "patient";
+    const { reservationId, phone, cancelReason } = req.body;
     const reason = (typeof cancelReason === "string" ? cancelReason.slice(0, 200) : "") || "";
+
+    // ── [SEC-CR1] cancelledBy はサーバー側で判定（クライアント信用しない）──
+    let by = "patient";
+    const authHeader = req.headers.authorization;
+    if (authHeader?.startsWith("Bearer ")) {
+      try {
+        const decoded = await getAuth().verifyIdToken(authHeader.split("Bearer ")[1]);
+        if (decoded.admin) by = "admin";
+      } catch (_) { /* トークン不正 → 患者扱い */ }
+    }
 
     // ── 必須フィールド検証 ──
     if (!reservationId || typeof reservationId !== "string" || reservationId.length > 100) {

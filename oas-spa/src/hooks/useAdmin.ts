@@ -48,12 +48,12 @@ export async function updateReservationStatus(
   cancelReason?: string,
 ): Promise<void> {
   if (newStatus === 'cancelled') {
-    // CF経由: audit_log + 患者キャンセル通知メール + スロット開放
+    // CF経由: audit_log + キャンセル通知メール + スロット開放
+    // [SEC-CR1] cancelledBy はサーバー側でIDトークンから判定（callFunctionが自動付与）
     await callFunction('cancelReservation', {
       reservationId: booking.id,
       phone: booking.phone,
       cancelReason: cancelReason || '',
-      cancelledBy: 'admin',
     });
     return;
   }
