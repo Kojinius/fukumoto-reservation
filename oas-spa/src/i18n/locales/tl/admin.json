@@ -1,14 +1,14 @@
 {
   "layout": {
     "adminPanel": "Admin Panel",
-    "reservationList": "Listahan ng Reserbасyon",
+    "reservationList": "Listahan ng Reserbacyon",
     "settings": "Mga Setting",
     "logout": "Mag-logout",
     "lastLogin": "Huling login: "
   },
   "dashboard": {
     "kpi": {
-      "todayReservations": "Mga Reserbасyon Ngayon",
+      "todayReservations": "Mga Reserbacyon Ngayon",
       "monthReservations": "Ngayong Buwan",
       "newPatients": "Mga Bagong Pasyente",
       "pending": "Hindi Pa Nakumpirma"
@@ -28,7 +28,7 @@
       "zipPlaceholder": "123-4567",
       "phone": "Telepono",
       "phonePlaceholder": "090-1234-5678",
-      "reservationDate": "Petsa ng Reserbасyon",
+      "reservationDate": "Petsa ng Reserbacyon",
       "scheduledDate": "Petsa ng Konsultasyon"
     },
     "table": {
@@ -37,7 +37,7 @@
       "visitType": "Uri ng Bisita",
       "symptoms": "Mga Sintomas",
       "phone": "Telepono",
-      "reservationDate": "Petsa ng Reserbасyon",
+      "reservationDate": "Petsa ng Reserbacyon",
       "status": "Katayuan"
     },
     "status": {
@@ -50,14 +50,14 @@
     "action": {
       "detail": "Detalye"
     },
-    "emptyState": "Walang reserbасyon",
+    "emptyState": "Walang reserbacyon",
     "modal": {
-      "reservationDetail": "Detalye ng Reserbасyon",
+      "reservationDetail": "Detalye ng Reserbacyon",
       "close": "Isara",
       "markConfirmed": "Markahan bilang Nakumpirma",
       "cancel": "Kanselahin",
       "fields": {
-        "reservationId": "Blg. ng Reserbасyon",
+        "reservationId": "Blg. ng Reserbacyon",
         "scheduledDateTime": "Petsa/Oras ng Konsultasyon",
         "name": "Pangalan",
         "furigana": "Furigana",
@@ -79,19 +79,19 @@
         "cancelledBy": "Kinansela ng",
         "cancelReason": "Dahilan ng Pagkansela",
         "cancelledAt": "Petsa ng Pagkansela",
-        "createdAt": "Petsa ng Reserbасyon"
+        "createdAt": "Petsa ng Reserbacyon"
       },
       "symptomsTitle": "Mga Sintomas ni {{name}}",
       "notesLabel": "Mga Tala"
     },
     "confirmDialog": {
       "statusChange": "Baguhin ang Katayuan",
-      "statusChangeMessage": "Markahan ang reserbасyon ni {{name}} bilang nakumpirma?",
+      "statusChangeMessage": "Markahan ang reserbacyon ni {{name}} bilang nakumpirma?",
       "okLabel": "Markahan bilang Nakumpirma"
     },
     "cancelModal": {
-      "title": "Kanselahin ang Reserbасyon",
-      "message": "Kinakansela ang reserbасyon ni {{name}}.",
+      "title": "Kanselahin ang Reserbacyon",
+      "message": "Kinakansela ang reserbacyon ni {{name}}.",
       "notifyPatient": "Magpapadala ng email na abiso sa pasyente.",
       "cancelReasonLabel": "Dahilan ng Pagkansela (kinakailangan)",
       "cancelReasonPlaceholder": "Pumili ng dahilan",
@@ -99,7 +99,7 @@
         "doctorUnavailable": "Hindi available ang doktor",
         "temporaryClosure": "Pansamantalang pagsasara",
         "patientRequest": "Kahilingan ng pasyente sa telepono",
-        "duplicateBooking": "Duplicate na reserbасyon",
+        "duplicateBooking": "Duplicate na reserbacyon",
         "other": "Iba pa"
       },
       "otherReasonPlaceholder": "Ilagay ang dahilan",
@@ -118,6 +118,7 @@
       "policy": "Patakaran sa Privacy",
       "accounts": "Mga Account"
     },
+    "weekdays": ["Lin", "Lun", "Mar", "Miy", "Huw", "Biy", "Sab"],
     "basicInfo": {
       "clinicName": "Pangalan ng Klinika *",
       "phone": "Numero ng Telepono *",
@@ -149,8 +150,8 @@
       "weekendClosed": "Weekend → Sarado",
       "weekendOpen": "Weekend → Bukas",
       "timeline": {
-        "bookingCutoff": "Deadline ng Reserbасyon at Pagkansela",
-        "bookingCutoffLabel": "Deadline ng Reserbасyon",
+        "bookingCutoff": "Deadline ng Reserbacyon at Pagkansela",
+        "bookingCutoffLabel": "Deadline ng Reserbacyon",
         "cancelCutoffLabel": "Deadline ng Pagkansela",
         "before": "",
         "minutesBefore": " minuto bago ang konsultasyon"
@@ -167,8 +168,8 @@
         "timelineAfternoon": "Hapon"
       },
       "confirmHoliday": {
-        "title": "May Mga Reserbасyon sa Araw na Ito",
-        "message": "Ang {{date}} ay mayroon nang {{count}} na reserbасyon. Itakda pa rin bilang pista opisyal?",
+        "title": "May Mga Reserbacyon sa Araw na Ito",
+        "message": "Ang {{date}} ay mayroon nang {{count}} na reserbacyon. Itakda pa rin bilang pista opisyal?",
         "okLabel": "Itakda bilang Pista Opisyal"
       }
     },
@@ -210,10 +211,11 @@
       "cancelLabel": "Kanselahin",
       "privacyPolicyTitle": "Patakaran sa Privacy",
       "privacyPolicyLabel": "Teksto ng Patakaran sa Privacy",
-      "privacyPolicyHint": "Naka-link mula sa checkbox ng pahintulot sa personal na impormasyon sa form ng reserbасyon.",
+      "privacyPolicyHint": "Naka-link mula sa checkbox ng pahintulot sa personal na impormasyon sa form ng reserbacyon.",
       "sensitiveDataTitle": "Pahintulot sa Sensitibong Data",
       "sensitiveDataLabel": "Teksto ng Pahintulot",
-      "sensitiveDataHint": "Ipinapakita sa field ng mga sintomas ng form ng reserbасyon.",
+      "sensitiveDataHint": "Ipinapakita sa field ng mga sintomas ng form ng reserbacyon.",
+      "sensitiveDataPlaceholder": "Ang impormasyong pangkalusugan na inilagay sa \"Mga Sintomas / Alalahanin\" ay maaaring maging espesyal na personal na impormasyon ayon sa batas pangpribadong impormasyon ng Hapon. Gagamitin lamang para sa koordinasyon ng appointment at paghahanda ng paggamot, at hindi ibabahagi sa mga third party nang walang pahintulot.",
       "sensitiveDataCharCount": " {{count}}/500 karakter",
       "dataRetentionTitle": "Patakaran sa Pagpapanatili ng Data",
       "dataRetentionLabel": "Panahon ng Pagpapanatili",
@@ -224,14 +226,14 @@
       "retention3years": "3 taon (inirerekomenda)",
       "retention5years": "5 taon",
       "usagePurposeLabel": "Layunin ng Paggamit ng Personal na Impormasyon (APPI Art. 17)",
-      "usagePurposeHint": "Ipinapakita sa patakaran sa privacy at form ng reserbасyon.",
+      "usagePurposeHint": "Ipinapakita sa patakaran sa privacy at form ng reserbacyon.",
       "retentionLegalNote": "Itakda ang panahon ng pagpapanatili sa saklaw na kinakailangan para makamit ang layunin ng paggamit. Ang data na lumampas sa panahon ng pagpapanatili ay ipapaalam sa mga admin para sa manu-manong pagtanggal.",
       "reminderEmailTitle": "Reminder Email",
       "reminderEmailLabel": "Paganahin ang feature ng reminder email",
-      "reminderEmailHint": "Kapag pinagana, ang form ng reserbасyon ay magpapakita ng checkbox ng pahintulot para sa mga reminder email. Ang mga reminder ay ipapadala lamang sa mga pasyenteng pumayag.",
+      "reminderEmailHint": "Kapag pinagana, ang form ng reserbacyon ay magpapakita ng checkbox ng pahintulot para sa mga reminder email. Ang mga reminder ay ipapadala lamang sa mga pasyenteng pumayag.",
       "patientRightsTitle": "Mga Karapatan ng Pasyente (APPI Arts. 28–30)",
       "patientRightsLabel": "Impormasyon sa Pakikipag-ugnayan at Pamamaraan",
-      "patientRightsHint": "Ipinapakita sa screen ng pagkumpleto ng reserbасyon at sa patakaran sa privacy."
+      "patientRightsHint": "Ipinapakita sa screen ng pagkumpleto ng reserbacyon at sa patakaran sa privacy."
     },
     "accounts": {
       "createUserTitle": "Lumikha ng Bagong User",

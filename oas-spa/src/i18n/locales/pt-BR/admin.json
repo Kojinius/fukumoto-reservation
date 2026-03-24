@@ -118,6 +118,7 @@
       "policy": "Política de Privacidade",
       "accounts": "Contas"
     },
+    "weekdays": ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
     "basicInfo": {
       "clinicName": "Nome da Clínica *",
       "phone": "Telefone *",
@@ -214,6 +215,7 @@
       "sensitiveDataTitle": "Consentimento para Dados Sensíveis",
       "sensitiveDataLabel": "Texto de Consentimento",
       "sensitiveDataHint": "Exibido no campo de sintomas do formulário de reserva.",
+      "sensitiveDataPlaceholder": "As informações de saúde inseridas no campo \"Sintomas / Preocupações\" podem constituir informações pessoais sensíveis nos termos da lei de privacidade japonesa. Serão utilizadas apenas para coordenação de agendamento e preparação do tratamento, e nunca serão compartilhadas com terceiros sem o seu consentimento.",
       "sensitiveDataCharCount": " {{count}}/500 caracteres",
       "dataRetentionTitle": "Política de Retenção de Dados",
       "dataRetentionLabel": "Período de Retenção",

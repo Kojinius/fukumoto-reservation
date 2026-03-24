@@ -110,6 +110,7 @@
   "settings": {
     "title": "Settings",
     "save": "Save",
+    "weekdays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
     "tabs": {
       "basicInfo": "Basic Info",
       "businessDays": "Business Hours",
@@ -214,6 +215,7 @@
       "sensitiveDataTitle": "Sensitive Data Consent",
       "sensitiveDataLabel": "Consent Text",
       "sensitiveDataHint": "Displayed in the symptoms field of the booking form.",
+      "sensitiveDataPlaceholder": "Health information entered in the \"Symptoms / Concerns\" field may constitute special care-required personal information under Japanese privacy law. It will only be used for appointment coordination and treatment preparation, and will never be shared with third parties without your consent.",
       "sensitiveDataCharCount": " {{count}}/500 chars",
       "dataRetentionTitle": "Data Retention Policy",
       "dataRetentionLabel": "Retention Period",

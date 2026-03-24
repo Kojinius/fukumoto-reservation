@@ -110,6 +110,7 @@
   "settings": {
     "title": "设置",
     "save": "保存",
+    "weekdays": ["日", "一", "二", "三", "四", "五", "六"],
     "tabs": {
       "basicInfo": "基本信息",
       "businessDays": "营业日设置",
@@ -214,6 +215,7 @@
       "sensitiveDataTitle": "敏感个人信息同意文本",
       "sensitiveDataLabel": "同意文本",
       "sensitiveDataHint": "显示在预约表单的症状输入栏中。",
+      "sensitiveDataPlaceholder": "在「症状/烦恼」栏填写的健康相关信息，可能属于日本个人信息保护法中的「敏感个人信息」。仅用于预约受理及诊疗准备，未经本人同意不会向第三方提供。",
       "sensitiveDataCharCount": " {{count}}/500字",
       "dataRetentionTitle": "数据保存期限政策",
       "dataRetentionLabel": "预约与患者数据保存期限",

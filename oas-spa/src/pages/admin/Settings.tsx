@@ -24,10 +24,6 @@ import { DEFAULT_BUSINESS_HOURS } from '@/types/clinic';
 // タブキー（内部識別用）— ラベルはi18nで取得
 const TAB_KEYS = ['basicInfo', 'businessDays', 'announcement', 'terms', 'policy', 'accounts'] as const;
 type TabKey = typeof TAB_KEYS[number];
-// 後方互換のためのレガシー型（各サブコンポーネントとの互換性）
-const TABS = ['基本情報', '営業日設定', 'お知らせ', '利用規約', 'ポリシー', 'アカウント'] as const;
-type Tab = typeof TABS[number];
-const WEEKDAYS = ['日', '月', '火', '水', '木', '金', '土'];
 
 /** 時刻文字列→分数に変換（比較用） */
 function timeToMinutes(t: string): number {
@@ -47,16 +43,13 @@ function generateTimeOptions(startHour: number, endHour: number): string[] {
 const AM_TIMES = generateTimeOptions(6, 12);   // 6:00〜12:00
 const PM_TIMES = generateTimeOptions(13, 22);  // 13:00〜22:00
 
-/** 要配慮個人情報の同意デフォルト文言（PatientFormと同一） */
-const DEFAULT_SENSITIVE_DATA_TEXT =
-  '「症状・お悩み」欄に入力される健康に関する情報は、個人情報保護法上の「要配慮個人情報」に該当する可能性があります。当院の予約対応・施術準備の目的でのみ使用し、ご本人の同意なく第三者に提供することはありません。';
 
 export default function Settings() {
   const { t } = useTranslation('admin');
   const { t: tToast } = useTranslation('toast');
   const { clinic, loading: clinicLoading } = useClinic();
   const { showToast } = useToast();
-  const [tab, setTab] = useState<Tab>('基本情報');
+  const [tab, setTab] = useState<TabKey>('basicInfo');
   const [saving, setSaving] = useState(false);
   const adminUsers = useAdminUsers();
 
@@ -88,14 +81,15 @@ export default function Settings() {
       showToast(t('settings.validation.maintenanceDateError'), 'error'); return;
     }
     const bhCheck = form.businessHours || DEFAULT_BUSINESS_HOURS;
+    const weekdaysValidation = t('settings.weekdays', { returnObjects: true }) as string[];
     for (let i = 0; i < 7; i++) {
       const d = bhCheck[String(i)];
       if (!d?.open) continue;
       if (d.amOpen && timeToMinutes(d.amStart) >= timeToMinutes(d.amEnd)) {
-        showToast(t('settings.validation.businessHoursError', { weekday: WEEKDAYS[i], session: t('settings.validation.amSession') }), 'error'); return;
+        showToast(t('settings.validation.businessHoursError', { weekday: weekdaysValidation[i], session: t('settings.validation.amSession') }), 'error'); return;
       }
       if (d.pmOpen && timeToMinutes(d.pmStart) >= timeToMinutes(d.pmEnd)) {
-        showToast(t('settings.validation.businessHoursError', { weekday: WEEKDAYS[i], session: t('settings.validation.pmSession') }), 'error'); return;
+        showToast(t('settings.validation.businessHoursError', { weekday: weekdaysValidation[i], session: t('settings.validation.pmSession') }), 'error'); return;
       }
     }
     setSaving(true);
@@ -115,13 +109,13 @@ export default function Settings() {
   if (clinicLoading) return <Spinner className="py-12" />;
 
   // タブキーと表示ラベルのマッピング
-  const TAB_LABEL_MAP: Record<Tab, string> = {
-    '基本情報': t('settings.tabs.basicInfo'),
-    '営業日設定': t('settings.tabs.businessDays'),
-    'お知らせ': t('settings.tabs.announcement'),
-    '利用規約': t('settings.tabs.terms'),
-    'ポリシー': t('settings.tabs.policy'),
-    'アカウント': t('settings.tabs.accounts'),
+  const TAB_LABEL_MAP: Record<TabKey, string> = {
+    basicInfo: t('settings.tabs.basicInfo'),
+    businessDays: t('settings.tabs.businessDays'),
+    announcement: t('settings.tabs.announcement'),
+    terms: t('settings.tabs.terms'),
+    policy: t('settings.tabs.policy'),
+    accounts: t('settings.tabs.accounts'),
   };
 
   return (
@@ -133,19 +127,19 @@ export default function Settings() {
 
       {/* タブ */}
       <div className="flex gap-1 overflow-x-auto pb-1">
-        {TABS.map(tabKey => (
+        {TAB_KEYS.map(tabKey => (
           <Button key={tabKey} size="sm" variant={tab === tabKey ? 'primary' : 'ghost'} onClick={() => setTab(tabKey)}>
             {TAB_LABEL_MAP[tabKey]}
           </Button>
         ))}
       </div>
 
-      {tab === '基本情報' && <BasicInfoTab form={form} update={update} />}
-      {tab === '営業日設定' && <BusinessDayTab form={form} update={update} showToast={showToast} />}
-      {tab === 'お知らせ' && <AnnouncementTab form={form} update={update} showToast={showToast} />}
-      {tab === '利用規約' && <TermsTab form={form} update={update} />}
-      {tab === 'ポリシー' && <PolicyTab form={form} update={update} />}
-      {tab === 'アカウント' && <AccountsTab adminUsers={adminUsers} />}
+      {tab === 'basicInfo' && <BasicInfoTab form={form} update={update} />}
+      {tab === 'businessDays' && <BusinessDayTab form={form} update={update} showToast={showToast} />}
+      {tab === 'announcement' && <AnnouncementTab form={form} update={update} showToast={showToast} />}
+      {tab === 'terms' && <TermsTab form={form} update={update} />}
+      {tab === 'policy' && <PolicyTab form={form} update={update} />}
+      {tab === 'accounts' && <AccountsTab adminUsers={adminUsers} />}
     </div>
   );
 }
@@ -241,6 +235,7 @@ function BasicInfoTab({ form, update }: { form: Partial<ClinicSettings>; update:
 function BusinessDayTab({ form, update, showToast }: { form: Partial<ClinicSettings>; update: (p: Partial<ClinicSettings>) => void; showToast: (msg: string, type: 'success' | 'error') => void }) {
   const { t } = useTranslation('admin');
   const { t: tToast } = useTranslation('toast');
+  const weekdays = t('settings.weekdays', { returnObjects: true }) as string[];
   const bh = form.businessHours || DEFAULT_BUSINESS_HOURS;
   const holidays = form.holidays || [];
   const holidayNames = form.holidayNames || {};
@@ -334,7 +329,7 @@ function BusinessDayTab({ form, update, showToast }: { form: Partial<ClinicSetti
   }, [viewYear, viewMonth, holidays, todayStr]);
 
   /** 営業日数/休診日数サマリー */
-  const openDays = WEEKDAYS.filter((_, i) => bh[String(i)]?.open).length;
+  const openDays = weekdays.filter((_, i) => bh[String(i)]?.open).length;
 
   return (
     <div className="space-y-4">
@@ -356,7 +351,7 @@ function BusinessDayTab({ form, update, showToast }: { form: Partial<ClinicSetti
               </div>
               {/* 曜日ヘッダー */}
               <div className="grid grid-cols-7 mb-1">
-                {WEEKDAYS.map((wd, i) => (
+                {weekdays.map((wd, i) => (
                   <div key={wd} className={cn('text-center text-[10px] py-1 font-semibold', i === 0 && 'text-red-400', i === 6 && 'text-sky-400', i > 0 && i < 6 && 'text-navy-300')}>{wd}</div>
                 ))}
               </div>
@@ -410,7 +405,7 @@ function BusinessDayTab({ form, update, showToast }: { form: Partial<ClinicSetti
                 <div className="flex-1 overflow-y-auto space-y-0.5 pr-1">
                   {holidays.map(d => {
                     const dt = new Date(d + 'T00:00:00');
-                    const dow = WEEKDAYS[dt.getDay()];
+                    const dow = weekdays[dt.getDay()];
                     return (
                       <div key={d} className="flex items-center gap-1.5 py-1 px-1.5 text-xs rounded group hover:bg-cream-50 transition-colors">
                         <span className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
@@ -482,7 +477,7 @@ function BusinessDayTab({ form, update, showToast }: { form: Partial<ClinicSetti
               </div>
 
               <div className="space-y-1">
-                {WEEKDAYS.map((label, i) => {
+                {weekdays.map((label, i) => {
                   const dow = String(i);
                   const day = bh[dow] || { open: false, amOpen: false, amStart: '9:00', amEnd: '12:00', pmOpen: false, pmStart: '14:00', pmEnd: '19:00' };
                   const isExpanded = expandedDay === dow;
@@ -772,7 +767,7 @@ function TermsTab({ form, update }: { form: Partial<ClinicSettings>; update: (p:
             label={t('settings.terms.termsTextLabel')}
             value={form.termsOfService || ''}
             onChange={e => update({ termsOfService: e.target.value })}
-            rows={10}
+            rows={20}
             placeholder={t('settings.terms.termsTextPlaceholder')}
           />
           <p className="text-[11px] text-navy-400">
@@ -781,24 +776,6 @@ function TermsTab({ form, update }: { form: Partial<ClinicSettings>; update: (p:
         </CardBody>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <h3 className="text-sm font-medium text-navy-700">{t('settings.terms.versionManagement')}</h3>
-        </CardHeader>
-        <CardBody className="space-y-3">
-          <Alert variant="warning">
-            {t('settings.terms.versionWarning')}
-          </Alert>
-          <div className="flex items-center gap-3">
-            <Button size="sm" variant="ghost" onClick={handleBumpVersion} loading={bumping}>
-              {t('settings.terms.bumpVersionButton', {
-                current: termsVersion,
-                next: `${termsVersion.split('.')[0]}.${parseInt(termsVersion.split('.')[1] || '0', 10) + 1}`
-              })}
-            </Button>
-          </div>
-        </CardBody>
-      </Card>
     </div>
   );
 }
@@ -901,7 +878,7 @@ function PolicyTab({ form, update }: { form: Partial<ClinicSettings>; update: (p
             value={form.sensitiveDataConsentText || ''}
             onChange={e => update({ sensitiveDataConsentText: e.target.value.slice(0, 500) })}
             rows={4}
-            placeholder={DEFAULT_SENSITIVE_DATA_TEXT}
+            placeholder={t('settings.policy.sensitiveDataPlaceholder')}
           />
           <p className="text-[11px] text-navy-400">
             {t('settings.policy.sensitiveDataHint')}

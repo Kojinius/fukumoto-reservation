@@ -118,6 +118,7 @@
       "policy": "ポリシー",
       "accounts": "アカウント"
     },
+    "weekdays": ["日", "月", "火", "水", "木", "金", "土"],
     "basicInfo": {
       "clinicName": "院名 *",
       "phone": "電話番号 *",
@@ -214,6 +215,7 @@
       "sensitiveDataTitle": "要配慮個人情報の同意文言",
       "sensitiveDataLabel": "同意文言テキスト",
       "sensitiveDataHint": "予約フォームの症状入力欄に表示されます。空欄の場合はプレースホルダーに表示されているデフォルト文言が使用されます。",
+      "sensitiveDataPlaceholder": "「症状・お悩み」欄に入力される健康に関する情報は、個人情報保護法上の「要配慮個人情報」に該当する可能性があります。当院の予約対応・施術準備の目的でのみ使用し、ご本人の同意なく第三者に提供することはありません。",
       "sensitiveDataCharCount": " {{count}}/500文字",
       "dataRetentionTitle": "データ保存期間ポリシー",
       "dataRetentionLabel": "予約・患者データの保存期間",

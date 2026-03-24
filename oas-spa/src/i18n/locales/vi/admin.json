@@ -115,9 +115,10 @@
       "businessDays": "Giờ Làm Việc",
       "announcement": "Thông Báo",
       "terms": "Điều Khoản Dịch Vụ",
-      "policy": "Chính Sách Bảo Mật",
+      "policy": "Chính Sách Quyền Riêng Tư",
       "accounts": "Tài Khoản"
     },
+    "weekdays": ["CN", "T2", "T3", "T4", "T5", "T6", "T7"],
     "basicInfo": {
       "clinicName": "Tên Phòng Khám *",
       "phone": "Số Điện Thoại *",
@@ -214,6 +215,7 @@
       "sensitiveDataTitle": "Đồng Ý Dữ Liệu Nhạy Cảm",
       "sensitiveDataLabel": "Nội Dung Đồng Ý",
       "sensitiveDataHint": "Hiển thị trong trường triệu chứng của form đặt lịch.",
+      "sensitiveDataPlaceholder": "Thông tin sức khỏe nhập vào mục \"Triệu chứng / Lo lắng\" có thể là thông tin cá nhân cần chú ý đặc biệt theo luật bảo vệ thông tin cá nhân Nhật Bản. Chỉ sử dụng cho mục đích đặt lịch và chuẩn bị điều trị, không cung cấp cho bên thứ ba khi chưa có sự đồng ý.",
       "sensitiveDataCharCount": " {{count}}/500 ký tự",
       "dataRetentionTitle": "Chính Sách Lưu Trữ Dữ Liệu",
       "dataRetentionLabel": "Thời Gian Lưu Trữ",
