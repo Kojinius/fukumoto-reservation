@@ -22,7 +22,7 @@ interface Props {
 }
 
 export function LanguageSwitcher({ variant = 'header' }: Props) {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation('common');
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -53,8 +53,8 @@ export function LanguageSwitcher({ variant = 'header' }: Props) {
       <button
         type="button"
         onClick={() => setOpen(prev => !prev)}
-        title="言語設定"
-        aria-label="言語設定"
+        title={t('languageSettings')}
+        aria-label={t('languageSettings')}
         aria-expanded={open}
         className={cn(
           'flex items-center justify-center rounded-md transition-colors',

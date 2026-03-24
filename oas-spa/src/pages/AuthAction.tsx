@@ -71,7 +71,7 @@ export default function AuthAction() {
     }
     const check = isStrongPassword(newPassword);
     if (!check.valid) {
-      setPwError(check.reason!);
+      setPwError(t(check.reasonKey!));
       return;
     }
     setSaving(true);

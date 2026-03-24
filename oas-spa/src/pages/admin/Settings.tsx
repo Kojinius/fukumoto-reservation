@@ -233,7 +233,7 @@ function BasicInfoTab({ form, update }: { form: Partial<ClinicSettings>; update:
 
 /* ── 営業日設定タブ（ビジュアル統合デザイン） ── */
 function BusinessDayTab({ form, update, showToast }: { form: Partial<ClinicSettings>; update: (p: Partial<ClinicSettings>) => void; showToast: (msg: string, type: 'success' | 'error') => void }) {
-  const { t } = useTranslation('admin');
+  const { t, i18n } = useTranslation('admin');
   const { t: tToast } = useTranslation('toast');
   const weekdays = t('settings.weekdays', { returnObjects: true }) as string[];
   const bh = form.businessHours || DEFAULT_BUSINESS_HOURS;
@@ -344,7 +344,7 @@ function BusinessDayTab({ form, update, showToast }: { form: Partial<ClinicSetti
                 <button type="button" onClick={prevMonth} className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-cream-100 text-navy-400 hover:text-navy-600 transition-colors">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
                 </button>
-                <span className="text-sm font-heading font-semibold text-navy-700">{viewYear}年{viewMonth + 1}月</span>
+                <span className="text-sm font-heading font-semibold text-navy-700">{new Intl.DateTimeFormat(i18n.language, { year: 'numeric', month: 'long' }).format(new Date(viewYear, viewMonth))}</span>
                 <button type="button" onClick={nextMonth} className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-cream-100 text-navy-400 hover:text-navy-600 transition-colors">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
                 </button>
@@ -505,7 +505,7 @@ function BusinessDayTab({ form, update, showToast }: { form: Partial<ClinicSetti
                               )}
                               {day.pmOpen && pmWidth > 0 && (
                                 <div className="absolute top-0.5 bottom-0.5 bg-gradient-to-r from-gold to-amber-400 rounded-full" style={{ left: `${Math.max(0, pmLeft)}%`, width: `${pmWidth}%` }}>
-                                  <span className="absolute inset-0 flex items-center justify-center text-[8px] font-bold text-white drop-shadow-sm">{pmWidth > 6 ? `${day.pmStart}–${day.pmEnd}` : '午後'}</span>
+                                  <span className="absolute inset-0 flex items-center justify-center text-[8px] font-bold text-white drop-shadow-sm">{pmWidth > 6 ? `${day.pmStart}–${day.pmEnd}` : t('settings.businessDays.dayStatus.timelineAfternoon')}</span>
                                 </div>
                               )}
                             </>
@@ -599,26 +599,21 @@ function AnnouncementTab({ form, update, showToast }: { form: Partial<ClinicSett
   const ann = form.announcement || { active: false, type: 'info' as const, message: '', startDate: null, endDate: null };
   const maint = form.maintenance || { startDate: null, endDate: null };
 
-  /** 日時逆転チェック */
-  function validateDateRange(start: string | null, end: string | null, label: string): boolean {
-    if (start && end && start > end) {
-      showToast(`${label}の開始日時が終了日時より後になっています`, 'error');
-      return false;
-    }
-    return true;
-  }
-
   function updateAnn(patch: Partial<typeof ann>) {
     const next = { ...ann, ...patch };
     if ('startDate' in patch || 'endDate' in patch) {
-      validateDateRange(next.startDate, next.endDate, 'お知らせ表示');
+      if (next.startDate && next.endDate && next.startDate > next.endDate) {
+        showToast(t('settings.validation.announcementDateError'), 'error');
+      }
     }
     update({ announcement: next });
   }
   function updateMaint(patch: Partial<typeof maint>) {
     const next = { ...maint, ...patch };
     if ('startDate' in patch || 'endDate' in patch) {
-      validateDateRange(next.startDate, next.endDate, 'メンテナンス');
+      if (next.startDate && next.endDate && next.startDate > next.endDate) {
+        showToast(t('settings.validation.maintenanceDateError'), 'error');
+      }
     }
     update({ maintenance: next });
   }
@@ -969,6 +964,7 @@ function PolicyTab({ form, update }: { form: Partial<ClinicSettings>; update: (p
 function AccountsTab({ adminUsers }: { adminUsers: ReturnType<typeof useAdminUsers> }) {
   const { t } = useTranslation('admin');
   const { t: tToast } = useTranslation('toast');
+  const { t: tAuth } = useTranslation('auth');
   const { users, loading, fetchUsers } = adminUsers;
   const { showToast } = useToast();
   const [email, setEmail] = useState('');
@@ -987,7 +983,7 @@ function AccountsTab({ adminUsers }: { adminUsers: ReturnType<typeof useAdminUse
     if (!email || !password) { showToast(tToast('emailPasswordRequired'), 'error'); return; }
     if (!isValidEmail(toHankaku(email))) { showToast(tToast('invalidEmail'), 'error'); return; }
     const check = isStrongPassword(password);
-    if (!check.valid) { showToast(check.reason!, 'error'); return; }
+    if (!check.valid) { showToast(tAuth(check.reasonKey!), 'error'); return; }
     setCreating(true);
     try {
       await createAdminUser(toHankaku(email), password);

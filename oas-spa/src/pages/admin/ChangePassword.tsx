@@ -18,6 +18,7 @@ import { isStrongPassword } from '@/utils/validation';
 export default function ChangePassword() {
   const { t } = useTranslation('admin');
   const { t: tToast } = useTranslation('toast');
+  const { t: tAuth } = useTranslation('auth');
   const { changePassword, clearMustChangePassword } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
@@ -43,7 +44,7 @@ export default function ChangePassword() {
 
     const strength = isStrongPassword(newPassword);
     if (!strength.valid) {
-      setError(strength.reason!);
+      setError(tAuth(strength.reasonKey!));
       return;
     }
 
