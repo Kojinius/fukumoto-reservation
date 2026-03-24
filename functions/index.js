@@ -989,6 +989,12 @@ exports.completeVisit = onRequest(
     if (req.method === "OPTIONS") { res.status(204).send(""); return; }
     if (req.method !== "POST")    { res.status(405).json({ error: "Method Not Allowed" }); return; }
 
+    // [SEC-11] レート制限
+    const clientIp = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.ip;
+    if (isRateLimited(clientIp)) {
+      res.status(429).json({ error: "リクエストが多すぎます。しばらくお待ちください。" }); return;
+    }
+
     // ── 管理者認証チェック ──
     const authHeader = req.headers.authorization;
     if (!authHeader?.startsWith("Bearer ")) {
