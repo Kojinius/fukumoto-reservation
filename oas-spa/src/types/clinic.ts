@@ -48,6 +48,8 @@ export interface ClinicSettings {
   /** 表示・通知 */
   announcement: Announcement;
   maintenance: MaintenanceConfig;
+  /** [C2] 利用規約テキスト */
+  termsOfService: string;
   /** プライバシーポリシー */
   privacyPolicy: string;
   /** 要配慮個人情報の同意文言（C1: 個人情報保護法 第20条第2項対応） */

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useClinic } from '@/hooks/useClinic';
 import { useToast } from '@/hooks/useToast';
@@ -19,7 +19,7 @@ import { cn } from '@/utils/cn';
 import type { ClinicSettings, DaySchedule } from '@/types/clinic';
 import { DEFAULT_BUSINESS_HOURS } from '@/types/clinic';
 
-const TABS = ['基本情報', '営業時間', '休日', 'お知らせ', 'アカウント'] as const;
+const TABS = ['基本情報', '営業時間', '休日', 'お知らせ', '利用規約', 'アカウント'] as const;
 type Tab = typeof TABS[number];
 const WEEKDAYS = ['日', '月', '火', '水', '木', '金', '土'];
 
@@ -92,6 +92,9 @@ export default function Settings() {
 
       {/* お知らせ */}
       {tab === 'お知らせ' && <AnnouncementTab form={form} update={update} />}
+
+      {/* 利用規約 */}
+      {tab === '利用規約' && <TermsTab form={form} update={update} />}
 
       {/* アカウント */}
       {tab === 'アカウント' && <AccountsTab adminUsers={adminUsers} />}
@@ -472,6 +475,93 @@ function AnnouncementTab({ form, update }: { form: Partial<ClinicSettings>; upda
           <div className="grid grid-cols-2 gap-3">
             <Input label="開始日時" type="datetime-local" value={maint.startDate || ''} onChange={e => updateMaint({ startDate: e.target.value || null })} />
             <Input label="終了日時" type="datetime-local" value={maint.endDate || ''} onChange={e => updateMaint({ endDate: e.target.value || null })} />
+          </div>
+        </CardBody>
+      </Card>
+    </div>
+  );
+}
+
+/* ── 利用規約タブ（C2） ── */
+function TermsTab({ form, update }: { form: Partial<ClinicSettings>; update: (p: Partial<ClinicSettings>) => void }) {
+  const { showToast } = useToast();
+  const [termsVersion, setTermsVersion] = useState('');
+  const [termsUpdatedAt, setTermsUpdatedAt] = useState('');
+  const [bumping, setBumping] = useState(false);
+
+  // settings/terms からバージョン情報取得
+  useEffect(() => {
+    getDoc(doc(db, 'settings', 'terms')).then(snap => {
+      if (snap.exists()) {
+        setTermsVersion(snap.data().currentVersion || '1.0');
+        setTermsUpdatedAt(snap.data().updatedAt || '');
+      } else {
+        setTermsVersion('1.0');
+      }
+    }).catch(() => {});
+  }, []);
+
+  /** バージョン更新（全管理者に再同意を要求） */
+  async function handleBumpVersion() {
+    const parts = termsVersion.split('.');
+    const minor = parseInt(parts[1] || '0', 10) + 1;
+    const newVer = `${parts[0]}.${minor}`;
+    setBumping(true);
+    try {
+      await setDoc(doc(db, 'settings', 'terms'), {
+        currentVersion: newVer,
+        updatedAt: new Date().toISOString(),
+      });
+      setTermsVersion(newVer);
+      setTermsUpdatedAt(new Date().toISOString());
+      showToast(`バージョンを ${newVer} に更新しました。全管理者に再同意が求められます。`, 'success');
+    } catch {
+      showToast('バージョン更新に失敗しました', 'error');
+    } finally {
+      setBumping(false);
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-medium text-navy-700">利用規約</h3>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-navy-400 tabular-nums">
+                v{termsVersion}
+                {termsUpdatedAt && ` (${new Date(termsUpdatedAt).toLocaleDateString('ja-JP')} 更新)`}
+              </span>
+            </div>
+          </div>
+        </CardHeader>
+        <CardBody className="space-y-4">
+          <Textarea
+            label="利用規約テキスト"
+            value={form.termsOfService || ''}
+            onChange={e => update({ termsOfService: e.target.value })}
+            rows={10}
+            placeholder="管理者がログイン時に同意する利用規約を入力してください"
+          />
+          <p className="text-[11px] text-navy-400">
+            管理者の初回ログイン時、またはバージョン更新後に表示されます。
+          </p>
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <h3 className="text-sm font-medium text-navy-700">バージョン管理</h3>
+        </CardHeader>
+        <CardBody className="space-y-3">
+          <Alert variant="warning">
+            バージョンを更新すると、全管理者が次回ログイン時に利用規約・プライバシーポリシーへの再同意を求められます。
+          </Alert>
+          <div className="flex items-center gap-3">
+            <Button size="sm" variant="ghost" onClick={handleBumpVersion} loading={bumping}>
+              バージョンを更新（v{termsVersion} → v{termsVersion.split('.')[0]}.{parseInt(termsVersion.split('.')[1] || '0', 10) + 1}）
+            </Button>
           </div>
         </CardBody>
       </Card>

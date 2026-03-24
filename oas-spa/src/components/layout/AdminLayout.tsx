@@ -1,10 +1,13 @@
 import { Outlet, Navigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useClinic } from '@/hooks/useClinic';
 import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
+import { ConsentModal } from '@/components/shared/ConsentModal';
 
 export function AdminLayout() {
-  const { user, isAdmin, loading, logout, profile } = useAuth();
+  const { user, isAdmin, loading, logout, profile, needsConsent, acceptConsent } = useAuth();
+  const { clinic } = useClinic();
   const location = useLocation();
 
   if (loading) return <Spinner overlay />;
@@ -77,6 +80,14 @@ export function AdminLayout() {
       <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-6">
         <Outlet />
       </main>
+
+      {/* [C2] 利用規約・PP同意モーダル（未同意時はブロッキング表示） */}
+      <ConsentModal
+        open={needsConsent && !profile?.mustChangePassword}
+        termsText={clinic?.termsOfService || ''}
+        privacyText={clinic?.privacyPolicy || ''}
+        onAccept={acceptConsent}
+      />
     </div>
   );
 }

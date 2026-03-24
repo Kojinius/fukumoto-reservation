@@ -65,6 +65,29 @@ const CLINIC_SETTINGS = {
     "",
     "個人情報に関するお問い合わせは、受付窓口までお願いいたします。",
   ].join("\n"),
+  termsOfService: [
+    "第1条（目的）",
+    "本利用規約（以下「本規約」）は、テストクリニック（以下「当院」）が提供する予約管理システム（以下「本システム」）の利用条件を定めるものです。",
+    "",
+    "第2条（利用者）",
+    "本システムは、当院が承認した管理者およびスタッフ（以下「利用者」）が業務目的で利用するものとします。",
+    "",
+    "第3条（禁止事項）",
+    "利用者は、以下の行為を行ってはなりません。",
+    "1. 本システムを業務目的以外で使用すること",
+    "2. 患者の個人情報を不正に利用・漏洩すること",
+    "3. アカウント情報を第三者に共有すること",
+    "4. 本システムの機能を不正に操作すること",
+    "",
+    "第4条（個人情報の取り扱い）",
+    "利用者は、本システムで取り扱う患者情報が個人情報保護法に基づく要配慮個人情報を含むことを理解し、適切に管理するものとします。",
+    "",
+    "第5条（免責事項）",
+    "当院は、本システムの利用により生じた損害について、故意または重大な過失がある場合を除き、責任を負いません。",
+    "",
+    "第6条（規約の変更）",
+    "当院は、本規約を変更する場合、利用者に通知のうえ再同意を求めます。",
+  ].join("\n"),
   sensitiveDataConsentText: '',  // 空 = デフォルト文言使用
   updatedAt: new Date().toISOString(),
 };
@@ -76,12 +99,14 @@ const ADMIN_USERS = [
     password:    "Admin001!",
     displayName: "管理者テスト",
     mustChangePassword: false,  // テスト用 — すぐログイン可能
+    termsVersion: "1.0",        // [C2] 同意済み — モーダルスキップ
   },
   {
     email:       "staff@oas-test.local",
     password:    "Staff001!",
     displayName: "スタッフテスト",
     mustChangePassword: true,   // 初回パスワード変更フロー確認用
+    termsVersion: null,         // [C2] 未同意 — モーダル表示
   },
 ];
 
@@ -162,13 +187,17 @@ const SAMPLE_RESERVATIONS = [
 async function main() {
   console.log("=== OAS シードデータ投入開始 ===\n");
 
-  // 1. クリニック設定
-  console.log("[1/4] settings/clinic を作成...");
+  // 1. クリニック設定 + 利用規約バージョン
+  console.log("[1/5] settings/clinic + settings/terms を作成...");
   await db.collection("settings").doc("clinic").set(CLINIC_SETTINGS);
-  console.log("  ✓ クリニック設定作成完了");
+  await db.collection("settings").doc("terms").set({
+    currentVersion: "1.0",
+    updatedAt: new Date().toISOString(),
+  });
+  console.log("  ✓ クリニック設定 + 利用規約バージョン (v1.0) 作成完了");
 
   // 2. 管理者ユーザー（Auth + Firestore + カスタムクレーム）
-  console.log("[2/4] 管理者ユーザーを作成...");
+  console.log("[2/5] 管理者ユーザーを作成...");
   for (const u of ADMIN_USERS) {
     try {
       const rec = await auth.createUser({
@@ -177,13 +206,18 @@ async function main() {
         displayName: u.displayName,
       });
       await auth.setCustomUserClaims(rec.uid, { admin: true });
+      const now = new Date().toISOString();
       await db.collection("users").doc(rec.uid).set({
         uid:                 rec.uid,
         email:               u.email,
         displayName:         u.displayName,
         isAdmin:             true,
         mustChangePassword:  u.mustChangePassword,
-        createdAt:           new Date().toISOString(),
+        // [C2] 利用規約・PP同意フィールド
+        termsAcceptedAt:     u.termsVersion ? now : null,
+        privacyAcceptedAt:   u.termsVersion ? now : null,
+        termsVersion:        u.termsVersion || null,
+        createdAt:           now,
       });
       console.log(`  ✓ ${u.email} (UID: ${rec.uid}) — mustChangePassword: ${u.mustChangePassword}`);
     } catch (err) {
@@ -196,7 +230,7 @@ async function main() {
   }
 
   // 3. サンプル予約 + スロット
-  console.log("[3/4] サンプル予約・スロットを作成...");
+  console.log("[3/5] サンプル予約・スロットを作成...");
   for (const r of SAMPLE_RESERVATIONS) {
     const id     = crypto.randomUUID();
     const slotId = `${r.date}_${r.time.replace(":", "")}`;
@@ -234,7 +268,7 @@ async function main() {
   }
 
   // 4. 監査ログサンプル
-  console.log("[4/4] 監査ログサンプルを作成...");
+  console.log("[4/5] 監査ログサンプルを作成...");
   await db.collection("audit_logs").add({
     action:      "seed_executed",
     performedBy: "system",
