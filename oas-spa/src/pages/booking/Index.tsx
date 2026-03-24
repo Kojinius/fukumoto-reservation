@@ -149,6 +149,7 @@ export default function BookingIndex() {
           bookingId={bookingId}
           form={form}
           onNewReservation={handleNewReservation}
+          isAdminProxy={isAdminProxy}
         />
       )}
     </div>

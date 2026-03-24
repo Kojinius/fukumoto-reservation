@@ -177,6 +177,7 @@
   },
   "adminProxy": {
     "banner": "Chế Độ Đặt Lịch Hộ",
-    "bannerDesc": "Đang nhập thông tin bệnh nhân từ cuộc gọi đặt lịch. Vui lòng xác nhận đồng ý qua điện thoại."
+    "bannerDesc": "Đang nhập thông tin bệnh nhân từ cuộc gọi đặt lịch. Vui lòng xác nhận đồng ý qua điện thoại.",
+    "closeTab": "Kết Thúc Chế Độ Hộ"
   }
 }

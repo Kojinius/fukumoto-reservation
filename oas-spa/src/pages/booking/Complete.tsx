@@ -10,13 +10,14 @@ interface Props {
   bookingId: string;
   form: ReservationFormData;
   onNewReservation: () => void;
+  isAdminProxy?: boolean;
 }
 
 /** 患者権利行使のデフォルト案内文 */
 const DEFAULT_RIGHTS_TEXT =
   '個人情報の開示・訂正・利用停止をご希望の場合は、当院窓口までお問い合わせください。本人確認の上、法令に基づき対応いたします。';
 
-export function Complete({ bookingId, form, onNewReservation }: Props) {
+export function Complete({ bookingId, form, onNewReservation, isAdminProxy }: Props) {
   const { t } = useTranslation('booking');
   const { clinic } = useClinic();
   const [copied, setCopied] = useState(false);
@@ -32,6 +33,19 @@ export function Complete({ bookingId, form, onNewReservation }: Props) {
 
   return (
     <div className="space-y-5 animate-fade-in-up max-w-lg mx-auto">
+      {/* 管理者代行入力モードバナー */}
+      {isAdminProxy && (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 flex items-start gap-3">
+          <svg className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+          </svg>
+          <div>
+            <p className="text-sm font-semibold text-amber-800">{t('adminProxy.banner')}</p>
+            <p className="text-xs text-amber-600 mt-0.5">{t('adminProxy.bannerDesc')}</p>
+          </div>
+        </div>
+      )}
+
       {/* セクション1: 成功ヒーロー */}
       <div className="bg-white rounded-xl border border-cream-300/60 shadow-sm overflow-hidden">
         <div className="relative bg-navy-700 px-6 pt-10 pb-10 text-center overflow-hidden">
@@ -136,22 +150,37 @@ export function Complete({ bookingId, form, onNewReservation }: Props) {
       </div>
 
       {/* アクション */}
-      <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2 animate-stagger-3">
-        <Link to="/cancel" state={{ bookingId }}>
-          <Button variant="secondary" className="w-full sm:w-auto">
+      {isAdminProxy ? (
+        <div className="flex justify-center pt-2 animate-stagger-3">
+          <Button
+            variant="primary"
+            className="w-full sm:w-auto"
+            onClick={() => window.close()}
+          >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
             </svg>
-            {t('complete.cancelButton')}
+            {t('adminProxy.closeTab')}
           </Button>
-        </Link>
-        <Button variant="ghost" onClick={onNewReservation} className="w-full sm:w-auto">
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-          </svg>
-          {t('complete.newReservationButton')}
-        </Button>
-      </div>
+        </div>
+      ) : (
+        <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2 animate-stagger-3">
+          <Link to="/cancel" state={{ bookingId }}>
+            <Button variant="secondary" className="w-full sm:w-auto">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              {t('complete.cancelButton')}
+            </Button>
+          </Link>
+          <Button variant="ghost" onClick={onNewReservation} className="w-full sm:w-auto">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            {t('complete.newReservationButton')}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

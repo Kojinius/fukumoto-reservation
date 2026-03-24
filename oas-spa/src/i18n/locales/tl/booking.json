@@ -177,6 +177,7 @@
   },
   "adminProxy": {
     "banner": "Mode ng Pag-book ng Admin",
-    "bannerDesc": "Ini-input ang impormasyon ng pasyente mula sa telepono. Pakikumpirma ang pahintulot sa telepono."
+    "bannerDesc": "Ini-input ang impormasyon ng pasyente mula sa telepono. Pakikumpirma ang pahintulot sa telepono.",
+    "closeTab": "Tapusin ang Proxy Mode"
   }
 }
