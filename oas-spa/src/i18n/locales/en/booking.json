@@ -177,6 +177,7 @@
   },
   "adminProxy": {
     "banner": "Admin Proxy Booking Mode",
-    "bannerDesc": "Entering patient information from a phone reservation. Please confirm consent verbally over the phone."
+    "bannerDesc": "Entering patient information from a phone reservation. Please confirm consent verbally over the phone.",
+    "closeTab": "End Proxy Mode"
   }
 }
