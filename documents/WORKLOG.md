@@ -11,6 +11,38 @@
 
 ---
 
+## 2026-03-24 Work Log (2)
+
+### Completed Tasks
+
+#### [LEGAL-C2] Admin Terms of Service & Privacy Policy Consent Modal (APPI Article 15)
+
+- **Legal basis**: 個人情報保護法 第15条 — purpose limitation and consent for personal data processing
+- **Implementation**: Full-stack 2-step consent modal for admin users
+  - **ConsentModal.tsx**: New shared component (155 lines) — 2-step modal (Step 1: TOS, Step 2: PP), scroll-to-bottom gating per step, requestAnimationFrame short-text auto-enable, Escape key blocked, no backdrop dismiss, step indicator dots (gold/cream), z-60
+  - **AuthContext.tsx**: Added `currentTermsVersion` state from `settings/terms`, `fetchTermsVersion()`, `needsConsent` useMemo (`profile.termsVersion !== currentTermsVersion`), `acceptConsent()` writes consent fields to user doc
+  - **AdminLayout.tsx**: Guard ordering — `mustChangePassword` takes priority over consent modal (`open={needsConsent && !profile?.mustChangePassword}`)
+  - **Settings.tsx**: New "利用規約" tab — TOS textarea editor, version display from `settings/terms`, version bump button (increments minor, warns about re-consent)
+  - **Firestore Rules**: Extended users self-update `affectedKeys().hasOnly()` with `termsAcceptedAt`, `privacyAcceptedAt`, `termsVersion`
+  - **seed.js**: Added `settings/terms` doc (`currentVersion: "1.0"`), TOS text (6 articles), admin consented (`termsVersion: "1.0"`), staff needs consent (`termsVersion: null`)
+- **Types updated**: `UserProfile` + `termsAcceptedAt`, `privacyAcceptedAt`, `termsVersion`; `ClinicSettings` + `termsOfService`
+- **Bug fix**: Staff user with both `mustChangePassword: true` and `termsVersion: null` saw consent modal overlay password change page — fixed guard ordering in AdminLayout
+- **Code review**: Passed (5-agent review, no issues above 80 confidence threshold). Sub-threshold notes: needsConsent null bypass (75), version bump race condition (72)
+- **PR**: #4
+
+#### Admin Dashboard UX Overhaul
+
+- **Layout**: Widened from `max-w-3xl` to `max-w-5xl` (header + main)
+- **KPI filter fix**: Added `&& r.status !== 'cancelled'` to 'today', 'month', 'new' KPI filters; added `&& r.date.startsWith(monthPrefix)` to 'new' filter — fixed count mismatch between KPI cards and filtered results
+- **Search section**: 2-row layout (status tabs + CSV on row 1, 5-column grid with labels on row 2). All 5 inputs have `label` prop (氏名, 郵便番号, 電話番号, 予約受付日, 診察予定日) with example placeholders (山田太郎, 123-4567, 090-1234-5678)
+- **Table columns**: Renamed 日時→診察予定日時, added 予約受付日 column, symptoms as clickable blue link → modal with notes
+- **Detail modal**: Added 郵便番号 field, renamed 予約日時→診察予定日時, 登録日時→予約受付日
+- **New symptoms modal**: Separate modal for symptoms + notes display (triggered from table link)
+- **Code review**: Passed (5-agent review, no issues above 80 confidence threshold). Sub-threshold note: UTC/JST filter mismatch (50)
+- **PR**: #5
+
+---
+
 ## 2026-03-24 Work Log
 
 ### Completed Tasks
