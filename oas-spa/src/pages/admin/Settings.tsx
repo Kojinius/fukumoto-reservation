@@ -348,14 +348,17 @@ function BusinessDayTab({ form, update, showToast }: { form: Partial<ClinicSetti
                     <button key={cell.date} type="button" onClick={() => toggleHoliday(cell.date)}
                       title={cell.isHoliday ? 'クリックで解除' : 'クリックで休日に設定'}
                       className={cn(
-                        'h-8 flex items-center justify-center text-xs rounded-md transition-all',
+                        'relative h-8 flex items-center justify-center text-xs rounded-md transition-all',
                         cell.isHoliday ? 'bg-red-500 text-white font-bold shadow-sm hover:bg-red-600 scale-105' : 'hover:bg-cream-100 hover:scale-105',
                         !cell.isHoliday && cell.isToday && 'ring-2 ring-gold/40 font-bold text-gold',
                         !cell.isHoliday && cell.dow === 0 && 'text-red-400',
                         !cell.isHoliday && cell.dow === 6 && 'text-sky-400',
                         !cell.isHoliday && cell.dow > 0 && cell.dow < 6 && 'text-navy-600',
                       )}
-                    >{cell.day}</button>
+                    >
+                      {cell.day}
+                      {cell.isHoliday && <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-white/80" />}
+                    </button>
                   );
                 })}
               </div>
@@ -633,9 +636,12 @@ function AnnouncementTab({ form, update, showToast }: { form: Partial<ClinicSett
           </div>
         </CardHeader>
         <CardBody className="space-y-3">
-          <label className="flex items-center gap-2">
-            <input type="checkbox" checked={ann.active} onChange={e => updateAnn({ active: e.target.checked })} className="rounded text-gold" />
-            <span className="text-sm text-navy-500">有効</span>
+          <label className="flex items-center gap-2.5 cursor-pointer">
+            <div className={cn('relative w-9 h-5 rounded-full transition-colors', ann.active ? 'bg-emerald-400' : 'bg-navy-200')}>
+              <div className={cn('absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all', ann.active ? 'left-[18px]' : 'left-0.5')} />
+              <input type="checkbox" checked={ann.active} onChange={e => updateAnn({ active: e.target.checked })} className="sr-only" />
+            </div>
+            <span className="text-sm text-navy-600 font-medium">{ann.active ? '表示中' : '非表示'}</span>
           </label>
           {ann.active && (
             <>
