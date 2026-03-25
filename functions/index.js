@@ -755,6 +755,30 @@ function validateEmail(email) {
   return null;
 }
 
+/** 電話番号形式チェック: 数字・ハイフン・プラス・括弧・スペースのみ許可（7〜20文字） */
+const PHONE_REGEX = /^[0-9\-+() ]{7,20}$/;
+function validatePhone(phone) {
+  if (typeof phone !== "string") return "電話番号の形式が不正です";
+  if (!PHONE_REGEX.test(phone)) return "電話番号の形式が不正です";
+  return null;
+}
+
+/** 郵便番号形式チェック: 123-4567 または 1234567 形式 */
+const ZIP_REGEX = /^\d{3}-?\d{4}$/;
+function validateZip(zip) {
+  if (typeof zip !== "string") return "郵便番号の形式が不正です";
+  if (!ZIP_REGEX.test(zip)) return "郵便番号の形式が不正です";
+  return null;
+}
+
+/** フリガナ形式チェック: ひらがな・カタカナ・長音符・スペースのみ許可 */
+const FURIGANA_REGEX = /^[\u3040-\u309F\u30A0-\u30FF\u30FC\s]+$/;
+function validateFurigana(furigana) {
+  if (typeof furigana !== "string") return "フリガナの形式が不正です（カタカナまたはひらがな）";
+  if (!FURIGANA_REGEX.test(furigana)) return "フリガナの形式が不正です（カタカナまたはひらがな）";
+  return null;
+}
+
 // ── 共通：admin クレームを持つユーザーのメール一覧を取得 ──
 async function getAdminEmails() {
   const result = await getAuth().listUsers(100);
@@ -1176,6 +1200,15 @@ exports.correctVisitHistory = onRequest(
         }
         if (key === "email" && validateEmail(fields[key]) !== null) {
           res.status(400).json({ error: "メールアドレスの形式が不正です" }); return;
+        }
+        if (key === "phone" && validatePhone(fields[key]) !== null) {
+          res.status(400).json({ error: "電話番号の形式が不正です" }); return;
+        }
+        if (key === "zip" && validateZip(fields[key]) !== null) {
+          res.status(400).json({ error: "郵便番号の形式が不正です" }); return;
+        }
+        if (key === "furigana" && validateFurigana(fields[key]) !== null) {
+          res.status(400).json({ error: "フリガナの形式が不正です（カタカナまたはひらがな）" }); return;
         }
       }
       validatedFields = {};

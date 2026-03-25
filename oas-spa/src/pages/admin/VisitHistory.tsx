@@ -340,8 +340,11 @@ export default function VisitHistory() {
     try {
       const fields: Record<string, string> = {};
       for (const f of selectedFields) {
-        if (fieldValues[f] !== undefined && fieldValues[f].trim() !== '') {
-          fields[f] = fieldValues[f];
+        const v = fieldValues[f];
+        if (v === undefined) continue;
+        // select型（gender: 未設定=''）は空値でも有効な訂正値として含める
+        if (FIELD_CONFIG[f]?.type === 'select' || v.trim() !== '') {
+          fields[f] = v;
         }
       }
       const result = await correctVisitHistory(
