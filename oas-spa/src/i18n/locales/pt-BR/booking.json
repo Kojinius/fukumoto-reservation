@@ -85,7 +85,8 @@
     "validationEmailRequiredForMail": "O e-mail é obrigatório quando o método de contato é \"E-mail\"",
     "validationEmailFormat": "Formato de e-mail inválido",
     "validationSensitiveConsent": "Por favor, consinta com o tratamento das suas informações de saúde",
-    "validationSymptomsRequired": "Por favor, informe seus sintomas / queixas"
+    "validationSymptomsRequired": "Por favor, informe seus sintomas / queixas",
+    "visitHistoryNotice": "As informações inseridas serão armazenadas como parte do seu histórico de consultas. Consulte nossa Política de Privacidade para obter detalhes sobre o período de retenção e como seus dados são tratados."
   },
   "confirm": {
     "appointmentDateTime": "Data e Hora da Consulta",

@@ -85,7 +85,8 @@
     "validationEmailRequiredForMail": "연락 방법이 \"이메일\"인 경우 이메일 주소는 필수입니다",
     "validationEmailFormat": "이메일 주소 형식이 올바르지 않습니다",
     "validationSensitiveConsent": "건강 정보 취급에 동의해 주세요",
-    "validationSymptomsRequired": "증상・고민을 입력해 주세요"
+    "validationSymptomsRequired": "증상・고민을 입력해 주세요",
+    "visitHistoryNotice": "입력하신 정보는 진찰 이력으로 보관됩니다. 보관 기간 및 취급 방법에 대해서는 개인정보 처리방침을 확인해 주세요."
   },
   "confirm": {
     "appointmentDateTime": "예약 일시",

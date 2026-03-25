@@ -85,7 +85,8 @@
     "validationEmailRequiredForMail": "Kinakailangan ang email kapag ang paraan ng pakikipag-ugnayan ay \"Email\"",
     "validationEmailFormat": "Hindi tamang format ng email address",
     "validationSensitiveConsent": "Mangyaring sumang-ayon sa paghawak ng iyong impormasyon sa kalusugan",
-    "validationSymptomsRequired": "Mangyaring ilagay ang iyong mga sintomas / alalahanin"
+    "validationSymptomsRequired": "Mangyaring ilagay ang iyong mga sintomas / alalahanin",
+    "visitHistoryNotice": "Ang impormasyong inilagay mo ay itatago bilang bahagi ng iyong kasaysayan ng pagbisita. Pakitingnan ang aming Patakaran sa Privacy para sa mga detalye tungkol sa panahon ng pagpapanatili at kung paano pinamamahalaan ang iyong data."
   },
   "confirm": {
     "appointmentDateTime": "Petsa at Oras ng Appointment",

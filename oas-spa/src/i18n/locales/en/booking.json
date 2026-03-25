@@ -85,7 +85,8 @@
     "validationEmailRequiredForMail": "Email address is required when contact method is \"Email\"",
     "validationEmailFormat": "Invalid email address format",
     "validationSensitiveConsent": "Please consent to the handling of your health information",
-    "validationSymptomsRequired": "Please enter your symptoms / concerns"
+    "validationSymptomsRequired": "Please enter your symptoms / concerns",
+    "visitHistoryNotice": "The information you enter will be retained as part of your visit history. Please refer to our Privacy Policy for details on the retention period and how your data is handled."
   },
   "confirm": {
     "appointmentDateTime": "Appointment Date & Time",
