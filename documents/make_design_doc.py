@@ -193,7 +193,7 @@ def slide_01_cover(prs, blank_layout):
     add_text(slide, "詳細設計書",
              Inches(0.5), Inches(3.0), Inches(12), Inches(0.9),
              font_size=36, bold=True, color=C_BASE, align=PP_ALIGN.CENTER)
-    add_text(slide, "2026年3月  |  React SPA v3",
+    add_text(slide, "2026年3月  |  React SPA v4（i18n / PWA / 問診票 / 診察履歴 / APPI対応）",
              Inches(0.5), Inches(3.9), Inches(12), Inches(0.6),
              font_size=18, color=C_BASE, align=PP_ALIGN.CENTER)
 
@@ -218,10 +218,15 @@ def slide_02_toc(prs, blank_layout):
         ("12", "管理者ダッシュボード",        "p.19"),
         ("13", "設定画面",                   "p.20"),
         ("14", "デプロイ構成",               "p.22"),
+        ("15", "i18n 多言語対応",            "p.24"),
+        ("16", "PWA 対応",                   "p.25"),
+        ("17", "問診票機能",                 "p.26"),
+        ("18", "診察履歴・APPI対応",         "p.27"),
+        ("19", "アクセスログ・リマインダー", "p.28"),
     ]
 
-    left_items  = toc_items[:7]
-    right_items = toc_items[7:]
+    left_items  = toc_items[:10]
+    right_items = toc_items[10:]
 
     for col_idx, items in enumerate([left_items, right_items]):
         cx = Inches(0.5) + Inches(6.3) * col_idx
@@ -296,6 +301,8 @@ def slide_05_tech_stack(prs, blank_layout):
             "・pdf-lib / fontkit",
             "　（PDF 生成）",
             "・clsx / tailwind-merge",
+            "・react-i18next（7言語対応）",
+            "・vite-plugin-pwa（PWA）",
         ]),
         ("バックエンド", [
             "・Firebase Authentication",
@@ -332,17 +339,21 @@ def slide_07_directory(prs, blank_layout):
         "│   │   ├── pages/\n"
         "│   │   │   ├── booking/        # Index / DateTimeSelect / PatientForm\n"
         "│   │   │   │                   #   / Confirm / Complete\n"
-        "│   │   │   ├── admin/          # Dashboard / Settings / ChangePassword\n"
+        "│   │   │   ├── admin/          # Dashboard / Settings / ChangePassword / History\n"
+        "│   │   │   ├── questionnaire/  # /questionnaire（問診票）\n"
         "│   │   │   ├── Cancel.tsx      # /cancel\n"
         "│   │   │   ├── Login.tsx       # /login\n"
         "│   │   │   └── PrivacyPolicy.tsx\n"
         "│   │   ├── components/         # ui / shared / layout\n"
         "│   │   ├── contexts/           # Auth / Clinic / Theme / Toast\n"
         "│   │   ├── hooks/              # useAuth / useAdmin / useReservation etc.\n"
-        "│   │   ├── types/              # TypeScript 型定義\n"
+        "│   │   ├── i18n/               # react-i18next 設定 / 7言語 / 5ネームスペース\n"
+        "│   │   │   └── locales/{ja,en,zh,ko,vi,pt,es}/\n"
+        "│   │   ├── types/              # TypeScript 型定義（questionnaire.ts 追加）\n"
         "│   │   └── utils/              # cn / date / validation / security / zip\n"
+        "│   │                           #   questionnairePdf.ts（pdf-lib PDF生成）\n"
         "│   └── dist/                   # ビルド出力\n"
-        "├── functions/index.js          # Cloud Functions (7 functions)\n"
+        "├── functions/index.js          # Cloud Functions (10+ functions)\n"
         "├── firestore.rules             # セキュリティルール\n"
         "└── firebase.json               # Hosting マルチサイト設定"
     )
@@ -379,18 +390,32 @@ def slide_08_datamodel(prs, blank_layout):
             "",
             "audit_logs",
             "　event, data, severity, timestamp",
+            "",
+            "questionnaires / {reservationId}",
+            "　18フィールド / 問診票データ",
+            "",
+            "visit_histories / {id}",
+            "　（immutable）診察完了記録",
+            "　→ corrections/ サブコレクション",
+            "",
+            "access_logs",
+            "　uid, action, targetId, timestamp",
         ],
-        "status の値",
+        "status・追加コレクション詳細",
         [
             "reservations.status",
             "・pending    → 未確認",
             "・confirmed  → 確認済み",
             "・cancelled  → キャンセル済",
+            "・completed  → 診察完了",
             "",
-            "slots コレクション",
-            "・slots は公開読み取り可",
-            "  （患者向けカレンダー用）",
-            "・書き込みは管理者のみ",
+            "visit_histories フィールド",
+            "・completedAt, completedBy",
+            "・（予約データをコピー保存）",
+            "・immutable rules:",
+            "  update/delete 管理者も不可",
+            "  correctVisitHistory CF のみ",
+            "  corrections サブコレクションに追記",
             "",
             "audit_logs イベント",
             "・reservation.created",
@@ -399,6 +424,11 @@ def slide_08_datamodel(prs, blank_layout):
             "・user.created",
             "・user.deleted",
             "・rate_limit.exceeded",
+            "",
+            "access_logs アクション",
+            "・view_reservation",
+            "・download_questionnaire_pdf",
+            "・complete_visit",
         ],
     )
 
@@ -406,16 +436,19 @@ def slide_08_datamodel(prs, blank_layout):
 def slide_09_functions(prs, blank_layout):
     slide = prs.slides.add_slide(blank_layout)
     add_shape(slide, Inches(0), Inches(0), W, H, fill_color=C_BASE)
-    header_bar(slide, "Cloud Functions 設計（7 functions）", badge_text="Functions")
+    header_bar(slide, "Cloud Functions 設計（10 functions）", badge_text="Functions")
 
     funcs = [
-        ("createReservation",  "onRequest", "予約作成・メール送信・スロット管理・監査ログ。レート制限・スキーマ検証あり"),
-        ("verifyReservation",  "onRequest", "電話番号照合でキャンセル前の予約照会。電話番号ミスマッチは404で列挙攻撃防止"),
-        ("cancelReservation",  "onRequest", "電話番号照合後 Firestore トランザクションでキャンセル。TOCTOU 修正済み [SEC-8]"),
-        ("createAdminUser",    "onRequest", "管理者作成・admin カスタムクレーム付与・初期パスワード変更フラグ設定"),
-        ("listUsers",          "onRequest", "管理者一覧取得（admin クレーム必須）。メールはマスク表示 [SEC-6]"),
-        ("deleteUser",         "onRequest", "ユーザー削除（admin クレーム必須）"),
-        ("sendDailyReminders", "onSchedule","翌日予約へのリマインダーメール一括送信"),
+        ("createReservation",    "onRequest", "予約作成・メール送信・スロット管理・監査ログ。レート制限・スキーマ検証あり"),
+        ("verifyReservation",    "onRequest", "電話番号照合でキャンセル前の予約照会。電話番号ミスマッチは404で列挙攻撃防止"),
+        ("cancelReservation",    "onRequest", "電話番号照合後 Firestore トランザクションでキャンセル。TOCTOU 修正済み [SEC-8]"),
+        ("createAdminUser",      "onRequest", "管理者作成・admin カスタムクレーム付与・初期パスワード変更フラグ設定"),
+        ("listUsers",            "onRequest", "管理者一覧取得（admin クレーム必須）。メールはマスク表示 [SEC-6]"),
+        ("deleteUser",           "onRequest", "ユーザー削除（admin クレーム必須）"),
+        ("sendDailyReminders",   "onSchedule","翌日予約へのリマインダーメール一括送信（opt-in 患者のみ）"),
+        ("completeVisit",        "onRequest", "診察完了処理: visit_histories 保存 + status=completed。admin クレーム必須"),
+        ("correctVisitHistory",  "onRequest", "診察履歴訂正（APPI第34条）: corrections サブコレクションに immutable 追記"),
+        ("optOutReminder",       "onRequest", "HMAC-SHA256 トークン検証後 reminderConsent=false に更新（メール配信停止）"),
     ]
 
     y = Inches(1.1)
@@ -640,7 +673,7 @@ def slide_19_dashboard(prs, blank_layout):
     add_shape(slide, Inches(0), Inches(0), W, H, fill_color=C_BASE)
     header_bar(slide, "管理者ダッシュボード（/admin）", badge_text="画面")
     notes = [
-        "## KPI カード",
+        "## KPI カード（4種）",
         "・本日の予約数",
         "・今月の予約数",
         "・新規患者数",
@@ -648,14 +681,24 @@ def slide_19_dashboard(prs, blank_layout):
         "",
         "## 予約一覧",
         "・ステータス・日付・キーワード",
-        "　で絞り込み",
+        "　・郵便番号・電話番号で絞り込み",
         "・行クリックで詳細モーダル",
+        "・ソート可（複数列対応）",
+        "",
+        "## 詳細モーダル",
+        "・ステータス変更",
+        "・診察完了（visit_histories 保存）",
+        "・問診票PDF ダウンロード（pdf-lib）",
+        "・キャンセル（理由選択必須）",
+        "",
+        "## アクセスログ",
+        "・詳細モーダル閲覧: logAccess()",
+        "・問診票PDF DL: logAccess()",
         "",
         "## エクスポート",
         "・CSV ダウンロード",
-        "・PDF 印刷（pdf-lib）",
     ]
-    image_with_notes(slide, SS_DIR / "09_dashboard.png", notes)
+    image_with_notes(slide, SS_DIR / "10_dashboard.png", notes)
 
 
 def slide_20_settings(prs, blank_layout):
@@ -663,15 +706,20 @@ def slide_20_settings(prs, blank_layout):
     add_shape(slide, Inches(0), Inches(0), W, H, fill_color=C_BASE)
     header_bar(slide, "設定画面（/admin/settings）", badge_text="画面")
     notes = [
-        "## タブ構成（5 タブ）",
+        "## タブ構成（6 タブ）",
         "・基本情報",
-        "　院名・住所・電話番号",
-        "・営業時間",
-        "　曜日別 ON/OFF + 時間設定",
-        "・休日",
-        "　カレンダーで休診日登録",
+        "　院名・住所・電話番号・Google Maps",
+        "・営業日設定",
+        "　曜日別 ON/OFF + AM/PM 時間設定",
+        "　タイムラインバー・休日管理",
         "・お知らせ",
-        "　トップバナーの ON/OFF + テキスト",
+        "　バナー設定・メンテナンスモード",
+        "・利用規約",
+        "　規約テキスト・バージョン管理",
+        "・ポリシー",
+        "　PP・要配慮同意・保存期間",
+        "　患者権利窓口（APPI 第28〜30条）",
+        "　リマインダーメール ON/OFF",
         "・アカウント",
         "　管理者一覧・追加・削除",
         "　パスワード変更リンク",
@@ -680,7 +728,299 @@ def slide_20_settings(prs, blank_layout):
         "・「保存」ボタンで Firestore に",
         "　即時反映（merge: true）",
     ]
-    image_with_notes(slide, SS_DIR / "11_settings_clinic_info.png", notes)
+    image_with_notes(slide, SS_DIR / "13_settings_basic_info.png", notes)
+
+
+def slide_24_i18n(prs, blank_layout):
+    """i18n 多言語対応"""
+    slide = prs.slides.add_slide(blank_layout)
+    add_shape(slide, Inches(0), Inches(0), W, H, fill_color=C_BASE)
+    header_bar(slide, "i18n 多言語対応", badge_text="新機能")
+    two_col_cards(slide,
+        "構成・対応言語",
+        [
+            "## ライブラリ",
+            "・react-i18next",
+            "・i18next-browser-languagedetector",
+            "",
+            "## 対応言語（7言語）",
+            "・ja  日本語（デフォルト）",
+            "・en  英語",
+            "・zh  中国語（簡体字）",
+            "・ko  韓国語",
+            "・vi  ベトナム語",
+            "・pt  ポルトガル語",
+            "・es  スペイン語",
+            "",
+            "## ネームスペース（5種）",
+            "・common   共通",
+            "・admin    管理者画面",
+            "・booking  予約フロー",
+            "・toast    通知",
+            "・questionnaire  問診票",
+            "",
+            "## LanguageSwitcher",
+            "・ヘッダーに variant=header で表示",
+            "・患者・管理者両方のヘッダーに配置",
+        ],
+        "実装詳細",
+        [
+            "## 初期化（i18n/index.ts）",
+            "・I18nextProvider でアプリをラップ",
+            "・ブラウザ言語を自動検出",
+            "・fallbackLng: ja",
+            "",
+            "## 翻訳ファイル構成",
+            "src/i18n/locales/",
+            "  {lang}/",
+            "    common.json",
+            "    admin.json",
+            "    booking.json",
+            "    toast.json",
+            "    questionnaire.json",
+            "",
+            "## 使い方",
+            "const { t } = useTranslation('admin');",
+            "t('dashboard.kpi.todayReservations')",
+            "",
+            "## PDF出力での多言語対応",
+            "・問診票PDFラベルは t() で取得",
+            "・管理者の表示言語に応じて出力",
+        ],
+        top=Inches(1.1),
+    )
+
+
+def slide_25_pwa(prs, blank_layout):
+    """PWA 対応"""
+    slide = prs.slides.add_slide(blank_layout)
+    add_shape(slide, Inches(0), Inches(0), W, H, fill_color=C_BASE)
+    header_bar(slide, "PWA 対応", badge_text="新機能")
+    two_col_cards(slide,
+        "技術構成",
+        [
+            "## ライブラリ",
+            "・vite-plugin-pwa",
+            "・Workbox（Service Worker 生成）",
+            "",
+            "## vite.config.ts 設定",
+            "・VitePWA プラグイン追加",
+            "・registerType: autoUpdate",
+            "・workbox:",
+            "  globPatterns: ['**/*.{js,css,html}']",
+            "  runtimeCaching で API キャッシュ",
+            "",
+            "## Web App Manifest",
+            "・name: OAS 予約システム",
+            "・short_name: OAS",
+            "・display: standalone",
+            "・theme_color: #1A2B4A（ネイビー）",
+            "・background_color: #F8F5EE（クリーム）",
+            "・icons: 192px / 512px",
+        ],
+        "オフライン・インストール",
+        [
+            "## オフラインキャッシュ戦略",
+            "・Shell (HTML/CSS/JS): precache",
+            "・静的アセット: CacheFirst",
+            "  最大30日 / 60エントリ",
+            "・Firebase API: NetworkFirst",
+            "  オフライン時はキャッシュから提供",
+            "",
+            "## InstallBanner コンポーネント",
+            "・beforeinstallprompt イベントを",
+            "  キャプチャして表示",
+            "・「ホーム画面に追加」ボタン",
+            "・一度閉じると localStorage に",
+            "  dismissed=true を保存",
+            "",
+            "## Service Worker 更新",
+            "・autoUpdate: バックグラウンドで",
+            "  自動更新・即時適用",
+            "・skipWaiting: true",
+        ],
+        top=Inches(1.1),
+    )
+
+
+def slide_26_questionnaire(prs, blank_layout):
+    """問診票機能"""
+    slide = prs.slides.add_slide(blank_layout)
+    add_shape(slide, Inches(0), Inches(0), W, H, fill_color=C_BASE)
+    header_bar(slide, "問診票機能（/questionnaire）", badge_text="新機能")
+
+    img_path = SS_DIR / "08_questionnaire.png"
+    notes = [
+        "## ルート",
+        "・/questionnaire?id={reservationId}",
+        "  予約確認メール内リンクから遷移",
+        "",
+        "## 18フィールド（5セクション）",
+        "《主訴・症状》",
+        "・主訴 / 発症時期 / 痛み程度",
+        "・痛みの部位（複数選択）",
+        "・痛みの性質 / 日常生活への影響",
+        "《既往歴・治療状況》",
+        "・既往歴 / 現在の通院",
+        "・服用中の薬 / アレルギー / 手術歴",
+        "《生活習慣》",
+        "・睡眠 / 食事 / 運動 / ストレス",
+        "《その他》",
+        "・妊娠の可能性（3択）",
+        "・希望する施術 / その他",
+        "",
+        "## データ保存",
+        "・questionnaires/{reservationId}",
+        "  に Firestore 保存",
+        "",
+        "## PDF出力",
+        "・generateQuestionnairePdf()",
+        "・pdf-lib + fontkit",
+        "・ファイル名:",
+        "  問診票_{氏名}_{日付}.pdf",
+    ]
+    image_with_notes(slide, img_path, notes)
+
+
+def slide_27_visit_history(prs, blank_layout):
+    """診察履歴・APPI対応"""
+    slide = prs.slides.add_slide(blank_layout)
+    add_shape(slide, Inches(0), Inches(0), W, H, fill_color=C_BASE)
+    header_bar(slide, "診察履歴・APPI訂正権対応", badge_text="新機能")
+    two_col_cards(slide,
+        "診察履歴（completeVisit CF）",
+        [
+            "## 診察完了フロー",
+            "① 管理者が詳細モーダルで",
+            "  「診察完了」ボタンをクリック",
+            "② 確認ダイアログ表示",
+            "③ completeVisit CF 呼び出し",
+            "   （admin クレーム必須）",
+            "④ visit_histories/{id} に",
+            "   予約データをコピー保存",
+            "⑤ reservations.status",
+            "   = completed に更新",
+            "",
+            "## visit_histories コレクション",
+            "・completedAt: 診察完了日時",
+            "・completedBy: 管理者UID",
+            "・予約全フィールドをコピー",
+            "・immutable Firestore ルール:",
+            "  管理者も update/delete 不可",
+            "  （CF のみ書き込み可）",
+            "",
+            "## 診察履歴ページ",
+            "・/admin/history",
+            "・検索・ページネーション（20件）",
+            "・CSV 出力",
+            "・詳細モーダル",
+        ],
+        "APPI 訂正権（第34条）",
+        [
+            "## correctVisitHistory CF",
+            "・admin クレーム必須",
+            "・訂正理由必須入力",
+            "・corrections サブコレクション",
+            "  に immutable 追記",
+            "  （元レコードは更新しない）",
+            "",
+            "## 訂正可能フィールド",
+            "・氏名 / ふりがな",
+            "・生年月日 / 郵便番号",
+            "・住所 / 電話番号 / メール",
+            "・初診/再診 / 保険証",
+            "・性別",
+            "",
+            "## 訂正不可フィールド",
+            "・症状（施術者判断記録）",
+            "・診察日時 / 完了者",
+            "・伝達事項",
+            "",
+            "## 追記（addendum）",
+            "・症状等は直接訂正不可",
+            "・addendum フィールドで",
+            "  事実誤記の補足説明可能",
+            "",
+            "## 通知",
+            "・患者メールアドレスがあれば",
+            "  訂正完了メール送信",
+            "・未登録時は手動通知を促す",
+        ],
+        top=Inches(1.1),
+    )
+
+
+def slide_28_access_log_reminder(prs, blank_layout):
+    """アクセスログ・リマインダーopt-out"""
+    slide = prs.slides.add_slide(blank_layout)
+    add_shape(slide, Inches(0), Inches(0), W, H, fill_color=C_BASE)
+    header_bar(slide, "アクセスログ・リマインダーopt-out", badge_text="新機能")
+    two_col_cards(slide,
+        "アクセスログ（logAccess）",
+        [
+            "## 目的",
+            "・個人情報アクセスの証跡管理",
+            "・APPI 対応・内部統制",
+            "",
+            "## ログ記録タイミング",
+            "・詳細モーダル閲覧",
+            "  action: view_reservation",
+            "  targetId: reservationId",
+            "  data: { patientName }",
+            "",
+            "・問診票PDFダウンロード",
+            "  action: download_questionnaire_pdf",
+            "  targetId: reservationId",
+            "  data: { patientName }",
+            "",
+            "・診察完了処理",
+            "  action: complete_visit",
+            "  （CF側でも記録）",
+            "",
+            "## コレクション",
+            "access_logs",
+            "・uid: 操作者UID",
+            "・action: アクション種別",
+            "・targetId: 対象ドキュメントID",
+            "・timestamp: 操作日時",
+            "・data: 付帯情報",
+            "",
+            "## Firestore ルール",
+            "・admin のみ read/create 可",
+        ],
+        "リマインダーメール opt-out",
+        [
+            "## フロー",
+            "① 予約確認メールに",
+            "  opt-out URL を記載",
+            "  （HMAC-SHA256 トークン付き）",
+            "② 患者がリンクをクリック",
+            "③ optOutReminder CF に",
+            "  GET リクエスト",
+            "④ トークン検証",
+            "  HMAC-SHA256(reservationId,",
+            "  SECRET_KEY) と照合",
+            "⑤ 一致した場合:",
+            "  reservations/{id}",
+            "  .reminderConsent = false",
+            "  に更新",
+            "",
+            "## セキュリティ",
+            "・トークンは URL-safe Base64",
+            "・SECRET_KEY は",
+            "  Firebase Secret Manager で管理",
+            "・トークン不一致: 403 Forbidden",
+            "",
+            "## opt-in 設定（Settings）",
+            "・ポリシータブで機能 ON/OFF",
+            "・ON 時: 予約フォームに",
+            "  「リマインダーメールを受け取る」",
+            "  チェックボックスを表示",
+            "・患者が同意した場合のみ",
+            "  sendDailyReminders で送信",
+        ],
+        top=Inches(1.1),
+    )
 
 
 def slide_22_deploy(prs, blank_layout):
@@ -746,15 +1086,15 @@ def main():
 
     divider_slide(prs, blank_layout, "1. システム概要", [
         "システム目的・主要機能・非機能要件",
-        "技術スタック（React SPA v3 + Firebase + Node.js 24）",
+        "技術スタック（React SPA v4 + Firebase + Node.js 24 + i18n/PWA）",
     ])
     slide_04_overview(prs, blank_layout)
     slide_05_tech_stack(prs, blank_layout)
 
     divider_slide(prs, blank_layout, "2. アーキテクチャ設計", [
-        "ディレクトリ構成（oas-spa/ SPA 構造）",
-        "Firestore データモデル（5 コレクション）",
-        "Cloud Functions 設計（7 functions）",
+        "ディレクトリ構成（oas-spa/ SPA 構造 / i18n / questionnaire追加）",
+        "Firestore データモデル（8 コレクション / visit_histories / access_logs）",
+        "Cloud Functions 設計（10 functions）",
         "予約作成フロー（createReservation）",
     ])
     slide_07_directory(prs, blank_layout)
@@ -775,14 +1115,27 @@ def main():
 
     divider_slide(prs, blank_layout, "4. 画面設計", [
         "患者向け予約フロー（4 ステップ）",
-        "管理者ダッシュボード",
-        "設定画面（5 タブ）",
+        "管理者ダッシュボード（KPI / 検索 / 詳細モーダル / completeVisit）",
+        "設定画面（6 タブ / ポリシー・APPI対応）",
     ])
     slide_18_patient_flow(prs, blank_layout)
     slide_19_dashboard(prs, blank_layout)
     slide_20_settings(prs, blank_layout)
 
-    divider_slide(prs, blank_layout, "5. 運用・デプロイ", [
+    divider_slide(prs, blank_layout, "5. 新機能（v4 エンハンス）", [
+        "i18n 多言語対応（react-i18next / 7言語 / 5ネームスペース）",
+        "PWA 対応（vite-plugin-pwa / Workbox / offline cache / InstallBanner）",
+        "問診票機能（/questionnaire / 18フィールド / pdf-lib PDF出力）",
+        "診察履歴・APPI訂正権（completeVisit CF / visit_histories / corrections）",
+        "アクセスログ・リマインダーopt-out（logAccess / HMAC-SHA256）",
+    ])
+    slide_24_i18n(prs, blank_layout)
+    slide_25_pwa(prs, blank_layout)
+    slide_26_questionnaire(prs, blank_layout)
+    slide_27_visit_history(prs, blank_layout)
+    slide_28_access_log_reminder(prs, blank_layout)
+
+    divider_slide(prs, blank_layout, "6. 運用・デプロイ", [
         "Firebase Hosting マルチサイト構成",
         "デプロイコマンド（--only スコープ厳守）",
         "レガシー URL リダイレクト",

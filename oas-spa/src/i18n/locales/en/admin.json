@@ -8,7 +8,9 @@
     "consentPending": "ToS / Privacy Pending",
     "consentAccepted": "Terms & PP accepted",
     "proxyBooking": "Book for Patient",
-    "visitHistory": "Visit History"
+    "visitHistory": "Visit History",
+    "desktopNav": "Admin navigation",
+    "mobileNav": "Admin mobile navigation"
   },
   "dashboard": {
     "kpi": {

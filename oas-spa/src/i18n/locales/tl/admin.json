@@ -8,7 +8,9 @@
     "consentPending": "Naghihintay ng pahintulot",
     "consentAccepted": "Na-accept ang TOS at PP",
     "proxyBooking": "Mag-book para sa pasyente",
-    "visitHistory": "Kasaysayan ng Konsultasyon"
+    "visitHistory": "Kasaysayan ng Konsultasyon",
+    "desktopNav": "Menu ng admin",
+    "mobileNav": "Mobile menu ng admin"
   },
   "dashboard": {
     "kpi": {

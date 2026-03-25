@@ -35,7 +35,7 @@
 | ✅ | OAS-FUTURE-T01 | 多国語対応（i18n）— 7か国語、AMS同等 | P2 |
 | ✅ | OAS-HIST-T01 | 患者別診察履歴管理（completeVisit CF + /admin/history画面 + Dashboard連携） | P1 |
 | ⬜ | OAS-FUTURE-T02 | 顧客管理システム（新規プロジェクト候補） | P3 |
-| ⬜ | OAS-MOB-T01 | スマホ縦画面で管理者ヘッダーナビが消える不具合修正 | P2 |
+| ✅ | OAS-MOB-T01 | スマホ縦画面で管理者ヘッダーナビが消える不具合修正 | P2 |
 | ⬜ | OAS-FUTURE-T03 | 医院ロゴ画像アップロード・設定機能（将来機能） | P3 |
 
 ## Security (SEC) — Remaining
@@ -70,4 +70,4 @@
 | ✅ | AUDIT-02 | 予約フォーム同意注記追加 — 「診察履歴として保管されます」文言（7言語） | P2 |
 | ✅ | AUDIT-03 | 参照ログ（アクセストレーサビリティ）— 詳細モーダル閲覧ログ | P3 |
 
-**Completed: 39 / Remaining: 12**
+**Completed: 40 / Remaining: 11**

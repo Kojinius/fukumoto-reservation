@@ -8,7 +8,9 @@
     "consentPending": "待同意条款",
     "consentAccepted": "条款与隐私政策已同意",
     "proxyBooking": "代客预约",
-    "visitHistory": "诊察记录"
+    "visitHistory": "诊察记录",
+    "desktopNav": "管理员导航",
+    "mobileNav": "管理员移动导航"
   },
   "dashboard": {
     "kpi": {

@@ -8,7 +8,9 @@
     "consentPending": "Termos pendentes",
     "consentAccepted": "Termos e PP aceitos",
     "proxyBooking": "Reservar para paciente",
-    "visitHistory": "Histórico de Consultas"
+    "visitHistory": "Histórico de Consultas",
+    "desktopNav": "Navegação do administrador",
+    "mobileNav": "Navegação móvel do administrador"
   },
   "dashboard": {
     "kpi": {

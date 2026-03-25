@@ -8,7 +8,9 @@
     "consentPending": "약관 동의 필요",
     "consentAccepted": "이용약관・PP 동의 완료",
     "proxyBooking": "대리 예약",
-    "visitHistory": "진찰 이력"
+    "visitHistory": "진찰 이력",
+    "desktopNav": "관리자 메뉴",
+    "mobileNav": "관리자 모바일 메뉴"
   },
   "dashboard": {
     "kpi": {
