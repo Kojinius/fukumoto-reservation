@@ -68,6 +68,7 @@
     "notesPlaceholder": "Alergias, medicamentos em uso, etc.",
     "reminderEmail": "Receber e-mail de lembrete no dia anterior à consulta",
     "reminderEmailDesc": "Um lembrete será enviado para o e-mail informado no dia anterior à consulta. Você pode cancelar a inscrição a qualquer momento.",
+    "reminderEmailNeedsEmail": "Insira seu endereço de e-mail para receber um lembrete.",
     "privacyPolicyAgree": "Concordo com a ",
     "privacyPolicy": "Política de Privacidade",
     "privacyPolicyError": "Por favor, concorde com a Política de Privacidade",

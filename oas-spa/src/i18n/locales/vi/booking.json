@@ -68,6 +68,7 @@
     "notesPlaceholder": "Dị ứng, thuốc đang dùng, v.v.",
     "reminderEmail": "Nhận email nhắc nhở vào ngày trước hẹn",
     "reminderEmailDesc": "Chúng tôi sẽ gửi email nhắc nhở tới địa chỉ email của bạn vào ngày trước buổi hẹn. Bạn có thể hủy đăng ký bất cứ lúc nào.",
+    "reminderEmailNeedsEmail": "Nhập địa chỉ email để nhận nhắc nhở.",
     "privacyPolicyAgree": "Tôi đồng ý với ",
     "privacyPolicy": "Chính sách quyền riêng tư",
     "privacyPolicyError": "Vui lòng đồng ý với Chính sách quyền riêng tư",

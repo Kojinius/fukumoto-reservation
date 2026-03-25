@@ -68,6 +68,7 @@
     "notesPlaceholder": "过敏情况、正在服用的药物等",
     "reminderEmail": "在预约前一天接收提醒邮件",
     "reminderEmailDesc": "将在预约前一天向您填写的邮箱发送提醒。随时可取消订阅。",
+    "reminderEmailNeedsEmail": "输入电子邮件地址即可接收提醒。",
     "privacyPolicyAgree": "我同意",
     "privacyPolicy": "隐私政策",
     "privacyPolicyError": "请同意隐私政策",

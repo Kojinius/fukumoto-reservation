@@ -68,6 +68,7 @@
     "notesPlaceholder": "Allergy, gamot na iniinom, atbp.",
     "reminderEmail": "Makatanggap ng reminder email sa araw bago ang appointment",
     "reminderEmailDesc": "Magpapadala ng reminder sa iyong email address sa araw bago ang appointment. Maaari kang mag-unsubscribe anumang oras.",
+    "reminderEmailNeedsEmail": "Ilagay ang iyong email address upang makatanggap ng reminder.",
     "privacyPolicyAgree": "Sumasang-ayon ako sa ",
     "privacyPolicy": "Patakaran sa Privacy",
     "privacyPolicyError": "Mangyaring sumang-ayon sa Patakaran sa Privacy",

@@ -68,6 +68,7 @@
     "notesPlaceholder": "Allergies, current medications, etc.",
     "reminderEmail": "Receive a reminder email the day before your appointment",
     "reminderEmailDesc": "A reminder will be sent to your email address the day before your appointment. You can unsubscribe at any time.",
+    "reminderEmailNeedsEmail": "Enter your email address to receive a reminder.",
     "privacyPolicyAgree": "I agree to the ",
     "privacyPolicy": "Privacy Policy",
     "privacyPolicyError": "Please agree to the Privacy Policy",
