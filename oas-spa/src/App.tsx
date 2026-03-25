@@ -20,6 +20,7 @@ import Dashboard from '@/pages/admin/Dashboard';
 import VisitHistory from '@/pages/admin/VisitHistory';
 import Settings from '@/pages/admin/Settings';
 import ChangePassword from '@/pages/admin/ChangePassword';
+import Questionnaire from '@/pages/booking/Questionnaire';
 import Maintenance from '@/pages/Maintenance';
 import NotFound from '@/pages/NotFound';
 
@@ -34,6 +35,7 @@ export default function App() {
                 {/* 患者向けページ */}
                 <Route element={<PatientLayout />}>
                   <Route path="/" element={<BookingIndex />} />
+                  <Route path="/questionnaire" element={<Questionnaire />} />
                   <Route path="/cancel" element={<Cancel />} />
                   <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 </Route>

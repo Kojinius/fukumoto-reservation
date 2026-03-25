@@ -120,6 +120,9 @@
     "checklist2": "Para mag-cancel o magbago, itala ang numero ng reserbasyon at gamitin ang button sa ibaba o tumawag sa amin.",
     "checklist3": "Kung mayroon kang insurance card, dalhin ito sa araw ng konsultasyon.",
     "privacyHeading": "Tungkol sa Iyong Personal na Impormasyon",
+    "questionnaireHeading": "Medical Questionnaire",
+    "questionnaireDesc": "Ang pagpuno ng questionnaire bago ang inyong pagbisita ay nagpapabilis ng pagsisimula ng paggamot.",
+    "questionnaireButton": "Punan ang Questionnaire",
     "cancelButton": "I-cancel ang Reserbasyon",
     "newReservationButton": "Gumawa ng Bagong Reserbasyon"
   },
@@ -144,6 +147,7 @@
     "callUsEnd": ".",
     "deadlineLabel": "Deadline ng pagkansela: bago ang {{deadline}}",
     "reasonLabel": "Dahilan ng Pagkansela (opsyonal)",
+    "reasonHint": "Opsyonal lamang ang pagbigay ng dahilan. Maaari kang magkansela nang walang dahilan.",
     "reasonNone": "Hindi tinukoy",
     "reasonSchedule": "May salungatan sa iskedyul",
     "reasonReschedule": "Nais mag-reschedule",

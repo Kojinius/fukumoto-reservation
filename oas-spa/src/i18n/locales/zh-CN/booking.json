@@ -120,6 +120,9 @@
     "checklist2": "如需取消或变更，请记好预约编号，使用下方按钮或致电联系。",
     "checklist3": "持有保险证的患者请当天携带。",
     "privacyHeading": "关于个人信息的处理",
+    "questionnaireHeading": "填写问诊表",
+    "questionnaireDesc": "来院前填写问诊表，可以更顺畅地开始施术。",
+    "questionnaireButton": "填写问诊表",
     "cancelButton": "取消预约",
     "newReservationButton": "新建预约"
   },
@@ -144,6 +147,7 @@
     "callUsEnd": "）联系我们。",
     "deadlineLabel": "取消截止时间：{{deadline}} 之前",
     "reasonLabel": "取消原因（可选）",
+    "reasonHint": "填写取消原因为可选项。您无需说明理由即可取消预约。",
     "reasonNone": "不选择",
     "reasonSchedule": "时间安排有冲突",
     "reasonReschedule": "希望更改日期",

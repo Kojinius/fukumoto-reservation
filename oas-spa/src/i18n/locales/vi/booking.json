@@ -120,6 +120,9 @@
     "checklist2": "Để hủy hoặc thay đổi, vui lòng ghi lại mã đặt lịch và sử dụng nút bên dưới hoặc gọi điện cho chúng tôi.",
     "checklist3": "Nếu có thẻ bảo hiểm, vui lòng mang theo vào ngày khám.",
     "privacyHeading": "Về thông tin cá nhân",
+    "questionnaireHeading": "Phiếu khám bệnh",
+    "questionnaireDesc": "Điền phiếu khám trước khi đến giúp bắt đầu điều trị nhanh hơn.",
+    "questionnaireButton": "Điền phiếu khám",
     "cancelButton": "Hủy đặt lịch",
     "newReservationButton": "Đặt lịch mới"
   },
@@ -144,6 +147,7 @@
     "callUsEnd": ".",
     "deadlineLabel": "Thời hạn hủy: trước {{deadline}}",
     "reasonLabel": "Lý do hủy (tùy chọn)",
+    "reasonHint": "Việc cung cấp lý do là tùy chọn. Bạn có thể hủy mà không cần nêu lý do.",
     "reasonNone": "Không chọn",
     "reasonSchedule": "Lịch bị xung đột",
     "reasonReschedule": "Muốn thay đổi ngày",

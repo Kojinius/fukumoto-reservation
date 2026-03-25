@@ -1,6 +1,10 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useVisitHistories, exportVisitHistoriesCsv, useCorrections, correctVisitHistory } from '@/hooks/useAdmin';
+import { useVisitHistories, exportVisitHistoriesCsv, useCorrections, correctVisitHistory, logAccess } from '@/hooks/useAdmin';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { generateQuestionnairePdf, downloadPdf } from '@/utils/questionnairePdf';
+import type { QuestionnaireRecord } from '@/types/questionnaire';
 import { useToast } from '@/hooks/useToast';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -45,6 +49,9 @@ const FIELD_LABEL_KEYS: Record<string, string> = {
 
 /** 訂正理由の最大文字数 */
 const REASON_MAX_LENGTH = 500;
+
+/** 1ページあたりの表示件数 */
+const PAGE_SIZE = 50;
 
 // ─────────────────────────────────────────────
 // フィールド設定
@@ -159,6 +166,9 @@ export default function VisitHistory() {
   const [visitDateFrom, setVisitDateFrom] = useState('');
   const [visitDateTo, setVisitDateTo] = useState('');
 
+  // ページネーション
+  const [page, setPage] = useState(0);
+
   // ソート
   const [sortKeys, setSortKeys] = useState<SortKey[]>([{ col: 'datetime', dir: 'desc' }]);
   function handleSort(key: string) { setSortKeys(prev => toggleSortKey(prev, key)); }
@@ -176,9 +186,17 @@ export default function VisitHistory() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [corrZipMsg, setCorrZipMsg] = useState('');
+  const [pdfLoading, setPdfLoading] = useState(false);
 
   // corrections リアルタイム購読
   const { corrections, loading: correctionsLoading } = useCorrections(selected?.id);
+
+  // [AUDIT-03] 詳細モーダル閲覧ログ
+  useEffect(() => {
+    if (selected) {
+      logAccess('view_visit_history', selected.id, { patientName: selected.name });
+    }
+  }, [selected?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // selected が変わったら訂正フォームをリセット
   useEffect(() => {
@@ -267,7 +285,12 @@ export default function VisitHistory() {
   }, [histories, search, zipSearch, phoneSearch, visitDateFrom, visitDateTo]);
 
   const sorted = useMemo(() => multiSort(filtered, sortKeys, getValue), [filtered, sortKeys]);
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+  const paged = useMemo(() => sorted.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE), [sorted, page]);
   const hasFilter = search || zipSearch || phoneSearch || visitDateFrom || visitDateTo;
+
+  // フィルター・ソート変更時にページリセット
+  useEffect(() => { setPage(0); }, [search, zipSearch, phoneSearch, visitDateFrom, visitDateTo, sortKeys]);
 
   function clearFilters() {
     setSearch('');
@@ -276,6 +299,81 @@ export default function VisitHistory() {
     setVisitDateFrom('');
     setVisitDateTo('');
   }
+
+  // ─── 問診票PDF出力 ───────────────────────────
+  const handleDownloadQuestionnairePdf = useCallback(async () => {
+    if (!selected) return;
+    setPdfLoading(true);
+    try {
+      const qSnap = await getDoc(doc(db, 'questionnaires', selected.reservationId));
+      if (!qSnap.exists()) {
+        showToast(t('history.questionnaire.notFound'), 'error');
+        return;
+      }
+      const q = qSnap.data() as QuestionnaireRecord;
+      const labels = {
+        title: t('history.questionnaire.pdfTitle'),
+        patientInfo: t('history.questionnaire.patientInfo'),
+        name: t('dashboard.modal.fields.name'),
+        furigana: t('dashboard.modal.fields.furigana'),
+        birthdate: t('dashboard.modal.fields.birthdate'),
+        age: t('history.questionnaire.age'),
+        gender: t('dashboard.modal.fields.gender'),
+        phone: t('dashboard.modal.fields.phone'),
+        visitDate: t('history.csv.date'),
+        visitType: t('dashboard.modal.fields.visitType'),
+        sections: {
+          mainComplaint: t('history.questionnaire.section.mainComplaint'),
+          painDetail: t('history.questionnaire.section.painDetail'),
+          medicalHistory: t('history.questionnaire.section.medicalHistory'),
+          lifestyle: t('history.questionnaire.section.lifestyle'),
+          other: t('history.questionnaire.section.other'),
+        },
+        fields: {
+          chiefComplaint: t('history.questionnaire.field.chiefComplaint'),
+          onsetDate: t('history.questionnaire.field.onsetDate'),
+          painScale: t('history.questionnaire.field.painScale'),
+          painLocations: t('history.questionnaire.field.painLocations'),
+          painType: t('history.questionnaire.field.painType'),
+          dailyImpact: t('history.questionnaire.field.dailyImpact'),
+          pastMedicalHistory: t('history.questionnaire.field.pastMedicalHistory'),
+          currentTreatments: t('history.questionnaire.field.currentTreatments'),
+          currentMedications: t('history.questionnaire.field.currentMedications'),
+          allergies: t('history.questionnaire.field.allergies'),
+          surgeryHistory: t('history.questionnaire.field.surgeryHistory'),
+          sleepQuality: t('history.questionnaire.field.sleepQuality'),
+          dietHabits: t('history.questionnaire.field.dietHabits'),
+          exerciseHabits: t('history.questionnaire.field.exerciseHabits'),
+          stressLevel: t('history.questionnaire.field.stressLevel'),
+          pregnancyPossibility: t('history.questionnaire.field.pregnancyPossibility'),
+          pregnancyYes: t('history.questionnaire.field.pregnancyYes'),
+          pregnancyNo: t('history.questionnaire.field.pregnancyNo'),
+          pregnancyNa: t('history.questionnaire.field.pregnancyNa'),
+          preferredTreatment: t('history.questionnaire.field.preferredTreatment'),
+          additionalNotes: t('history.questionnaire.field.additionalNotes'),
+        },
+        painLocations: {} as Record<string, string>,
+        disclaimer: t('history.questionnaire.disclaimer'),
+      };
+      const pdfBytes = await generateQuestionnairePdf(q, {
+        name: selected.name,
+        furigana: selected.furigana,
+        birthdate: selected.birthdate,
+        gender: selected.gender,
+        phone: selected.phone,
+        date: selected.date,
+        time: selected.time,
+        visitType: selected.visitType,
+      }, labels);
+      downloadPdf(pdfBytes, `問診票_${selected.name}_${selected.date}.pdf`);
+      logAccess('download_questionnaire_pdf', selected.id, { patientName: selected.name });
+    } catch (err) {
+      console.error('PDF生成エラー:', err);
+      showToast(t('history.questionnaire.pdfError'), 'error');
+    } finally {
+      setPdfLoading(false);
+    }
+  }, [selected, t, showToast]);
 
   // ─── 訂正フォームハンドラー ────────────────────
   const openCorrectForm = useCallback(() => {
@@ -569,7 +667,7 @@ export default function VisitHistory() {
       {/* テーブル */}
       <Card>
         <div className="overflow-x-auto">
-          {sorted.length === 0 ? (
+          {paged.length === 0 ? (
             <EmptyState
               icon={
                 <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -591,7 +689,7 @@ export default function VisitHistory() {
                 </tr>
               </thead>
               <tbody>
-                {sorted.map(r => (
+                {paged.map(r => (
                   <tr key={r.id} className="border-b border-cream-100 hover:bg-cream-100/60 transition-colors">
                     <td className="px-3 py-3 whitespace-nowrap font-mono text-navy-700 text-xs">
                       {formatDateTimeJa(r.date, r.time)}
@@ -628,6 +726,46 @@ export default function VisitHistory() {
             </table>
           )}
         </div>
+
+        {/* ページネーション */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-4 py-3 border-t border-cream-200">
+            <span className="text-xs text-navy-400">
+              {sorted.length}{t('history.pagination.totalSuffix')}
+              {' '}({page + 1} / {totalPages})
+            </span>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setPage(0)}
+                disabled={page === 0}
+                className="px-2 py-1 text-xs rounded border border-cream-200 text-navy-500 hover:bg-cream-100 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                &#171;
+              </button>
+              <button
+                onClick={() => setPage(p => Math.max(0, p - 1))}
+                disabled={page === 0}
+                className="px-2 py-1 text-xs rounded border border-cream-200 text-navy-500 hover:bg-cream-100 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                &#8249;
+              </button>
+              <button
+                onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                disabled={page >= totalPages - 1}
+                className="px-2 py-1 text-xs rounded border border-cream-200 text-navy-500 hover:bg-cream-100 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                &#8250;
+              </button>
+              <button
+                onClick={() => setPage(totalPages - 1)}
+                disabled={page >= totalPages - 1}
+                className="px-2 py-1 text-xs rounded border border-cream-200 text-navy-500 hover:bg-cream-100 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                &#187;
+              </button>
+            </div>
+          </div>
+        )}
       </Card>
 
       {/* ─── 詳細モーダル ─────────────────────────── */}
@@ -899,7 +1037,14 @@ export default function VisitHistory() {
           </div>
 
           {/* フッター */}
-          <div className="flex gap-2 justify-end pt-4 border-t border-cream-200/60 mt-4">
+          <p className="text-[10px] text-navy-400/70 mt-3 text-right">{t('history.questionnaire.disclaimer')}</p>
+          <div className="flex gap-2 justify-end pt-4 border-t border-cream-200/60 mt-1">
+            <Button variant="ghost" size="sm" onClick={handleDownloadQuestionnairePdf} loading={pdfLoading}>
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m.75 12l3 3m0 0l3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+              </svg>
+              {t('history.questionnaire.pdfButton')}
+            </Button>
             <Button variant="secondary" size="sm" onClick={openCorrectForm}>
               {t('history.action.correct')}
             </Button>
@@ -1000,6 +1145,7 @@ export default function VisitHistory() {
                 value={correctAddendum}
                 onChange={e => setCorrectAddendum(e.target.value)}
                 rows={3}
+                maxLength={500}
               />
               <p className="text-[11px] text-navy-400 mt-1">
                 {t('history.correction.addendumHint')}
@@ -1018,6 +1164,7 @@ export default function VisitHistory() {
                   }
                 }}
                 rows={4}
+                maxLength={REASON_MAX_LENGTH}
                 required
               />
               <p className="text-[11px] text-navy-400 mt-1 text-right">

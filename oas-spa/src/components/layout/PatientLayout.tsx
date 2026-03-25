@@ -2,6 +2,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import { useClinic } from '@/hooks/useClinic';
 import { Header } from './Header';
 import { Spinner } from '@/components/ui/Spinner';
+import { InstallBanner } from '@/components/ui/InstallBanner';
 import { useEffect } from 'react';
 
 export function PatientLayout() {
@@ -19,6 +20,9 @@ export function PatientLayout() {
   return (
     <div className="min-h-screen flex flex-col bg-canvas">
       <Header />
+
+      {/* PWA インストールバナー */}
+      <InstallBanner />
 
       {/* お知らせバナー */}
       {clinic?.announcement.active && clinic.announcement.message && (() => {

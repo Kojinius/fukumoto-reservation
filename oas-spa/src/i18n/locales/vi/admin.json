@@ -6,6 +6,7 @@
     "logout": "Đăng Xuất",
     "lastLogin": "Đăng nhập lần cuối: ",
     "consentPending": "Chờ xác nhận điều khoản",
+    "consentAccepted": "Đã chấp nhận điều khoản và PP",
     "proxyBooking": "Đặt hộ bệnh nhân",
     "visitHistory": "Lịch sử khám"
   },
@@ -152,6 +153,9 @@
       "correct": "Sửa đổi"
     },
     "emptyState": "Không có lịch sử khám",
+    "pagination": {
+      "totalSuffix": " bản ghi"
+    },
     "modal": {
       "historyDetail": "Chi tiết lịch sử khám",
       "close": "Đóng",

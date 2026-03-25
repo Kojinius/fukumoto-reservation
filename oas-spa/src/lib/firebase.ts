@@ -5,13 +5,22 @@
  */
 import { initializeApp } from 'firebase/app';
 import { getAuth, connectAuthEmulator } from 'firebase/auth';
-import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+  connectFirestoreEmulator,
+} from 'firebase/firestore';
 import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
 import { firebaseConfig } from './config';
 
 const app       = initializeApp(firebaseConfig);
 const auth      = getAuth(app);
-const db        = getFirestore(app);
+const db        = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager(),
+  }),
+});
 const functions = getFunctions(app, 'us-central1');
 
 // localhost ではエミュレーターに接続

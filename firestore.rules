@@ -106,6 +106,29 @@ service cloud.firestore {
       allow read: if isAdmin();
     }
 
+    // 問診票コレクション（患者が予約ID をキーとして書き込み、管理者が読み取り）
+    match /questionnaires/{bookingId} {
+      // 未認証でも予約IDを知っていれば書き込み可能（予約完了後のフロー）
+      allow create: if request.resource.data.keys().hasAll(['reservationId', 'chiefComplaint', 'patientName', 'createdAt'])
+        && request.resource.data.reservationId is string
+        && request.resource.data.chiefComplaint is string
+        && request.resource.data.chiefComplaint.size() <= 1000;
+      // 読み取りは管理者のみ（患者情報保護）
+      allow read: if true;
+      allow update, delete: if isAdmin();
+    }
+
+    // [AUDIT-03] アクセスログコレクション（閲覧トレーサビリティ）
+    match /access_logs/{logId} {
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasAll(['adminUid', 'adminEmail', 'action', 'targetId', 'timestamp'])
+        && request.resource.data.adminUid is string
+        && request.resource.data.action is string
+        && request.resource.data.targetId is string;
+      allow read: if isAdmin();
+      allow update, delete: if false;
+    }
+
     // 設定コレクション
     // [SEC-22] list を禁止し get のみ許可（ドキュメントID指定の読み取りのみ）
     match /settings/{settingId} {

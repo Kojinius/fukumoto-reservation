@@ -6,6 +6,7 @@
     "logout": "ログアウト",
     "lastLogin": "最終: ",
     "consentPending": "利用規約・PP 確認待ち",
+    "consentAccepted": "利用規約・PP 同意済み",
     "proxyBooking": "代行予約",
     "visitHistory": "診察履歴"
   },
@@ -62,6 +63,8 @@
       "close": "閉じる",
       "markConfirmed": "確認済みにする",
       "markCompleted": "診察完了",
+      "questionnairePdf": "問診票PDF",
+      "questionnaireNotFound": "問診票は未提出です",
       "cancel": "キャンセル",
       "fields": {
         "reservationId": "予約番号",
@@ -152,6 +155,9 @@
       "correct": "訂正"
     },
     "emptyState": "診察履歴がありません",
+    "pagination": {
+      "totalSuffix": "件"
+    },
     "modal": {
       "historyDetail": "診察履歴詳細",
       "close": "閉じる",
@@ -189,6 +195,45 @@
       "requestNotice": "訂正は患者本人から訂正の請求があった場合にのみ実施してください（個人情報保護法 第34条）",
       "fieldRequired": "訂正後の値を入力してください",
       "fieldInvalid": "入力値が不正です"
+    },
+    "questionnaire": {
+      "pdfButton": "問診票PDF",
+      "pdfTitle": "問 診 票",
+      "patientInfo": "患者情報",
+      "age": "歳",
+      "notFound": "この患者の問診票は未提出です",
+      "pdfError": "PDF生成に失敗しました",
+      "section": {
+        "mainComplaint": "主訴・症状",
+        "painDetail": "痛みの詳細",
+        "medicalHistory": "既往歴・治療状況",
+        "lifestyle": "生活習慣",
+        "other": "その他"
+      },
+      "field": {
+        "chiefComplaint": "主訴",
+        "onsetDate": "発症時期",
+        "painScale": "痛みの程度",
+        "painLocations": "痛みの部位",
+        "painType": "痛みの性質",
+        "dailyImpact": "日常生活への影響",
+        "pastMedicalHistory": "既往歴",
+        "currentTreatments": "現在の通院",
+        "currentMedications": "服用中の薬",
+        "allergies": "アレルギー",
+        "surgeryHistory": "手術歴",
+        "sleepQuality": "睡眠",
+        "dietHabits": "食事",
+        "exerciseHabits": "運動習慣",
+        "stressLevel": "ストレス度",
+        "pregnancyPossibility": "妊娠の可能性",
+        "pregnancyYes": "あり",
+        "pregnancyNo": "なし",
+        "pregnancyNa": "該当しない",
+        "preferredTreatment": "希望する施術",
+        "additionalNotes": "その他"
+      },
+      "disclaimer": "※ 本書は施術準備のための問診票であり、医師法に基づく診療録（カルテ）ではありません。"
     }
   },
   "settings": {

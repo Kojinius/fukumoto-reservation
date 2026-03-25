@@ -39,5 +39,10 @@
     "checkButton": "更新して確認",
     "stillActive": "まだメンテナンス期間中です。"
   },
-  "languageSettings": "言語設定"
+  "languageSettings": "言語設定",
+  "pwa": {
+    "installTitle": "アプリとしてインストール",
+    "installDescription": "ホーム画面に追加して、すばやくアクセスできます",
+    "install": "インストール"
+  }
 }

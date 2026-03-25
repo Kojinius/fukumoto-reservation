@@ -39,5 +39,10 @@
     "checkButton": "刷新并检查",
     "stillActive": "维护仍在进行中。"
   },
-  "languageSettings": "语言设置"
+  "languageSettings": "语言设置",
+  "pwa": {
+    "installTitle": "安装为应用",
+    "installDescription": "添加到主屏幕，快速访问",
+    "install": "安装"
+  }
 }

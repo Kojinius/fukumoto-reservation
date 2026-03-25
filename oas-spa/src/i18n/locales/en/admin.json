@@ -6,6 +6,7 @@
     "logout": "Logout",
     "lastLogin": "Last: ",
     "consentPending": "ToS / Privacy Pending",
+    "consentAccepted": "Terms & PP accepted",
     "proxyBooking": "Book for Patient",
     "visitHistory": "Visit History"
   },
@@ -152,6 +153,9 @@
       "correct": "Correct"
     },
     "emptyState": "No visit history found",
+    "pagination": {
+      "totalSuffix": " records"
+    },
     "modal": {
       "historyDetail": "Visit History Details",
       "close": "Close",

@@ -6,6 +6,7 @@
     "logout": "Mag-logout",
     "lastLogin": "Huling login: ",
     "consentPending": "Naghihintay ng pahintulot",
+    "consentAccepted": "Na-accept ang TOS at PP",
     "proxyBooking": "Mag-book para sa pasyente",
     "visitHistory": "Kasaysayan ng Konsultasyon"
   },
@@ -152,6 +153,9 @@
       "correct": "Iwasto"
     },
     "emptyState": "Walang kasaysayan ng konsultasyon",
+    "pagination": {
+      "totalSuffix": " talaan"
+    },
     "modal": {
       "historyDetail": "Detalye ng Kasaysayan",
       "close": "Isara",

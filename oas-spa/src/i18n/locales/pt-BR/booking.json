@@ -120,6 +120,9 @@
     "checklist2": "Para cancelar ou alterar, anote o número de reserva e use o botão abaixo ou ligue para nós.",
     "checklist3": "Se possuir plano de saúde, traga a carteirinha no dia da consulta.",
     "privacyHeading": "Sobre Suas Informações Pessoais",
+    "questionnaireHeading": "Questionário Médico",
+    "questionnaireDesc": "Preencher o questionário antes da sua visita permite iniciar o tratamento mais rapidamente.",
+    "questionnaireButton": "Preencher Questionário",
     "cancelButton": "Cancelar Agendamento",
     "newReservationButton": "Fazer Novo Agendamento"
   },
@@ -144,6 +147,7 @@
     "callUsEnd": ".",
     "deadlineLabel": "Prazo para cancelamento: até {{deadline}}",
     "reasonLabel": "Motivo do Cancelamento (opcional)",
+    "reasonHint": "Informar o motivo é opcional. Você pode cancelar sem precisar justificar.",
     "reasonNone": "Não informar",
     "reasonSchedule": "Conflito de agenda",
     "reasonReschedule": "Deseja remarcar",

@@ -662,7 +662,7 @@ function AnnouncementTab({ form, update, showToast }: { form: Partial<ClinicSett
                 { value: 'warning', label: t('settings.announcement.typeWarning') },
                 { value: 'maintenance', label: t('settings.announcement.typeMaintenance') },
               ]} />
-              <Textarea label={t('settings.announcement.messageLabel')} value={ann.message} onChange={e => updateAnn({ message: e.target.value })} rows={2} />
+              <Textarea label={t('settings.announcement.messageLabel')} value={ann.message} onChange={e => updateAnn({ message: e.target.value })} rows={2} maxLength={500} />
               <div className="grid grid-cols-2 gap-3">
                 <Input label={t('settings.announcement.startDateLabel')} type="datetime-local" value={ann.startDate || ''} onChange={e => updateAnn({ startDate: e.target.value || null })} />
                 <Input label={t('settings.announcement.endDateLabel')} type="datetime-local" value={ann.endDate || ''} onChange={e => updateAnn({ endDate: e.target.value || null })} />
@@ -764,6 +764,7 @@ function TermsTab({ form, update }: { form: Partial<ClinicSettings>; update: (p:
             value={form.termsOfService || ''}
             onChange={e => update({ termsOfService: e.target.value })}
             rows={20}
+            maxLength={10000}
             placeholder={t('settings.terms.termsTextPlaceholder')}
           />
           <p className="text-[11px] text-navy-400">
@@ -862,6 +863,7 @@ function PolicyTab({ form, update }: { form: Partial<ClinicSettings>; update: (p
             value={stripHtml(form.privacyPolicy || '')}
             onChange={e => update({ privacyPolicy: stripHtml(e.target.value) })}
             rows={12}
+            maxLength={10000}
             placeholder={placeholderTexts.privacyPolicy}
           />
           <p className="text-[11px] text-navy-400">
@@ -880,6 +882,7 @@ function PolicyTab({ form, update }: { form: Partial<ClinicSettings>; update: (p
             value={stripHtml(form.sensitiveDataConsentText || '')}
             onChange={e => update({ sensitiveDataConsentText: stripHtml(e.target.value).slice(0, 500) })}
             rows={4}
+            maxLength={500}
             placeholder={t('settings.policy.sensitiveDataPlaceholder')}
           />
           <p className="text-[11px] text-navy-400">
@@ -915,6 +918,7 @@ function PolicyTab({ form, update }: { form: Partial<ClinicSettings>; update: (p
             value={stripHtml(form.dataRetentionPurpose || '')}
             onChange={e => update({ dataRetentionPurpose: stripHtml(e.target.value) })}
             rows={5}
+            maxLength={2000}
             placeholder={placeholderTexts.dataRetentionPurpose}
           />
           <p className="text-[11px] text-navy-400">
@@ -959,6 +963,7 @@ function PolicyTab({ form, update }: { form: Partial<ClinicSettings>; update: (p
             value={stripHtml(form.patientRightsContact || '')}
             onChange={e => update({ patientRightsContact: stripHtml(e.target.value) })}
             rows={4}
+            maxLength={2000}
             placeholder={placeholderTexts.patientRightsContact}
           />
           <p className="text-[11px] text-navy-400">

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { collection, onSnapshot, doc, writeBatch, addDoc, query, where, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, doc, writeBatch, addDoc, query, where, orderBy, limit } from 'firebase/firestore';
 import { db, auth } from '@/lib/firebase';
 import { callFunction } from '@/lib/functions';
 import type { ReservationRecord, ReservationStatus, VisitHistoryRecord, CorrectionRecord } from '@/types/reservation';
@@ -156,19 +156,40 @@ export function exportReservationsCsv(
   }
 }
 
+/** [AUDIT-03] 閲覧ログ記録（アクセストレーサビリティ） */
+export async function logAccess(action: string, targetId: string, meta?: Record<string, string>) {
+  const user = auth.currentUser;
+  if (!user) return;
+  await addDoc(collection(db, 'access_logs'), {
+    adminUid:   user.uid,
+    adminEmail: user.email || '',
+    action,
+    targetId,
+    ...meta,
+    timestamp: new Date().toISOString(),
+  });
+}
+
 /** 診察完了処理（CF呼び出し） */
 export async function completeVisit(reservationId: string): Promise<{ visitHistoryId: string }> {
   return callFunction<{ visitHistoryId: string }>('completeVisit', { reservationId });
 }
 
-/** 診察履歴リアルタイムリスナー */
+/** 診察履歴リアルタイムリスナー（クエリ上限付き） */
+const VISIT_HISTORY_LIMIT = 1000;
+
 export function useVisitHistories() {
   const [histories, setHistories] = useState<VisitHistoryRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(
+    const q = query(
       collection(db, 'visit_histories'),
+      orderBy('createdAt', 'desc'),
+      limit(VISIT_HISTORY_LIMIT),
+    );
+    const unsubscribe = onSnapshot(
+      q,
       (snap) => {
         const data = snap.docs.map(d => ({ ...d.data(), id: d.id }) as VisitHistoryRecord);
         // 診察日降順ソート

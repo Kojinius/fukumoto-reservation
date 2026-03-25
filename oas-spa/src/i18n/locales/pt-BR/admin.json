@@ -6,6 +6,7 @@
     "logout": "Sair",
     "lastLogin": "Último acesso: ",
     "consentPending": "Termos pendentes",
+    "consentAccepted": "Termos e PP aceitos",
     "proxyBooking": "Reservar para paciente",
     "visitHistory": "Histórico de Consultas"
   },
@@ -152,6 +153,9 @@
       "correct": "Corrigir"
     },
     "emptyState": "Nenhum histórico de consulta encontrado",
+    "pagination": {
+      "totalSuffix": " registros"
+    },
     "modal": {
       "historyDetail": "Detalhes do Histórico",
       "close": "Fechar",

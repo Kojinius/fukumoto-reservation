@@ -222,6 +222,7 @@ export default function Cancel() {
                   <option value="日程を変更したい">{t('cancel.reasonReschedule')}</option>
                   <option value="その他">{t('cancel.reasonOther')}</option>
                 </select>
+                <p className="text-[11px] text-navy-400 leading-relaxed">{t('cancel.reasonHint')}</p>
                 {cancelReason === 'その他' && (
                   <input
                     type="text"
