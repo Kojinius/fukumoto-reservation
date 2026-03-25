@@ -11,6 +11,42 @@
 
 ---
 
+## 2026-03-25 Work Log (8) — ドキュメント生成・モバイルナビ修正
+
+### Completed Tasks
+
+#### [OAS-MOB-T01] スマホ縦画面で管理者ヘッダーナビが消える不具合修正
+
+| Area | Details |
+|------|---------|
+| 対象 | `AdminLayout.tsx` — デスクトップ向け nav が `hidden sm:flex` のためスマホで非表示 |
+| 修正 | ヘッダー内に `sm:hidden` の第2行ナビ（横スクロール対応タブバー）を追加 |
+| 内容 | 予約一覧・診察履歴・設定・代行予約の4リンク、アクティブ状態はゴールドアンダーライン |
+| AMS確認 | AMS は `lg:hidden` ドロップダウンナビが既に実装済み → 問題なし |
+| デプロイ | hosting:oas-reservation デプロイ済み |
+
+#### [FUNC-DEPLOY] Cloud Functions デプロイ（optOutReminder レートリミット）
+
+- `optOutReminder` CF に SEC-11 パターンのレートリミット追加済みコードをデプロイ
+- 全11関数デプロイ完了
+
+#### [DOC-GEN] ドキュメント一式生成（5ファイル）
+
+スクリーンショット（devサーバー + Firebase エミュレーター）を新規撮影後、以下を生成：
+
+| ファイル | スライド数 | パス |
+|---------|-----------|------|
+| OAS_本番環境移行計画書.pptx | 20枚 | documents/specs/ |
+| OAS_管理画面仕様書.pptx | 19枚 | documents/specs/ |
+| OnlineAppointSystem_詳細設計書.pptx | 28枚（v4） | documents/specs/ |
+| OAS_ユーザーマニュアル_予約編.pptx | 16枚 | documents/manuals/ |
+| OAS_ユーザーマニュアル_管理編.pptx | 20枚 | documents/manuals/ |
+
+- スクリーンショット: 21枚（`documents/screenshots/`）、devサーバー対応スクリプト（`capture_screenshots.py`）を全面改修
+- 移行計画書内容: 現状環境（ボス個人契約）→ クライアント名義への移行手順、費用見積、リスク対策、データ移行方針
+
+---
+
 ## 2026-03-24 Work Log (6)
 
 ### Completed Tasks

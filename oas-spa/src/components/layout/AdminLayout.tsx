@@ -28,7 +28,8 @@ export function AdminLayout() {
     <div className="min-h-screen flex flex-col bg-canvas">
       {/* 管理者ヘッダー — ダークネイビーで患者側と差別化 */}
       <header className="admin-header sticky top-0 z-40">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-4">
+        <div className="py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link to="/admin" className="flex items-center gap-2.5 group">
               <span className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center transition-colors group-hover:bg-white/15">
@@ -143,6 +144,56 @@ export function AdminLayout() {
               {t('layout.logout')}
             </Button>
           </div>
+        </div>
+        {/* モバイル専用ナビ行（sm未満のみ表示） */}
+        <nav className="sm:hidden flex border-t border-white/10 overflow-x-auto scrollbar-none">
+          <Link
+            to={pendingCount > 0 ? '/admin?filter=pending' : '/admin'}
+            className={`relative shrink-0 px-4 py-2 text-sm font-medium transition-colors ${
+              location.pathname === '/admin'
+                ? 'text-gold border-b-2 border-gold'
+                : 'text-cream/60'
+            }`}
+          >
+            {t('layout.reservationList')}
+            {pendingCount > 0 && (
+              <span className="absolute top-1 right-1 min-w-[16px] h-4 flex items-center justify-center rounded-full bg-amber-500 text-white text-[9px] font-bold px-0.5">
+                {pendingCount > 99 ? '99+' : pendingCount}
+              </span>
+            )}
+          </Link>
+          <Link
+            to="/admin/history"
+            className={`shrink-0 px-4 py-2 text-sm font-medium transition-colors ${
+              location.pathname.includes('/history')
+                ? 'text-gold border-b-2 border-gold'
+                : 'text-cream/60'
+            }`}
+          >
+            {t('layout.visitHistory')}
+          </Link>
+          <Link
+            to="/admin/settings"
+            className={`shrink-0 px-4 py-2 text-sm font-medium transition-colors ${
+              location.pathname.includes('/settings')
+                ? 'text-gold border-b-2 border-gold'
+                : 'text-cream/60'
+            }`}
+          >
+            {t('layout.settings')}
+          </Link>
+          <a
+            href="/?admin=1"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 px-4 py-2 text-sm font-medium text-cream/60 flex items-center gap-1"
+          >
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+            </svg>
+            {t('layout.proxyBooking')}
+          </a>
+        </nav>
         </div>
       </header>
 
