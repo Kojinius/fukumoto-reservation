@@ -36,6 +36,17 @@
   ::-webkit-scrollbar-thumb:hover { background: #9AADD0; }
 }
 
+@layer utilities {
+  /* スクロールバー非表示（モバイルナビ等） */
+  .scrollbar-none {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none; /* Chrome/Safari/iOS */
+  }
+}
+
 /* ============================================================
    COMPONENTS — raw CSS（@applyのopacity修飾子/カスタムshadow非対応回避）
    ============================================================ */

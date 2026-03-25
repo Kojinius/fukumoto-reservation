@@ -41,7 +41,7 @@ export function AdminLayout() {
                 {t('layout.adminPanel')}
               </span>
             </Link>
-            <nav className="hidden sm:flex items-center gap-1 ml-2">
+            <nav className="hidden sm:flex items-center gap-1 ml-2" aria-label={t('layout.desktopNav')}>
               <Link
                 to={pendingCount > 0 ? '/admin?filter=pending' : '/admin'}
                 className={`relative px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
@@ -146,7 +146,7 @@ export function AdminLayout() {
           </div>
         </div>
         {/* モバイル専用ナビ行（sm未満のみ表示） */}
-        <nav className="sm:hidden flex border-t border-white/10 overflow-x-auto scrollbar-none">
+        <nav className="sm:hidden flex border-t border-white/10 overflow-x-auto scrollbar-none" aria-label={t('layout.mobileNav')}>
           <Link
             to={pendingCount > 0 ? '/admin?filter=pending' : '/admin'}
             className={`relative shrink-0 px-4 py-2 text-sm font-medium transition-colors ${

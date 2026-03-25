@@ -8,7 +8,9 @@
     "consentPending": "利用規約・PP 確認待ち",
     "consentAccepted": "利用規約・PP 同意済み",
     "proxyBooking": "代行予約",
-    "visitHistory": "診察履歴"
+    "visitHistory": "診察履歴",
+    "desktopNav": "管理メニュー",
+    "mobileNav": "管理モバイルメニュー"
   },
   "dashboard": {
     "kpi": {

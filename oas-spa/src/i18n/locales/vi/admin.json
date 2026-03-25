@@ -8,7 +8,9 @@
     "consentPending": "Chờ xác nhận điều khoản",
     "consentAccepted": "Đã chấp nhận điều khoản và PP",
     "proxyBooking": "Đặt hộ bệnh nhân",
-    "visitHistory": "Lịch sử khám"
+    "visitHistory": "Lịch sử khám",
+    "desktopNav": "Menu quản trị",
+    "mobileNav": "Menu di động quản trị"
   },
   "dashboard": {
     "kpi": {
