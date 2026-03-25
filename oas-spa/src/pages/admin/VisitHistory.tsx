@@ -180,6 +180,18 @@ export default function VisitHistory() {
   // corrections リアルタイム購読
   const { corrections, loading: correctionsLoading } = useCorrections(selected?.id);
 
+  // selected が変わったら訂正フォームをリセット
+  useEffect(() => {
+    setCorrectFormOpen(false);
+    setCorrectReason('');
+    setCorrectAddendum('');
+    setSelectedFields(new Set());
+    setFieldValues({});
+    setFieldErrors({});
+    setCorrZipMsg('');
+    setConfirmOpen(false);
+  }, [selected?.id]);
+
   // マージ済みデータ
   const mergedData = useMemo(() => {
     if (!selected) return {} as Record<string, string>;
@@ -336,6 +348,7 @@ export default function VisitHistory() {
       );
       setCorrectFormOpen(false);
       setConfirmOpen(false);
+      setSelected(null);
       if (result.notified) {
         showToast(t('history.correction.notificationSent'), 'success');
       } else {

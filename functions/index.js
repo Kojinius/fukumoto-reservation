@@ -1134,8 +1134,8 @@ exports.correctVisitHistory = onRequest(
       res.status(400).json({ error: "訂正フィールドまたは補記のいずれかが必要です" }); return;
     }
     if (addendum !== undefined && addendum !== null) {
-      if (typeof addendum !== "string" || addendum.length > 500) {
-        res.status(400).json({ error: "補記は500文字以内で入力してください" }); return;
+      if (typeof addendum !== "string" || addendum.trim().length === 0 || addendum.length > 500) {
+        res.status(400).json({ error: "補記は1〜500文字で入力してください" }); return;
       }
     }
 
@@ -1156,6 +1156,9 @@ exports.correctVisitHistory = onRequest(
         }
         if (typeof fields[key] !== "string" || fields[key].trim().length === 0 || fields[key].length > 200) {
           res.status(400).json({ error: `フィールド "${key}" は1〜200文字の文字列で入力してください` }); return;
+        }
+        if (key === "email" && validateEmail(fields[key]) !== null) {
+          res.status(400).json({ error: "メールアドレスの形式が不正です" }); return;
         }
       }
       validatedFields = {};
@@ -1187,10 +1190,16 @@ exports.correctVisitHistory = onRequest(
 
         tx.create(corrRef, correctionDoc);
 
+        // lastCorrectedAt のみ親ドキュメントに記録（フィールド値は不変を維持しつつ onSnapshot をトリガー）
+        tx.update(histRef, { lastCorrectedAt: new Date().toISOString() });
+
+        // メール訂正の場合は新しいアドレスを通知先として使用
+        const effectiveEmail = (validatedFields && validatedFields.email) || histData.email || null;
+
         return {
           status:       200,
           correctionId: corrRef.id,
-          patientEmail: histData.email || null,
+          patientEmail: effectiveEmail,
         };
       });
 
