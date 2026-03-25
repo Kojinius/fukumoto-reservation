@@ -328,7 +328,13 @@
       "termsHint": "管理者の初回ログイン時、またはバージョン更新後に表示されます。",
       "versionManagement": "バージョン管理",
       "versionWarning": "バージョンを更新すると、全管理者が次回ログイン時に利用規約・プライバシーポリシーへの再同意を求められます。",
-      "bumpVersionButton": "バージョンを更新（v{{current}} → v{{next}}）"
+      "bumpVersionButton": "バージョンを更新（v{{current}} → v{{next}}）",
+      "autoFillAlert": "利用規約が未入力です。基本情報（院名・電話番号）から自動生成できます。",
+      "autoGenerate": "自動生成",
+      "regenerateLink": "基本情報から再生成",
+      "regenerateConfirmTitle": "利用規約を再生成",
+      "regenerateConfirmMessage": "利用規約を基本情報（院名・電話番号）から再生成します。手動で編集した内容は上書きされます。",
+      "regenerateOkLabel": "再生成する"
     },
     "policy": {
       "autoFillAlert": "未入力のポリシー項目があります。基本情報（院名・電話番号）から自動生成できます。",
@@ -380,6 +386,7 @@
       "tableCreatedAt": "作成日",
       "tableActions": "操作",
       "deleteButton": "削除",
+      "selfDeleteDisabled": "自分は削除できません",
       "deleteConfirmTitle": "ユーザー削除",
       "deleteConfirmMessage": "{{email}} を削除しますか？",
       "deleteOkLabel": "削除する"

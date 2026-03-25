@@ -88,13 +88,13 @@ export function useAdminUsers() {
     try {
       const token = await auth.currentUser?.getIdToken();
       if (!token) return;
-      const result = await callFunction<{ users: Array<{ uid: string; email: string; customClaims: Record<string, unknown>; metadata: { creationTime: string } }> }>('listUsers', {}, 'GET');
+      const result = await callFunction<{ users: Array<{ uid: string; email: string; createdAt: string; isAdmin: boolean }> }>('listUsers', {}, 'GET');
       const admins = result.users
         .filter(u => !u.email.endsWith('@ams.local'))
         .map(u => ({
           uid: u.uid,
           email: u.email,
-          createdAt: u.metadata?.creationTime || '',
+          createdAt: u.createdAt || '',
         }));
       setUsers(admins);
     } catch {

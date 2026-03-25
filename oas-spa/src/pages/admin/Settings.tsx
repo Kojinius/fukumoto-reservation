@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { doc, setDoc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { useTranslation } from 'react-i18next';
-import { db } from '@/lib/firebase';
+import { db, auth } from '@/lib/firebase';
 import { useClinic } from '@/hooks/useClinic';
 import { useToast } from '@/hooks/useToast';
 import { useAdminUsers, createAdminUser, deleteAdminUser, maskEmail } from '@/hooks/useAdmin';
@@ -710,6 +710,14 @@ function TermsTab({ form, update }: { form: Partial<ClinicSettings>; update: (p:
   const [termsVersion, setTermsVersion] = useState('');
   const [termsUpdatedAt, setTermsUpdatedAt] = useState('');
   const [bumping, setBumping] = useState(false);
+  const [confirmRegenerate, setConfirmRegenerate] = useState(false);
+
+  const name = form.clinicName || '〇〇クリニック';
+  const phone = form.phone || '000-0000-0000';
+
+  function generateTerms() {
+    return `利用規約\n\n${name}（以下「当院」）のオンライン予約サービス（以下「本サービス」）をご利用いただく前に、以下の利用規約をお読みいただき、ご同意の上でご利用ください。\n\n第1条（適用）\n本規約は、当院が提供する本サービスの利用に関する条件を定めるものです。\n\n第2条（予約の確定）\nオンライン予約は受付完了をもって予約申込となります。当院からの確認連絡をもって予約が確定いたします。\n\n第3条（キャンセル・変更）\n予約のキャンセルまたは変更は、所定の時間前までに本サービスまたはお電話にてお申し込みください。法令上、理由のご提示なくキャンセルいただけます。\n\n第4条（個人情報の取り扱い）\nご入力いただいた個人情報は、当院のプライバシーポリシーに基づき適切に管理いたします。\n\n第5条（免責事項）\n当院は、本サービスの利用に関して生じた損害について、当院の故意または重大な過失によるものを除き、責任を負いません。\n\n第6条（規約の変更）\n当院は、必要に応じて本規約を変更することがあります。変更後の規約は本サービス上に掲示した時点から効力を生じます。管理者の方には再同意をお願いする場合があります。\n\n【お問い合わせ】\n${name}\n電話: ${phone}`;
+  }
 
   // settings/terms からバージョン情報取得
   useEffect(() => {
@@ -744,8 +752,41 @@ function TermsTab({ form, update }: { form: Partial<ClinicSettings>; update: (p:
     }
   }
 
+  const hasEmpty = !form.termsOfService?.trim();
+
   return (
     <div className="space-y-4">
+      {hasEmpty ? (
+        <Alert variant="info">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-sm">{t('settings.terms.autoFillAlert')}</span>
+            <Button size="sm" variant="secondary" onClick={() => update({ termsOfService: generateTerms() })} className="shrink-0">
+              {t('settings.terms.autoGenerate')}
+            </Button>
+          </div>
+        </Alert>
+      ) : (
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={() => setConfirmRegenerate(true)}
+            className="text-xs text-navy-400 hover:text-navy-600 underline underline-offset-2 transition-colors"
+          >
+            {t('settings.terms.regenerateLink')}
+          </button>
+        </div>
+      )}
+
+      <ConfirmDialog
+        open={confirmRegenerate}
+        title={t('settings.terms.regenerateConfirmTitle')}
+        message={t('settings.terms.regenerateConfirmMessage')}
+        okLabel={t('settings.terms.regenerateOkLabel')}
+        cancelLabel={t('settings.policy.cancelLabel')}
+        onConfirm={() => { update({ termsOfService: generateTerms() }); setConfirmRegenerate(false); }}
+        onCancel={() => setConfirmRegenerate(false)}
+      />
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -765,7 +806,7 @@ function TermsTab({ form, update }: { form: Partial<ClinicSettings>; update: (p:
             onChange={e => update({ termsOfService: e.target.value })}
             rows={20}
             maxLength={10000}
-            placeholder={t('settings.terms.termsTextPlaceholder')}
+            placeholder={generateTerms()}
           />
           <p className="text-[11px] text-navy-400">
             {t('settings.terms.termsHint')}
@@ -1069,7 +1110,11 @@ function AccountsTab({ adminUsers }: { adminUsers: ReturnType<typeof useAdminUse
                     <td className="px-3 py-2 text-navy-700">{maskEmail(u.email)}</td>
                     <td className="px-3 py-2 text-navy-400">{u.createdAt ? new Date(u.createdAt).toLocaleDateString('ja-JP') : '-'}</td>
                     <td className="px-3 py-2">
-                      <Button size="sm" variant="danger" onClick={() => setDeleteTarget(u)}>{t('settings.accounts.deleteButton')}</Button>
+                      {u.uid === auth.currentUser?.uid ? (
+                        <span className="text-xs text-navy-300">{t('settings.accounts.selfDeleteDisabled')}</span>
+                      ) : (
+                        <Button size="sm" variant="danger" onClick={() => setDeleteTarget(u)}>{t('settings.accounts.deleteButton')}</Button>
+                      )}
                     </td>
                   </tr>
                 ))}
