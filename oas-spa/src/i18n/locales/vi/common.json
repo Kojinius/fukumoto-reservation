@@ -39,5 +39,10 @@
     "checkButton": "Làm mới & kiểm tra",
     "stillActive": "Bảo trì vẫn đang diễn ra."
   },
-  "languageSettings": "Cài đặt ngôn ngữ"
+  "languageSettings": "Cài đặt ngôn ngữ",
+  "pwa": {
+    "installTitle": "Cài đặt ứng dụng",
+    "installDescription": "Thêm vào màn hình chính để truy cập nhanh",
+    "install": "Cài đặt"
+  }
 }

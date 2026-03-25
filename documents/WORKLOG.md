@@ -453,3 +453,29 @@ Implemented full i18n support for OAS using react-i18next. 3 parallel agents (A:
 - **Fix 3 — Form panel flex**: Added `flex-1 min-h-0 lg:flex-none` to form panel — fills remaining viewport height on mobile, fixed 400px width on desktop
 - **Fix 4 — Border cleanup**: Changed `border-l` to `lg:border-l` on preview panel — left border only on desktop (vertical stack on mobile doesn't need it)
 - **Changed files**: `A4Preview.tsx`, `ResumeCreator.tsx`, `CVCreator.tsx`
+
+---
+
+## 2026-03-25 Work Log (7)
+
+### Completed Tasks
+
+#### [OAS Enhancement Batch] PWA / Questionnaire / APPI Compliance / Full 7-language i18n (PR #19)
+
+Major enhancement batch covering 8 task items in a single sprint on branch `feature/oas-enhancement-batch`.
+
+| Area | Details |
+|------|---------|
+| PWA | vite-plugin-pwa + Workbox offline cache; InstallBanner component with 7-day dismiss cooldown; PWA icons (192×192, 512×512, maskable); Firestore persistentLocalCache |
+| Questionnaire | Patient-facing form at /questionnaire?bookingId=xxx; 18 fields incl. pain scale slider, body location chips, stress level buttons; saves to questionnaires/{bookingId} |
+| Questionnaire PDF | pdf-lib + fontkit + Noto Sans JP CDN; A4 layout with sections; disclaimer note ("not a medical record"); 7-language labels |
+| APPI Compliance | correctVisitHistory CF with beforeValues snapshot + corrections subcollection; AUDIT-01 訂正権 complete |
+| Access Logs | logAccess() in Dashboard + VisitHistory modals + PDF download; access_logs Firestore collection with schema validation rules |
+| Opt-out (Anti-Spam) | generateOptOutToken() HMAC-SHA256; optOutReminder CF endpoint; unsubscribe link in reminder emails; reminderEmailConsent auto-reset on email correction |
+| Admin UX | AdminLayout TOS icon (amber pulse when pending, green when accepted); Settings textarea maxLength; VisitHistory pagination PAGE_SIZE=50 + server limit(1000) |
+| i18n | questionnaire namespace added (7 languages); booking.json questionnaire keys (7 languages); admin.json pagination/consentAccepted/disclaimer (7 languages); cancel reasonHint (7 languages) |
+| Dashboard | Questionnaire PDF download button added to reservation detail modal |
+| Firestore Cleanup | Removed 5 test/orphan documents from production Firestore |
+
+#### Code Review (PR #19)
+- Running (Sonnet 4.6 / 5 parallel agents)

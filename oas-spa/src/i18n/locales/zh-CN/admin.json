@@ -6,6 +6,7 @@
     "logout": "退出登录",
     "lastLogin": "最后登录: ",
     "consentPending": "待同意条款",
+    "consentAccepted": "条款与隐私政策已同意",
     "proxyBooking": "代客预约",
     "visitHistory": "诊察记录"
   },
@@ -152,6 +153,9 @@
       "correct": "更正"
     },
     "emptyState": "暂无诊察记录",
+    "pagination": {
+      "totalSuffix": "条"
+    },
     "modal": {
       "historyDetail": "诊察记录详情",
       "close": "关闭",

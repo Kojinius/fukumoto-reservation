@@ -37,6 +37,14 @@ function isRateLimited(ip) {
 
 const resendApiKey = defineSecret("RESEND_API_KEY");
 
+/** リマインダー配信停止トークン生成（HMAC-SHA256） */
+function generateOptOutToken(reservationId, email) {
+  return crypto.createHmac("sha256", "oas-opt-out-salt")
+    .update(`${reservationId}:${email}`)
+    .digest("hex")
+    .slice(0, 24);
+}
+
 /** OAS予約システムのベースURL（メール内リンク用） */
 function getOasBaseUrl() {
   return process.env.FUNCTIONS_EMULATOR === "true"
@@ -972,11 +980,16 @@ exports.sendDailyReminders = onSchedule(
     }
 
     const resend = new Resend(resendApiKey.value());
+    const cfBase = process.env.FUNCTIONS_EMULATOR === "true"
+      ? "http://localhost:5001/kojinius/us-central1"
+      : "https://us-central1-kojinius.cloudfunctions.net";
     const tasks  = reservationsSnap.docs
-      .map(d => d.data())
+      .map(d => ({ ...d.data(), id: d.id }))
       .filter(r => r.email && r.reminderEmailConsent === true)
-      .map(r =>
-        sendMail(resend, {
+      .map(r => {
+        const optOutToken = generateOptOutToken(r.id, r.email);
+        const optOutUrl   = `${cfBase}/optOutReminder?id=${encodeURIComponent(r.id)}&token=${optOutToken}`;
+        return sendMail(resend, {
           from:    `${escHtml(cn)} <noreply@kojinius.jp>`,
           to:      r.email,
           subject: `【${escHtml(cn)}】明日のご予約リマインダー`,
@@ -1009,14 +1022,70 @@ exports.sendDailyReminders = onSchedule(
                   ${escHtml(cn)}<br>
                   https://kojinius.jp
                 </p>
+                <p style="margin:8px 0 0;color:#aaa;font-size:11px;">
+                  今後リマインダーメールの配信を希望されない場合は
+                  <a href="${optOutUrl}" style="color:#aaa;">こちら</a>
+                  から配信停止できます。
+                </p>
               </div>
             </div>
           `,
-        }).catch(e => console.error(`リマインダー送信失敗 (${r.id}):`, e))
-      );
+        }).catch(e => console.error(`リマインダー送信失敗 (${r.id}):`, e));
+      });
 
     await Promise.all(tasks);
     console.log(`リマインダー送信完了: ${tasks.length} 件 (${tomorrowStr})`);
+  }
+);
+
+// ── リマインダー配信停止（特定電子メール法対応 opt-out）──
+exports.optOutReminder = onRequest(
+  { invoker: "public" },
+  async (req, res) => {
+    setCorsHeaders(req, res);
+    if (req.method === "OPTIONS") { res.status(204).send(""); return; }
+    if (req.method !== "GET") { res.status(405).send("Method Not Allowed"); return; }
+
+    // [SEC-11] レート制限（配信停止エンドポイントの乱用防止）
+    const clientIp = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.ip;
+    if (isRateLimited(clientIp)) {
+      res.status(429).send("リクエストが多すぎます。しばらくお待ちください。"); return;
+    }
+
+    const { id, token } = req.query;
+    if (!id || !token || typeof id !== "string" || typeof token !== "string") {
+      res.status(400).send("パラメータが不正です"); return;
+    }
+
+    const db = getFirestore();
+    const resRef = db.collection("reservations").doc(id);
+    const resSnap = await resRef.get();
+
+    if (!resSnap.exists) {
+      res.status(404).send("予約が見つかりません"); return;
+    }
+
+    const data = resSnap.data();
+    const expectedToken = generateOptOutToken(id, data.email || "");
+    if (token !== expectedToken) {
+      res.status(403).send("トークンが無効です"); return;
+    }
+
+    await resRef.update({ reminderEmailConsent: false });
+
+    auditLog("reminder_opt_out", { reservationId: id });
+
+    res.status(200).send(`
+      <!DOCTYPE html>
+      <html lang="ja">
+      <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+      <title>配信停止完了</title>
+      <style>body{font-family:sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;background:#faf8f5;color:#1e293b;}
+      .card{text-align:center;padding:2rem;border-radius:12px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08);max-width:400px;}
+      h1{font-size:1.25rem;margin:0 0 .5rem;}p{color:#64748b;font-size:.875rem;margin:0;}</style></head>
+      <body><div class="card"><h1>配信停止が完了しました</h1><p>今後、リマインダーメールは送信されません。</p></div></body>
+      </html>
+    `);
   }
 );
 
@@ -1061,7 +1130,14 @@ exports.completeVisit = onRequest(
         const resSnap = await tx.get(resRef);
         if (!resSnap.exists) return { status: 404, error: "予約が見つかりません" };
 
-        // 二重完了防止
+        // ステータス確認（confirmed のみ完了可能）
+        const currentStatus = resSnap.data().status;
+        if (currentStatus === "completed") return { status: 409, error: "ALREADY_COMPLETED" };
+        if (currentStatus !== "confirmed") {
+          return { status: 400, error: `ステータスが「${currentStatus}」のため診察完了にできません。確定済み予約のみ完了可能です。` };
+        }
+
+        // 二重完了防止（visit_histories 側も確認）
         const dupQuery = db.collection("visit_histories").where("reservationId", "==", reservationId).limit(1);
         const dupSnap  = await tx.get(dupQuery);
         if (!dupSnap.empty) return { status: 409, error: "ALREADY_COMPLETED" };
@@ -1254,11 +1330,15 @@ exports.correctVisitHistory = onRequest(
 
         // 訂正値を親ドキュメントに反映（マテリアライズドビュー — onSnapshot で一覧に即反映）
         // beforeValues はサブコレクションに保存済みなので監査証跡は維持される
+        const updateData = { lastCorrectedAt: new Date().toISOString() };
         if (validatedFields && Object.keys(validatedFields).length > 0) {
-          tx.update(histRef, { ...validatedFields, lastCorrectedAt: new Date().toISOString() });
-        } else {
-          tx.update(histRef, { lastCorrectedAt: new Date().toISOString() });
+          Object.assign(updateData, validatedFields);
+          // メール訂正時は reminderEmailConsent を自動リセット（特定電子メール法対応）
+          if ("email" in validatedFields && validatedFields.email !== histData.email) {
+            updateData.reminderEmailConsent = false;
+          }
         }
+        tx.update(histRef, updateData);
 
         // メール訂正の場合は新しいアドレスを通知先として使用
         const effectiveEmail = (validatedFields && validatedFields.email) || histData.email || null;

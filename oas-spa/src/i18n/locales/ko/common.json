@@ -39,5 +39,10 @@
     "checkButton": "새로고침하여 확인",
     "stillActive": "아직 점검 중입니다."
   },
-  "languageSettings": "언어 설정"
+  "languageSettings": "언어 설정",
+  "pwa": {
+    "installTitle": "앱으로 설치",
+    "installDescription": "홈 화면에 추가하여 빠르게 접근하세요",
+    "install": "설치"
+  }
 }

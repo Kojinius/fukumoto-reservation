@@ -39,5 +39,10 @@
     "checkButton": "Refresh & Check",
     "stillActive": "Maintenance is still ongoing."
   },
-  "languageSettings": "Language Settings"
+  "languageSettings": "Language Settings",
+  "pwa": {
+    "installTitle": "Install as App",
+    "installDescription": "Add to home screen for quick access",
+    "install": "Install"
+  }
 }

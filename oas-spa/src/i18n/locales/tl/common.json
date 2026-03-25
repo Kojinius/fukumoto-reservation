@@ -39,5 +39,10 @@
     "checkButton": "I-refresh at Suriin",
     "stillActive": "Nandoon pa rin ang maintenance."
   },
-  "languageSettings": "Mga Setting ng Wika"
+  "languageSettings": "Mga Setting ng Wika",
+  "pwa": {
+    "installTitle": "I-install bilang App",
+    "installDescription": "Idagdag sa home screen para sa mabilis na access",
+    "install": "I-install"
+  }
 }

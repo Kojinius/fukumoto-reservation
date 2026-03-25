@@ -6,6 +6,7 @@
     "logout": "로그아웃",
     "lastLogin": "최근 로그인: ",
     "consentPending": "약관 동의 필요",
+    "consentAccepted": "이용약관・PP 동의 완료",
     "proxyBooking": "대리 예약",
     "visitHistory": "진찰 이력"
   },
@@ -152,6 +153,9 @@
       "correct": "정정"
     },
     "emptyState": "진찰 이력이 없습니다",
+    "pagination": {
+      "totalSuffix": "건"
+    },
     "modal": {
       "historyDetail": "진찰 이력 상세",
       "close": "닫기",

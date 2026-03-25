@@ -189,7 +189,10 @@ export function PatientForm({ form, onUpdate, onNext, onBack, privacyPolicyUrl }
         <Input label={t('patientForm.addressMain')} value={form.addressMain} onChange={e => onUpdate({ addressMain: e.target.value })} placeholder={t('patientForm.addressMainPlaceholder')} required />
         <Input label={t('patientForm.addressSub')} value={form.addressSub} onChange={e => onUpdate({ addressSub: e.target.value })} placeholder={t('patientForm.addressSubPlaceholder')} />
         <div className="grid grid-cols-1 sm:grid-cols-[1fr_10rem] gap-4">
-          <Input label={t('patientForm.email')} type="email" value={form.email} onChange={e => onUpdate({ email: e.target.value })} placeholder={t('patientForm.emailPlaceholder')} />
+          <Input label={t('patientForm.email')} type="email" value={form.email} onChange={e => {
+            const val = e.target.value;
+            onUpdate(!val.trim() ? { email: val, reminderEmailConsent: false } : { email: val });
+          }} placeholder={t('patientForm.emailPlaceholder')} />
           <Select
             label={t('patientForm.contactMethod')}
             value={form.contactMethod}
@@ -278,15 +281,16 @@ export function PatientForm({ form, onUpdate, onNext, onBack, privacyPolicyUrl }
       </div>
 
       {/* [H2] リマインダーメール配信同意（管理画面で有効時のみ表示） */}
-      {clinic?.reminderEmailEnabled && form.email.trim() && (
+      {clinic?.reminderEmailEnabled && (
         <div className={cn(
           'bg-white rounded-lg border p-4 shadow-subtle transition-all duration-200 animate-stagger-4',
-          form.reminderEmailConsent ? 'border-gold/40 bg-gold-50/30' : 'border-cream-300/60',
+          !form.email.trim() ? 'opacity-50' : form.reminderEmailConsent ? 'border-gold/40 bg-gold-50/30' : 'border-cream-300/60',
         )}>
-          <label className="flex items-start gap-3 cursor-pointer group">
+          <label className={cn('flex items-start gap-3 group', form.email.trim() ? 'cursor-pointer' : 'cursor-not-allowed')}>
             <input
               type="checkbox"
               checked={form.reminderEmailConsent}
+              disabled={!form.email.trim()}
               onChange={e => onUpdate({ reminderEmailConsent: e.target.checked })}
               className="mt-0.5 h-4 w-4 rounded border-cream-300 text-gold focus:ring-gold/30"
             />
@@ -295,7 +299,7 @@ export function PatientForm({ form, onUpdate, onNext, onBack, privacyPolicyUrl }
                 {t('patientForm.reminderEmail')}
               </span>
               <p className="text-[11px] text-navy-400 mt-1">
-                {t('patientForm.reminderEmailDesc')}
+                {form.email.trim() ? t('patientForm.reminderEmailDesc') : t('patientForm.reminderEmailNeedsEmail')}
               </p>
             </div>
           </label>

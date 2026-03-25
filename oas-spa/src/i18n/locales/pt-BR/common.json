@@ -39,5 +39,10 @@
     "checkButton": "Atualizar & Verificar",
     "stillActive": "A manutenção ainda está em andamento."
   },
-  "languageSettings": "Configurações de Idioma"
+  "languageSettings": "Configurações de Idioma",
+  "pwa": {
+    "installTitle": "Instalar como Aplicativo",
+    "installDescription": "Adicione à tela inicial para acesso rápido",
+    "install": "Instalar"
+  }
 }
