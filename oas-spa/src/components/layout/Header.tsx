@@ -8,16 +8,12 @@ export function Header() {
     <header className="bg-white/90 backdrop-blur-sm border-b border-cream-300/60 sticky top-0 z-40">
       <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          {/* ロゴ — ネイビーフラット */}
-          {clinic?.clinicLogo ? (
-            <img src={clinic.clinicLogo} alt="" className="h-9 w-9 rounded-lg object-cover" />
-          ) : (
-            <div className="h-9 w-9 rounded-lg bg-navy-700 flex items-center justify-center shrink-0">
-              <svg className="w-[18px] h-[18px] text-cream" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
-            </div>
-          )}
+          {/* 医院名頭文字アイコン（ロゴ画像設定は将来機能） */}
+          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-navy-700 via-navy-600 to-navy-500 flex items-center justify-center shrink-0 shadow-sm ring-1 ring-white/10">
+            <span className="text-[17px] font-bold text-gold leading-none tracking-tight" style={{ fontFamily: 'serif' }}>
+              {(clinic?.clinicName ?? 'O').charAt(0)}
+            </span>
+          </div>
           <div className="min-w-0">
             <h1 className="text-lg font-heading font-semibold text-navy-700 leading-tight truncate">
               {clinic?.clinicName || 'オンライン予約'}

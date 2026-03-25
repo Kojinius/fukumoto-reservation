@@ -189,7 +189,10 @@ export function PatientForm({ form, onUpdate, onNext, onBack, privacyPolicyUrl }
         <Input label={t('patientForm.addressMain')} value={form.addressMain} onChange={e => onUpdate({ addressMain: e.target.value })} placeholder={t('patientForm.addressMainPlaceholder')} required />
         <Input label={t('patientForm.addressSub')} value={form.addressSub} onChange={e => onUpdate({ addressSub: e.target.value })} placeholder={t('patientForm.addressSubPlaceholder')} />
         <div className="grid grid-cols-1 sm:grid-cols-[1fr_10rem] gap-4">
-          <Input label={t('patientForm.email')} type="email" value={form.email} onChange={e => onUpdate({ email: e.target.value })} placeholder={t('patientForm.emailPlaceholder')} />
+          <Input label={t('patientForm.email')} type="email" value={form.email} onChange={e => {
+            const val = e.target.value;
+            onUpdate(!val.trim() ? { email: val, reminderEmailConsent: false } : { email: val });
+          }} placeholder={t('patientForm.emailPlaceholder')} />
           <Select
             label={t('patientForm.contactMethod')}
             value={form.contactMethod}
