@@ -346,6 +346,10 @@
       "pmSession": "tarde"
     }
   },
+  "adminProxy": {
+    "banner": "Reserva por Proxy do Admin",
+    "badge": "Proxy"
+  },
   "changePassword": {
     "title": "Alterar Senha",
     "forcedAlert": "Por razões de segurança, você deve alterar sua senha no primeiro login. Você não pode navegar para outras páginas até que isso seja concluído.",

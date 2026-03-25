@@ -346,6 +346,10 @@
       "pmSession": "hapon"
     }
   },
+  "adminProxy": {
+    "banner": "Admin Proxy Booking",
+    "badge": "Proxy"
+  },
   "changePassword": {
     "title": "Baguhin ang Password",
     "forcedAlert": "Para sa seguridad, dapat mong baguhin ang iyong password sa unang pag-login. Hindi ka makakanavigasyon sa ibang mga pahina hanggang makumpleto ito.",

@@ -366,7 +366,14 @@ export default function Dashboard() {
                       {formatDateTimeJa(r.date, r.time)}
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap">
-                      <div className="text-navy-700 font-medium">{r.name}</div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-navy-700 font-medium">{r.name}</span>
+                        {r.bookedBy === 'admin' && (
+                          <span className="inline-flex items-center rounded-full bg-amber-100 border border-amber-300 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">
+                            {t('adminProxy.badge')}
+                          </span>
+                        )}
+                      </div>
                       <div className="text-[11px] text-navy-400">{r.furigana}</div>
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap">
@@ -421,6 +428,15 @@ export default function Dashboard() {
       {selected && (
         <Modal open={!!selected} onClose={() => setSelected(null)} title={t('dashboard.modal.reservationDetail')} className="max-w-lg">
           <div className="overflow-y-auto -mx-5 px-5" style={{ maxHeight: 'calc(85vh - 10rem)' }}>
+            {/* 管理者代行入力バナー */}
+            {selected.bookedBy === 'admin' && (
+              <div className="mb-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-2.5 flex items-center gap-2">
+                <svg className="w-4 h-4 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                </svg>
+                <span className="text-sm font-medium text-amber-800">{t('adminProxy.banner')}</span>
+              </div>
+            )}
             <dl className="space-y-1 text-sm">
               {[
                 [t('dashboard.modal.fields.reservationId'), selected.id],

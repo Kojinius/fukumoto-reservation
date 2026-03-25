@@ -346,6 +346,10 @@
       "pmSession": "buổi chiều"
     }
   },
+  "adminProxy": {
+    "banner": "Nhập liệu thay quản trị",
+    "badge": "Thay"
+  },
   "changePassword": {
     "title": "Đổi Mật Khẩu",
     "forcedAlert": "Vì lý do bảo mật, bạn phải đổi mật khẩu khi đăng nhập lần đầu. Bạn không thể chuyển sang trang khác cho đến khi hoàn tất.",

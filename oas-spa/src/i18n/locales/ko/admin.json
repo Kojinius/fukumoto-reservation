@@ -346,6 +346,10 @@
       "pmSession": "오후"
     }
   },
+  "adminProxy": {
+    "banner": "관리자 대행 입력",
+    "badge": "대행"
+  },
   "changePassword": {
     "title": "비밀번호 변경",
     "forcedAlert": "보안을 위해 최초 로그인 시 비밀번호를 변경해야 합니다. 변경이 완료될 때까지 다른 페이지로 이동할 수 없습니다.",

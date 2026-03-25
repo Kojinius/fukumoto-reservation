@@ -346,6 +346,10 @@
       "pmSession": "afternoon"
     }
   },
+  "adminProxy": {
+    "banner": "Admin Proxy Booking",
+    "badge": "Proxy"
+  },
   "changePassword": {
     "title": "Change Password",
     "forcedAlert": "For security reasons, you must change your password on first login. You cannot navigate to other pages until this is complete.",

@@ -199,6 +199,20 @@ exports.createReservation = onRequest(
     const bookingId = crypto.randomUUID();
     const slotId    = `${d.date}_${d.time.replace(":", "")}`;
 
+    // ── 管理者代行入力フラグの検証 ──
+    // inputBy: 'admin' が送られてきた場合、IDトークンを検証して admin クレームを確認
+    let bookedBy = undefined;
+    if (d.inputBy === "admin") {
+      const authHeader = req.headers.authorization || "";
+      const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+      if (token) {
+        try {
+          const decoded = await getAuth().verifyIdToken(token);
+          if (decoded.admin) bookedBy = "admin";
+        } catch { /* 認証失敗時は代行フラグなしで続行 */ }
+      }
+    }
+
     try {
       await db.runTransaction(async (tx) => {
         const slotRef = db.collection("slots").doc(slotId);
@@ -236,6 +250,7 @@ exports.createReservation = onRequest(
           reminderEmailConsent: d.reminderEmailConsent === true,  // [H2] リマインダーメール同意
           status:        "pending",
           createdAt:     new Date().toISOString(),
+          ...(bookedBy ? { bookedBy } : {}),
         });
       });
 
@@ -1060,6 +1075,8 @@ exports.completeVisit = onRequest(
           ...(booking.cancelledBy  ? { cancelledBy: booking.cancelledBy }   : {}),
           ...(booking.cancelReason ? { cancelReason: booking.cancelReason } : {}),
           ...(booking.cancelledAt  ? { cancelledAt: booking.cancelledAt }   : {}),
+          // 代行入力フラグ（あれば）
+          ...(booking.bookedBy     ? { bookedBy: booking.bookedBy }         : {}),
           // 診察完了メタデータ
           completedAt:             now,
           completedBy:             decoded.uid,
@@ -1178,20 +1195,35 @@ exports.correctVisitHistory = onRequest(
 
         const histData    = histSnap.data();
         const corrRef     = histRef.collection("corrections").doc();
+
+        // 訂正前の値を保存（イベントソーシング: beforeValues で監査証跡を完全に維持）
+        const beforeValues = {};
+        if (validatedFields) {
+          for (const key of Object.keys(validatedFields)) {
+            beforeValues[key] = histData[key] ?? "";
+          }
+        }
+
         const correctionDoc = {
           correctedBy:      decoded.uid,
           correctedByEmail: decoded.email || "",
           correctedAt:      new Date().toISOString(),
           reason:           reason.trim(),
           fields:           validatedFields,
+          beforeValues:     Object.keys(beforeValues).length > 0 ? beforeValues : null,
           addendum:         addendum || null,
           notifiedAt:       null,
         };
 
         tx.create(corrRef, correctionDoc);
 
-        // lastCorrectedAt のみ親ドキュメントに記録（フィールド値は不変を維持しつつ onSnapshot をトリガー）
-        tx.update(histRef, { lastCorrectedAt: new Date().toISOString() });
+        // 訂正値を親ドキュメントに反映（マテリアライズドビュー — onSnapshot で一覧に即反映）
+        // beforeValues はサブコレクションに保存済みなので監査証跡は維持される
+        if (validatedFields && Object.keys(validatedFields).length > 0) {
+          tx.update(histRef, { ...validatedFields, lastCorrectedAt: new Date().toISOString() });
+        } else {
+          tx.update(histRef, { lastCorrectedAt: new Date().toISOString() });
+        }
 
         // メール訂正の場合は新しいアドレスを通知先として使用
         const effectiveEmail = (validatedFields && validatedFields.email) || histData.email || null;

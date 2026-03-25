@@ -346,6 +346,10 @@
       "pmSession": "下午"
     }
   },
+  "adminProxy": {
+    "banner": "管理员代理录入",
+    "badge": "代理"
+  },
   "changePassword": {
     "title": "修改密码",
     "forcedAlert": "出于安全原因，首次登录时必须修改密码。在修改完成之前，无法跳转到其他页面。",
