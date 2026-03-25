@@ -85,7 +85,8 @@
     "validationEmailRequiredForMail": "Địa chỉ email là bắt buộc khi phương thức liên hệ là \"Email\"",
     "validationEmailFormat": "Địa chỉ email không đúng định dạng",
     "validationSensitiveConsent": "Vui lòng đồng ý với việc xử lý thông tin sức khỏe",
-    "validationSymptomsRequired": "Vui lòng nhập triệu chứng/vấn đề"
+    "validationSymptomsRequired": "Vui lòng nhập triệu chứng/vấn đề",
+    "visitHistoryNotice": "Thông tin bạn nhập sẽ được lưu trữ như một phần của lịch sử khám bệnh. Vui lòng tham khảo Chính sách Bảo mật để biết chi tiết về thời gian lưu trữ và cách xử lý dữ liệu."
   },
   "confirm": {
     "appointmentDateTime": "Ngày & Giờ hẹn",

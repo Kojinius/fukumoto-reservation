@@ -266,6 +266,13 @@ export function PatientForm({ form, onUpdate, onNext, onBack, privacyPolicyUrl }
             </p>
           )}
         </div>
+        {/* [AUDIT-02] 診察履歴保管通知（APPI 第32条 — 利用目的の通知義務） */}
+        <div className="flex items-start gap-2 rounded-lg border border-sky-200 bg-sky-50/60 px-3.5 py-3">
+          <svg className="w-4 h-4 shrink-0 mt-0.5 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p className="text-xs text-sky-700 leading-relaxed">{t('patientForm.visitHistoryNotice')}</p>
+        </div>
         <Textarea label={t('patientForm.symptoms')} value={form.symptoms} onChange={e => onUpdate({ symptoms: e.target.value })} rows={3} placeholder={t('patientForm.symptomsPlaceholder')} required disabled={!form.hasSensitiveDataConsent} maxLength={1000} />
         <Textarea label={t('patientForm.notes')} value={form.notes} onChange={e => onUpdate({ notes: e.target.value })} rows={2} placeholder={t('patientForm.notesPlaceholder')} maxLength={500} />
       </div>

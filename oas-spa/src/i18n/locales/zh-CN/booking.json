@@ -85,7 +85,8 @@
     "validationEmailRequiredForMail": "联系方式为\"邮件\"时，电子邮件为必填项",
     "validationEmailFormat": "电子邮件格式不正确",
     "validationSensitiveConsent": "请同意健康信息的处理方式",
-    "validationSymptomsRequired": "请输入症状/烦恼"
+    "validationSymptomsRequired": "请输入症状/烦恼",
+    "visitHistoryNotice": "您输入的信息将作为诊察记录保存。有关保存期限和处理方式，请参阅隐私政策。"
   },
   "confirm": {
     "appointmentDateTime": "预约日期及时间",

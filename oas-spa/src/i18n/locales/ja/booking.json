@@ -85,7 +85,8 @@
     "validationEmailRequiredForMail": "連絡方法が「メール」の場合、メールアドレスは必須です",
     "validationEmailFormat": "メールアドレスの形式が正しくありません",
     "validationSensitiveConsent": "健康情報の取り扱いに同意してください",
-    "validationSymptomsRequired": "症状・お悩みを入力してください"
+    "validationSymptomsRequired": "症状・お悩みを入力してください",
+    "visitHistoryNotice": "ご入力いただいた情報は、診察履歴として保管されます。保管期間および取り扱いについては、プライバシーポリシーをご確認ください。"
   },
   "confirm": {
     "appointmentDateTime": "ご予約日時",
