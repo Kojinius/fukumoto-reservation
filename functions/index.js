@@ -1092,3 +1092,163 @@ exports.completeVisit = onRequest(
     }
   }
 );
+
+// ── [AUDIT-01] 診察履歴の訂正（APPI第34条 訂正権対応）──
+exports.correctVisitHistory = onRequest(
+  { invoker: "public", secrets: [resendApiKey] },
+  async (req, res) => {
+    setCorsHeaders(req, res);
+    if (req.method === "OPTIONS") { res.status(204).send(""); return; }
+    if (req.method !== "POST")    { res.status(405).json({ error: "Method Not Allowed" }); return; }
+
+    // [SEC-11] レート制限
+    const clientIp = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.ip;
+    if (isRateLimited(clientIp)) {
+      res.status(429).json({ error: "リクエストが多すぎます。しばらくお待ちください。" }); return;
+    }
+
+    // ── 管理者認証チェック ──
+    const authHeader = req.headers.authorization;
+    if (!authHeader?.startsWith("Bearer ")) {
+      res.status(401).json({ error: "認証が必要です" }); return;
+    }
+    let decoded;
+    try {
+      decoded = await getAuth().verifyIdToken(authHeader.split("Bearer ")[1]);
+      if (!decoded.admin) { res.status(403).json({ error: "管理者権限が必要です" }); return; }
+    } catch (_) {
+      res.status(401).json({ error: "認証トークンが無効です" }); return;
+    }
+
+    // ── 入力バリデーション ──
+    const { historyId, reason, fields, addendum } = req.body;
+
+    if (!historyId || typeof historyId !== "string" || historyId.length > 100) {
+      res.status(400).json({ error: "履歴IDが不正です" }); return;
+    }
+    if (!reason || typeof reason !== "string" || reason.trim().length === 0 || reason.length > 500) {
+      res.status(400).json({ error: "訂正理由は1〜500文字で入力してください" }); return;
+    }
+    if (!fields && !addendum) {
+      res.status(400).json({ error: "訂正フィールドまたは補記のいずれかが必要です" }); return;
+    }
+    if (addendum !== undefined && addendum !== null) {
+      if (typeof addendum !== "string" || addendum.length > 500) {
+        res.status(400).json({ error: "補記は500文字以内で入力してください" }); return;
+      }
+    }
+
+    // フィールドのホワイトリスト検証
+    const ALLOWED_FIELDS = ['name','furigana','birthdate','zip','address','phone','email','gender','insurance','date','time'];
+    let validatedFields = null;
+    if (fields) {
+      if (typeof fields !== "object" || Array.isArray(fields)) {
+        res.status(400).json({ error: "訂正フィールドの形式が不正です" }); return;
+      }
+      const keys = Object.keys(fields);
+      if (keys.length === 0) {
+        res.status(400).json({ error: "訂正フィールドが空です" }); return;
+      }
+      for (const key of keys) {
+        if (!ALLOWED_FIELDS.includes(key)) {
+          res.status(400).json({ error: `許可されていないフィールド: ${key}` }); return;
+        }
+        if (typeof fields[key] !== "string" || fields[key].length > 200) {
+          res.status(400).json({ error: `フィールド "${key}" は200文字以内の文字列で入力してください` }); return;
+        }
+      }
+      validatedFields = {};
+      for (const key of keys) {
+        validatedFields[key] = fields[key];
+      }
+    }
+
+    const db = getFirestore();
+
+    try {
+      // ── トランザクション：履歴存在確認 + 訂正レコード作成 ──
+      const result = await db.runTransaction(async (tx) => {
+        const histRef  = db.collection("visit_histories").doc(historyId);
+        const histSnap = await tx.get(histRef);
+        if (!histSnap.exists) return { status: 404, error: "診察履歴が見つかりません" };
+
+        const histData    = histSnap.data();
+        const corrRef     = histRef.collection("corrections").doc();
+        const correctionDoc = {
+          correctedBy:      decoded.uid,
+          correctedByEmail: decoded.email || "",
+          correctedAt:      new Date().toISOString(),
+          reason:           reason.trim(),
+          fields:           validatedFields,
+          addendum:         addendum || null,
+          notifiedAt:       null,
+        };
+
+        tx.create(corrRef, correctionDoc);
+
+        return {
+          status:       200,
+          correctionId: corrRef.id,
+          patientEmail: histData.email || null,
+        };
+      });
+
+      if (result.status !== 200) {
+        res.status(result.status).json({ error: result.error });
+        return;
+      }
+
+      // ── メール通知（患者のemail が存在する場合のみ）──
+      let notified = false;
+      if (result.patientEmail) {
+        try {
+          const resend   = new Resend(resendApiKey.value());
+          const settings = await getClinicSettings();
+          const cn       = settings.clinicName || "院名未設定";
+
+          await sendMail(resend, {
+            from:    `${cn} <noreply@kojinius.jp>`,
+            to:      result.patientEmail,
+            subject: `【${cn}】個人情報の訂正に関するお知らせ`,
+            html: `
+              <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#333;">
+                <div style="background:#72586f;padding:24px 32px;">
+                  <h1 style="margin:0;color:#fff;font-size:20px;">個人情報の訂正に関するお知らせ</h1>
+                </div>
+                <div style="padding:24px 32px;">
+                  <p>お客様の診察履歴情報に訂正が行われました。</p>
+                  <p>詳細につきましては、お電話またはご来院の際にお問い合わせください。</p>
+                </div>
+                <div style="background:#f5f5f5;padding:16px 32px;">
+                  <p style="margin:0;color:#888;font-size:12px;">${escHtml(cn)} 予約システム</p>
+                </div>
+              </div>
+            `,
+          });
+
+          // 送信成功 → notifiedAt を更新
+          const corrRef = db.collection("visit_histories").doc(historyId)
+                            .collection("corrections").doc(result.correctionId);
+          await corrRef.update({ notifiedAt: new Date().toISOString() });
+          notified = true;
+        } catch (mailErr) {
+          // メール送信失敗は訂正処理自体を失敗にしない
+          console.error("correctVisitHistory エラー: メール送信失敗:", mailErr);
+        }
+      }
+
+      // ── 監査ログ ──
+      auditLog("visit_history_corrected", {
+        historyId,
+        correctionId: result.correctionId,
+        adminUid:     decoded.uid,
+        adminEmail:   decoded.email,
+      });
+
+      res.status(200).json({ ok: true, correctionId: result.correctionId, notified });
+    } catch (err) {
+      console.error("correctVisitHistory エラー:", err);
+      res.status(500).json({ error: "内部エラーが発生しました" });
+    }
+  }
+);

@@ -106,6 +106,18 @@ export interface VisitHistoryRecord {
   createdAt: string;
 }
 
+/** 訂正履歴レコード（visit_histories/{id}/corrections サブコレクション） */
+export interface CorrectionRecord {
+  id: string;
+  correctedBy: string;
+  correctedByEmail: string;
+  correctedAt: string;
+  reason: string;
+  fields: Partial<Record<string, string>>;
+  addendum?: string | null;
+  notifiedAt?: string | null;
+}
+
 /** 時間スロット（slots コレクション） */
 export interface SlotRecord {
   id: string;

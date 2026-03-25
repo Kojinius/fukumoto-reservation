@@ -148,7 +148,8 @@
       "clearSort": "ソートクリア"
     },
     "action": {
-      "detail": "詳細"
+      "detail": "詳細",
+      "correct": "訂正"
     },
     "emptyState": "診察履歴がありません",
     "modal": {
@@ -163,6 +164,27 @@
       "date": "診察日",
       "time": "診察時間",
       "filename": "診察履歴_"
+    },
+    "correction": {
+      "title": "診察履歴の訂正",
+      "reason": "訂正理由（必須）",
+      "reasonPlaceholder": "訂正の理由を入力してください",
+      "selectFields": "訂正するフィールドを選択",
+      "currentValue": "現在の値",
+      "newValue": "訂正後の値",
+      "confirm": "この訂正は取り消せません。実行しますか？",
+      "submit": "訂正を実行",
+      "badge": "訂正済",
+      "historyToggle": "訂正履歴（{{count}}件）",
+      "changedFrom": "変更前",
+      "changedTo": "変更後",
+      "addendum": "追記",
+      "addendumPlaceholder": "事実誤記に対する補足説明を入力してください",
+      "addendumHint": "症状・特記事項の事実誤記は、直接訂正できませんが追記で補足できます",
+      "notificationSent": "患者への通知メールを送信しました",
+      "notificationSkipped": "メールアドレス未登録のため通知を送信できませんでした。別途手動で通知してください",
+      "noCorrection": "訂正なし",
+      "notCorrectable": "このフィールドは施術者の判断に基づく記録のため訂正対象外です"
     }
   },
   "settings": {

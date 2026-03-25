@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { collection, onSnapshot, doc, writeBatch, addDoc, query, where } from 'firebase/firestore';
+import { collection, onSnapshot, doc, writeBatch, addDoc, query, where, orderBy } from 'firebase/firestore';
 import { db, auth } from '@/lib/firebase';
 import { callFunction } from '@/lib/functions';
-import type { ReservationRecord, ReservationStatus, VisitHistoryRecord } from '@/types/reservation';
+import type { ReservationRecord, ReservationStatus, VisitHistoryRecord, CorrectionRecord } from '@/types/reservation';
 
 /** 未確認予約件数リアルタイムリスナー（ヘッダーバッジ用） */
 export function usePendingCount() {
@@ -223,6 +223,49 @@ export function exportVisitHistoriesCsv(
       timestamp: new Date().toISOString(),
     }).catch(() => {});
   } catch { /* 監査ログ失敗時もCSV続行 */ }
+}
+
+/** 診察履歴の訂正（CF呼び出し） */
+export async function correctVisitHistory(
+  historyId: string,
+  reason: string,
+  fields?: Record<string, string>,
+  addendum?: string,
+): Promise<{ correctionId: string; notified: boolean }> {
+  return callFunction<{ correctionId: string; notified: boolean }>('correctVisitHistory', {
+    historyId, reason, fields, addendum,
+  });
+}
+
+/** 訂正履歴リアルタイムリスナー（corrections サブコレクション） */
+export function useCorrections(historyId: string | null | undefined) {
+  const [corrections, setCorrections] = useState<CorrectionRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!historyId) {
+      setCorrections([]);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    const q = query(
+      collection(db, 'visit_histories', historyId, 'corrections'),
+      orderBy('correctedAt', 'desc'),
+    );
+    const unsubscribe = onSnapshot(
+      q,
+      (snap) => {
+        const data = snap.docs.map(d => ({ ...d.data(), id: d.id }) as CorrectionRecord);
+        setCorrections(data);
+        setLoading(false);
+      },
+      () => setLoading(false),
+    );
+    return unsubscribe;
+  }, [historyId]);
+
+  return { corrections, loading };
 }
 
 /** メールアドレスマスキング */

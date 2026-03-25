@@ -148,7 +148,8 @@
       "clearSort": "清除排序"
     },
     "action": {
-      "detail": "详情"
+      "detail": "详情",
+      "correct": "更正"
     },
     "emptyState": "暂无诊察记录",
     "modal": {
@@ -163,6 +164,27 @@
       "date": "诊察日",
       "time": "诊察时间",
       "filename": "诊察记录_"
+    },
+    "correction": {
+      "title": "诊察记录更正",
+      "reason": "更正原因（必填）",
+      "reasonPlaceholder": "请输入更正原因",
+      "selectFields": "选择要更正的字段",
+      "currentValue": "当前值",
+      "newValue": "更正后的值",
+      "confirm": "此更正无法撤销。确定执行吗？",
+      "submit": "执行更正",
+      "badge": "已更正",
+      "historyToggle": "更正历史（{{count}}条）",
+      "changedFrom": "更正前",
+      "changedTo": "更正后",
+      "addendum": "补充说明",
+      "addendumPlaceholder": "请输入针对事实错误的补充说明",
+      "addendumHint": "症状和备注中的事实错误无法直接更正，但可以添加补充说明",
+      "notificationSent": "已向患者发送通知邮件",
+      "notificationSkipped": "未注册邮箱地址，无法发送通知。请手动通知患者",
+      "noCorrection": "无更正记录",
+      "notCorrectable": "此字段为治疗师的专业判断记录，不可更正"
     }
   },
   "settings": {

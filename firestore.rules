@@ -92,6 +92,12 @@ service cloud.firestore {
         && request.resource.data.date is string
         && request.resource.data.date.size() == 10;
       allow update, delete: if false;
+
+      // 訂正履歴サブコレクション（CF経由のみ書き込み可能 — APPI第34条対応）
+      match /corrections/{correctionId} {
+        allow read: if isAdmin();
+        allow create, update, delete: if false;
+      }
     }
 
     // 監査ログコレクション（CSVエクスポート等の操作記録）

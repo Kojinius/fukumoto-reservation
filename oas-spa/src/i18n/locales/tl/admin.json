@@ -148,7 +148,8 @@
       "clearSort": "I-clear ang Pagkakaayos"
     },
     "action": {
-      "detail": "Detalye"
+      "detail": "Detalye",
+      "correct": "Iwasto"
     },
     "emptyState": "Walang kasaysayan ng konsultasyon",
     "modal": {
@@ -163,6 +164,27 @@
       "date": "Petsa ng Konsultasyon",
       "time": "Oras ng Konsultasyon",
       "filename": "kasaysayan-ng-konsultasyon_"
+    },
+    "correction": {
+      "title": "Pagwawasto ng Rekord ng Pagbisita",
+      "reason": "Dahilan ng Pagwawasto (Kinakailangan)",
+      "reasonPlaceholder": "Ilagay ang dahilan ng pagwawasto",
+      "selectFields": "Pumili ng mga field na iwawasto",
+      "currentValue": "Kasalukuyang Halaga",
+      "newValue": "Wastong Halaga",
+      "confirm": "Hindi na mababawi ang pagwawastong ito. Ituloy?",
+      "submit": "Isagawa ang Pagwawasto",
+      "badge": "Naiwasto",
+      "historyToggle": "Kasaysayan ng Pagwawasto ({{count}})",
+      "changedFrom": "Dati",
+      "changedTo": "Pagkatapos",
+      "addendum": "Karagdagang Tala",
+      "addendumPlaceholder": "Maglagay ng karagdagang paliwanag para sa maling impormasyon",
+      "addendumHint": "Ang mga maling impormasyon sa sintomas o tala ay hindi maaaring direktang iwasto, ngunit maaaring magdagdag ng karagdagang tala",
+      "notificationSent": "Naipadala ang notification email sa pasyente",
+      "notificationSkipped": "Walang nakarehistrong email address. Mangyaring manu-manong ipaalam sa pasyente",
+      "noCorrection": "Walang pagwawasto",
+      "notCorrectable": "Ang field na ito ay propesyonal na paghatol ng therapist at hindi maaaring iwasto"
     }
   },
   "settings": {

@@ -148,7 +148,8 @@
       "clearSort": "Limpar Ordenação"
     },
     "action": {
-      "detail": "Detalhes"
+      "detail": "Detalhes",
+      "correct": "Corrigir"
     },
     "emptyState": "Nenhum histórico de consulta encontrado",
     "modal": {
@@ -163,6 +164,27 @@
       "date": "Data da consulta",
       "time": "Hora da consulta",
       "filename": "historico-consultas_"
+    },
+    "correction": {
+      "title": "Correção do Histórico de Consulta",
+      "reason": "Motivo da Correção (Obrigatório)",
+      "reasonPlaceholder": "Insira o motivo da correção",
+      "selectFields": "Selecione os campos a corrigir",
+      "currentValue": "Valor Atual",
+      "newValue": "Valor Corrigido",
+      "confirm": "Esta correção não pode ser desfeita. Deseja prosseguir?",
+      "submit": "Executar Correção",
+      "badge": "Corrigido",
+      "historyToggle": "Histórico de Correções ({{count}})",
+      "changedFrom": "Antes",
+      "changedTo": "Depois",
+      "addendum": "Nota Complementar",
+      "addendumPlaceholder": "Insira uma explicação complementar sobre o erro factual",
+      "addendumHint": "Erros factuais em sintomas ou observações não podem ser corrigidos diretamente, mas é possível adicionar uma nota complementar",
+      "notificationSent": "E-mail de notificação enviado ao paciente",
+      "notificationSkipped": "Endereço de e-mail não cadastrado. Por favor, notifique o paciente manualmente",
+      "noCorrection": "Sem correções",
+      "notCorrectable": "Este campo contém o julgamento profissional do terapeuta e não pode ser corrigido"
     }
   },
   "settings": {
