@@ -1,10 +1,11 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useVisitHistories, exportVisitHistoriesCsv, useCorrections, correctVisitHistory } from '@/hooks/useAdmin';
 import { useToast } from '@/hooks/useToast';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { Badge } from '@/components/ui/Badge';
 import { Modal } from '@/components/ui/Modal';
@@ -12,7 +13,14 @@ import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SortableHeader, toggleSortKey, multiSort, type SortKey } from '@/components/shared/SortableHeader';
 import { formatDateTimeJa, calcAge } from '@/utils/date';
+import { cn } from '@/utils/cn';
+import { lookupZip } from '@/utils/zip';
+import { isValidPhone, isValidEmail, isValidZip, isValidFurigana } from '@/utils/validation';
 import type { VisitHistoryRecord, CorrectionRecord } from '@/types/reservation';
+
+// ─────────────────────────────────────────────
+// 定数
+// ─────────────────────────────────────────────
 
 /** 訂正可能フィールドのホワイトリスト */
 const CORRECTABLE_FIELDS = [
@@ -35,6 +43,53 @@ const FIELD_LABEL_KEYS: Record<string, string> = {
   time:      'history.csv.time',
 };
 
+/** 訂正理由の最大文字数 */
+const REASON_MAX_LENGTH = 500;
+
+// ─────────────────────────────────────────────
+// フィールド設定
+// ─────────────────────────────────────────────
+
+type FieldType = 'text' | 'date' | 'time' | 'tel' | 'email' | 'select' | 'zip';
+
+interface FieldConfig {
+  type: FieldType;
+  options?: { value: string; label: string }[];
+  validate?: (v: string) => boolean;
+  maxLength?: number;
+}
+
+const FIELD_CONFIG: Record<string, FieldConfig> = {
+  name:      { type: 'text', maxLength: 50 },
+  furigana:  { type: 'text', validate: isValidFurigana, maxLength: 50 },
+  birthdate: { type: 'date' },
+  zip:       { type: 'zip', validate: isValidZip, maxLength: 8 },
+  address:   { type: 'text', maxLength: 200 },
+  phone:     { type: 'tel', validate: isValidPhone, maxLength: 20 },
+  email:     { type: 'email', validate: (v) => !v || isValidEmail(v), maxLength: 200 },
+  gender: {
+    type: 'select',
+    options: [
+      { value: '男性', label: '男性' },
+      { value: '女性', label: '女性' },
+      { value: '', label: '未設定' },
+    ],
+  },
+  insurance: {
+    type: 'select',
+    options: [
+      { value: '保険あり', label: '保険あり' },
+      { value: '保険なし', label: '保険なし' },
+    ],
+  },
+  date: { type: 'date' },
+  time: { type: 'time' },
+};
+
+// ─────────────────────────────────────────────
+// ユーティリティ関数
+// ─────────────────────────────────────────────
+
 /** ソート用値取得 */
 function getValue(r: VisitHistoryRecord, col: string): string | number {
   switch (col) {
@@ -52,7 +107,6 @@ function mergeCorrections(record: VisitHistoryRecord, corrections: CorrectionRec
   for (const field of CORRECTABLE_FIELDS) {
     merged[field] = (record as unknown as Record<string, string>)[field] ?? '';
   }
-  // 古い順に適用（corrections は desc なので reverse）
   const sorted = [...corrections].reverse();
   for (const c of sorted) {
     if (c.fields) {
@@ -79,15 +133,26 @@ function getLatestAddendum(corrections: CorrectionRecord[]): string | null {
   return null;
 }
 
-/** 訂正理由の最大文字数 */
-const REASON_MAX_LENGTH = 500;
+/** 日付文字列が安全にパース可能か確認し、フォーマットする */
+function safeFormatDatetime(dateStr: string, timeStr: string): string {
+  if (!dateStr || !timeStr) return '-';
+  const parts = dateStr.split('-').map(Number);
+  if (parts.length !== 3 || parts.some(isNaN)) return `${dateStr} ${timeStr}`;
+  const [y, m, d] = parts;
+  if (y < 1900 || y > 2100 || m < 1 || m > 12 || d < 1 || d > 31) return `${dateStr} ${timeStr}`;
+  return formatDateTimeJa(dateStr, timeStr);
+}
+
+// ─────────────────────────────────────────────
+// コンポーネント
+// ─────────────────────────────────────────────
 
 export default function VisitHistory() {
-  const { t } = useTranslation('admin');
+  const { t, i18n } = useTranslation('admin');
   const { showToast } = useToast();
   const { histories, loading } = useVisitHistories();
 
-  // 検索
+  // 検索フィルター
   const [search, setSearch] = useState('');
   const [zipSearch, setZipSearch] = useState('');
   const [phoneSearch, setPhoneSearch] = useState('');
@@ -107,25 +172,65 @@ export default function VisitHistory() {
   const [correctAddendum, setCorrectAddendum] = useState('');
   const [selectedFields, setSelectedFields] = useState<Set<string>>(new Set());
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-
-  // 訂正履歴アコーディオン
-  const [historyOpen, setHistoryOpen] = useState(false);
+  const [corrZipMsg, setCorrZipMsg] = useState('');
 
   // corrections リアルタイム購読
   const { corrections, loading: correctionsLoading } = useCorrections(selected?.id);
 
   // マージ済みデータ
   const mergedData = useMemo(() => {
-    if (!selected) return {};
+    if (!selected) return {} as Record<string, string>;
     return mergeCorrections(selected, corrections);
   }, [selected, corrections]);
 
   // 最新の addendum
   const latestAddendum = useMemo(() => getLatestAddendum(corrections), [corrections]);
 
-  /** フィルター */
+  // 訂正済みフィールド数
+  const correctedCount = useMemo(() => {
+    const fields = new Set<string>();
+    for (const c of corrections) {
+      if (c.fields) {
+        for (const k of Object.keys(c.fields)) fields.add(k);
+      }
+    }
+    return fields.size;
+  }, [corrections]);
+
+  // ─── ZIP自動取得 ───────────────────────────────
+  const updateFieldValueRef = useRef(
+    (field: string, value: string) => {
+      setFieldValues(prev => ({ ...prev, [field]: value }));
+    }
+  );
+
+  useEffect(() => {
+    if (!selectedFields.has('zip')) return;
+    const digits = (fieldValues['zip'] || '').replace(/[^\d]/g, '');
+    if (digits.length !== 7) { setCorrZipMsg(''); return; }
+    setCorrZipMsg('検索中...');
+    const timer = setTimeout(async () => {
+      try {
+        const addr = await lookupZip(digits);
+        if (addr) {
+          setCorrZipMsg('住所を自動入力しました');
+          setSelectedFields(prev => { const n = new Set(prev); n.add('address'); return n; });
+          updateFieldValueRef.current('address', addr);
+        } else {
+          setCorrZipMsg('住所が見つかりませんでした');
+        }
+      } catch {
+        setCorrZipMsg('住所取得に失敗しました');
+      }
+    }, 400);
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fieldValues['zip'], selectedFields.has('zip')]);
+
+  // ─── フィルター ────────────────────────────────
   const filtered = useMemo(() => {
     let list = histories;
     if (search) {
@@ -150,7 +255,6 @@ export default function VisitHistory() {
   }, [histories, search, zipSearch, phoneSearch, visitDateFrom, visitDateTo]);
 
   const sorted = useMemo(() => multiSort(filtered, sortKeys, getValue), [filtered, sortKeys]);
-
   const hasFilter = search || zipSearch || phoneSearch || visitDateFrom || visitDateTo;
 
   function clearFilters() {
@@ -161,17 +265,18 @@ export default function VisitHistory() {
     setVisitDateTo('');
   }
 
-  /** 訂正フォームを開く */
+  // ─── 訂正フォームハンドラー ────────────────────
   const openCorrectForm = useCallback(() => {
     setCorrectReason('');
     setCorrectAddendum('');
     setSelectedFields(new Set());
     setFieldValues({});
+    setFieldErrors({});
+    setCorrZipMsg('');
     setConfirmOpen(false);
     setCorrectFormOpen(true);
   }, []);
 
-  /** フィールド選択トグル */
   const toggleField = useCallback((field: string) => {
     setSelectedFields(prev => {
       const next = new Set(prev);
@@ -182,26 +287,44 @@ export default function VisitHistory() {
           delete copy[field];
           return copy;
         });
+        setFieldErrors(fe => {
+          const copy = { ...fe };
+          delete copy[field];
+          return copy;
+        });
       } else {
         next.add(field);
+        // フィールドを追加したら現在値をデフォルトとしてセット
+        const currentVal = mergedData[field] ?? '';
+        setFieldValues(fv => ({ ...fv, [field]: currentVal }));
       }
       return next;
     });
-  }, []);
+  }, [mergedData]);
 
-  /** 訂正フィールドの値更新 */
   const updateFieldValue = useCallback((field: string, value: string) => {
     setFieldValues(prev => ({ ...prev, [field]: value }));
+    const config = FIELD_CONFIG[field];
+    if (config?.validate && value.trim()) {
+      setFieldErrors(prev => ({
+        ...prev,
+        [field]: config.validate!(value) ? '' : '入力値が不正です',
+      }));
+    } else {
+      setFieldErrors(prev => ({ ...prev, [field]: '' }));
+    }
   }, []);
 
-  /** 訂正送信 */
+  // refを最新の updateFieldValue に同期
+  updateFieldValueRef.current = updateFieldValue;
+
   const handleSubmitCorrection = useCallback(async () => {
     if (!selected) return;
     setSubmitting(true);
     try {
       const fields: Record<string, string> = {};
       for (const f of selectedFields) {
-        if (fieldValues[f] !== undefined) {
+        if (fieldValues[f] !== undefined && fieldValues[f].trim() !== '') {
           fields[f] = fieldValues[f];
         }
       }
@@ -219,13 +342,13 @@ export default function VisitHistory() {
         showToast(t('history.correction.notificationSkipped'), 'warning');
       }
     } catch {
-      showToast('Correction failed', 'error');
+      showToast(t('history.correction.failed'), 'error');
     } finally {
       setSubmitting(false);
     }
   }, [selected, selectedFields, fieldValues, correctReason, correctAddendum, showToast, t]);
 
-  /** CSV出力ラベル構築 */
+  // ─── CSV出力ラベル ─────────────────────────────
   const csvLabels = {
     headers: [
       t('dashboard.modal.fields.reservationId'),
@@ -259,55 +382,105 @@ export default function VisitHistory() {
 
   if (loading) return <Spinner className="py-12" />;
 
-  /** 詳細モーダルの dl 行を構築（訂正済みフィールドにはバッジ付き） */
-  const buildDetailRows = () => {
-    if (!selected) return [];
+  // ─────────────────────────────────────────────
+  // 訂正フォーム：フィールド別入力レンダラー
+  // ─────────────────────────────────────────────
+  function renderCorrectionInput(field: string, value: string, error: string | undefined) {
+    const config = FIELD_CONFIG[field];
+    if (!config) return <Input value={value} onChange={e => updateFieldValue(field, e.target.value)} error={error} />;
 
-    /** フィールドの表示値を取得（訂正済みならマージ済み値） */
-    const val = (field: string, fallback?: string) => {
-      const correctedVal = mergedData[field];
-      if (correctedVal !== undefined && correctedVal !== null) return correctedVal || fallback || '-';
-      return (selected as unknown as Record<string, string>)[field] || fallback || '-';
-    };
+    switch (config.type) {
+      case 'select':
+        return (
+          <Select
+            options={config.options!}
+            value={value}
+            onChange={e => updateFieldValue(field, e.target.value)}
+            error={error}
+          />
+        );
+      case 'date':
+        return (
+          <Input
+            type="date"
+            value={value}
+            onChange={e => updateFieldValue(field, e.target.value)}
+            error={error}
+          />
+        );
+      case 'time':
+        return (
+          <Input
+            type="time"
+            step={1800}
+            value={value}
+            onChange={e => updateFieldValue(field, e.target.value)}
+            error={error}
+          />
+        );
+      case 'tel':
+        return (
+          <Input
+            type="tel"
+            value={value}
+            onChange={e => updateFieldValue(field, e.target.value)}
+            maxLength={config.maxLength}
+            error={error}
+          />
+        );
+      case 'email':
+        return (
+          <Input
+            type="email"
+            value={value}
+            onChange={e => updateFieldValue(field, e.target.value)}
+            maxLength={config.maxLength}
+            error={error}
+          />
+        );
+      case 'zip':
+        return (
+          <Input
+            value={value}
+            onChange={e => updateFieldValue(field, e.target.value)}
+            maxLength={config.maxLength}
+            error={error}
+            placeholder="1234567"
+          />
+        );
+      default:
+        return (
+          <Input
+            value={value}
+            onChange={e => updateFieldValue(field, e.target.value)}
+            maxLength={config.maxLength}
+            error={error}
+          />
+        );
+    }
+  }
 
-    /** 訂正済みバッジ */
-    const badge = (field: string) =>
-      isCorrected(field, corrections)
-        ? <Badge className="bg-cream-100 text-navy-700 ml-2">{t('history.correction.badge')}</Badge>
-        : null;
-
-    return [
-      [t('dashboard.modal.fields.reservationId'), <span key="rid">{selected.reservationId}</span>],
-      [t('dashboard.modal.fields.scheduledDateTime'), <span key="dt">{formatDateTimeJa(val('date', selected.date), val('time', selected.time))}{badge('date')}{badge('time')}</span>],
-      [t('dashboard.modal.fields.name'), <span key="name">{val('name')}{badge('name')}</span>],
-      [t('dashboard.modal.fields.furigana'), <span key="furi">{val('furigana')}{badge('furigana')}</span>],
-      [t('dashboard.modal.fields.birthdate'), <span key="bd">{val('birthdate') + (calcAge(val('birthdate', selected.birthdate)) !== null ? `（${calcAge(val('birthdate', selected.birthdate))}${t('dashboard.modal.fields.ageUnit')}）` : '')}{badge('birthdate')}</span>],
-      [t('dashboard.modal.fields.zip'), <span key="zip">{val('zip', '-')}{badge('zip')}</span>],
-      [t('dashboard.modal.fields.address'), <span key="addr">{val('address')}{badge('address')}</span>],
-      [t('dashboard.modal.fields.phone'), <span key="phone">{val('phone')}{badge('phone')}</span>],
-      [t('dashboard.modal.fields.email'), <span key="email">{val('email', '-')}{badge('email')}</span>],
-      [t('dashboard.modal.fields.gender'), <span key="gender">{val('gender') || t('dashboard.modal.fields.genderUnset')}{badge('gender')}</span>],
-      [t('dashboard.modal.fields.visitType'), <span key="vt">{selected.visitType || '-'}</span>],
-      [t('dashboard.modal.fields.insurance'), <span key="ins">{val('insurance', '-')}{badge('insurance')}</span>],
-      [t('dashboard.modal.fields.symptoms'), <span key="sym">{selected.symptoms}</span>],
-      [t('dashboard.modal.fields.notes'), <span key="notes">{selected.notes || t('dashboard.modal.fields.noNotes')}</span>],
-      // addendum 表示（訂正による追記）
-      ...(latestAddendum ? [
-        [t('history.correction.addendum'), <span key="addendum" className="text-navy-700">{latestAddendum}</span>],
-      ] : []),
-      [t('dashboard.modal.fields.contactMethod'), <span key="cm">{selected.contactMethod || '-'}</span>],
-      [t('dashboard.modal.fields.reservationStatus'), <span key="rs">{t(`dashboard.status.${selected.reservationStatus}`)}</span>],
-      ...(selected.cancelledBy ? [
-        [t('dashboard.modal.fields.cancelledBy'), <span key="cb">{selected.cancelledBy === 'admin' ? t('dashboard.status.cancelledByAdmin') : t('dashboard.status.cancelledByPatient')}</span>],
-        [t('dashboard.modal.fields.cancelReason'), <span key="cr">{selected.cancelReason || '-'}</span>],
-        [t('dashboard.modal.fields.cancelledAt'), <span key="cat">{selected.cancelledAt ? new Date(selected.cancelledAt).toLocaleString('ja-JP') : '-'}</span>],
-      ] : []),
-      [t('dashboard.modal.fields.createdAt'), <span key="ca">{selected.reservationCreatedAt ? new Date(selected.reservationCreatedAt).toLocaleString('ja-JP') : '-'}</span>],
-      [t('history.modal.fields.completedAt'), <span key="coa">{selected.completedAt ? new Date(selected.completedAt).toLocaleString('ja-JP') : '-'}</span>],
-      [t('history.modal.fields.completedBy'), <span key="cob">{selected.completedByEmail || '-'}</span>],
-    ] as [string, React.ReactNode][];
+  // ─────────────────────────────────────────────
+  // 詳細モーダル：フィールド行ヘルパー
+  // ─────────────────────────────────────────────
+  const val = (field: string, fallback?: string) => {
+    if (!selected) return fallback || '-';
+    const correctedVal = mergedData[field];
+    if (correctedVal !== undefined && correctedVal !== null) return correctedVal || fallback || '-';
+    return (selected as unknown as Record<string, string>)[field] || fallback || '-';
   };
 
+  const corrBadge = (field: string) =>
+    isCorrected(field, corrections)
+      ? <Badge className="bg-amber-50 text-amber-700 border border-amber-200 ml-2 text-[10px]">{t('history.correction.badge')}</Badge>
+      : null;
+
+  const corrClass = (field: string) =>
+    isCorrected(field, corrections) ? 'border-l-2 border-gold pl-2' : '';
+
+  // ─────────────────────────────────────────────
+  // メインレンダリング
+  // ─────────────────────────────────────────────
   return (
     <div className="space-y-6 animate-fade-in-up">
       {/* タイトル */}
@@ -430,97 +603,271 @@ export default function VisitHistory() {
         </div>
       </Card>
 
-      {/* 詳細モーダル */}
+      {/* ─── 詳細モーダル ─────────────────────────── */}
       {selected && (
-        <Modal open={!!selected} onClose={() => { setSelected(null); setHistoryOpen(false); }} title={t('history.modal.historyDetail')} className="max-w-lg">
+        <Modal
+          open={!!selected}
+          onClose={() => setSelected(null)}
+          title={t('history.modal.historyDetail')}
+          className="max-w-xl"
+        >
           <div className="overflow-y-auto -mx-5 px-5" style={{ maxHeight: 'calc(85vh - 10rem)' }}>
             {correctionsLoading ? (
               <Spinner className="py-4" />
             ) : (
-              <>
-                <dl className="space-y-1 text-sm">
-                  {buildDetailRows().map(([label, val]) => (
-                    <div key={label as string} className="flex border-b border-cream-200/80 py-2">
-                      <dt className="w-24 shrink-0 text-navy-400">{label}</dt>
-                      <dd className="text-navy-700 whitespace-pre-wrap break-all">{val}</dd>
+              <div className="space-y-6">
+                {/* ── Patient hero ─────────────────────── */}
+                <div className="flex items-start gap-4">
+                  {/* イニシャルアバター */}
+                  <div className="w-12 h-12 rounded-full bg-navy-700 flex items-center justify-center shrink-0 shadow-sm">
+                    <span className="text-lg font-display font-medium text-cream-100">
+                      {(mergedData['name'] || selected.name || '?').charAt(0)}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-lg font-display font-medium text-navy-700 truncate">
+                        {mergedData['name'] || selected.name}
+                      </h3>
+                      {correctedCount > 0 && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-[10px] font-medium text-amber-700">
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                          </svg>
+                          {correctedCount}件訂正済
+                        </span>
+                      )}
                     </div>
-                  ))}
-                </dl>
-
-                {/* 訂正履歴アコーディオン */}
-                {corrections.length > 0 && (
-                  <div className="mt-4">
-                    <button
-                      type="button"
-                      onClick={() => setHistoryOpen(prev => !prev)}
-                      className="flex items-center gap-2 text-sm font-medium text-navy-700 hover:text-navy-500 transition-colors w-full py-2"
-                    >
-                      <svg
-                        className={`w-4 h-4 transition-transform ${historyOpen ? 'rotate-90' : ''}`}
-                        fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    <p className="text-sm text-navy-400 mt-0.5">
+                      {mergedData['furigana'] || selected.furigana}
+                    </p>
+                    {/* 来院日時カード */}
+                    <div className="mt-2 inline-flex items-center gap-2 bg-navy-700/5 border border-navy-700/10 rounded-lg px-3 py-1.5">
+                      <svg className="w-3.5 h-3.5 text-navy-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5" />
                       </svg>
-                      {t('history.correction.historyToggle', { count: corrections.length })}
-                    </button>
-                    {historyOpen && (
-                      <div className="mt-2 space-y-3">
-                        {corrections.map((c) => (
-                          <Card key={c.id}>
-                            <CardBody className="space-y-2 text-xs">
-                              <div className="flex items-center justify-between text-navy-400">
-                                <span>{new Date(c.correctedAt).toLocaleString('ja-JP')}</span>
-                                <span>{c.correctedByEmail}</span>
-                              </div>
-                              <div className="text-navy-700">
-                                <span className="font-medium">{t('history.correction.reason')}:</span> {c.reason}
-                              </div>
-                              {c.fields && Object.keys(c.fields).length > 0 && (
-                                <div className="space-y-1">
-                                  {Object.entries(c.fields).map(([field, newVal]) => {
-                                    const original = (selected as unknown as Record<string, string>)[field] ?? '';
-                                    return (
-                                      <div key={field} className="flex items-center gap-2 text-xs">
-                                        <span className="font-medium text-navy-500 w-16 shrink-0">
-                                          {t(FIELD_LABEL_KEYS[field] || field)}
-                                        </span>
-                                        <span className="text-navy-400 line-through">{t('history.correction.changedFrom')}: {original || '-'}</span>
-                                        <svg className="w-3 h-3 text-navy-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                          <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                                        </svg>
-                                        <span className="text-navy-700 font-medium">{t('history.correction.changedTo')}: {newVal || '-'}</span>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              )}
-                              {c.addendum && (
-                                <div className="text-navy-600">
-                                  <span className="font-medium">{t('history.correction.addendum')}:</span> {c.addendum}
-                                </div>
-                              )}
-                            </CardBody>
-                          </Card>
-                        ))}
-                      </div>
+                      <span className="text-sm font-mono font-medium text-navy-700">
+                        {safeFormatDatetime(val('date', selected.date), val('time', selected.time))}
+                      </span>
+                      {(isCorrected('date', corrections) || isCorrected('time', corrections)) && corrBadge('date')}
+                    </div>
+                  </div>
+                </div>
+
+                {/* ── 患者情報 ──────────────────────────── */}
+                <section className="space-y-2">
+                  <h4 className="text-[10px] font-body tracking-[0.2em] uppercase text-navy-400 pb-1.5 border-b border-cream-200">
+                    患者情報
+                  </h4>
+                  <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2.5 text-sm">
+                    <dt className="text-navy-400 shrink-0 pt-0.5 text-xs">{t('dashboard.modal.fields.name')}</dt>
+                    <dd className={cn('text-navy-700 flex items-center gap-1 flex-wrap', corrClass('name'))}>
+                      {val('name')}{corrBadge('name')}
+                    </dd>
+
+                    <dt className="text-navy-400 shrink-0 pt-0.5 text-xs">{t('dashboard.modal.fields.furigana')}</dt>
+                    <dd className={cn('text-navy-700 flex items-center gap-1 flex-wrap', corrClass('furigana'))}>
+                      {val('furigana')}{corrBadge('furigana')}
+                    </dd>
+
+                    <dt className="text-navy-400 shrink-0 pt-0.5 text-xs">{t('dashboard.modal.fields.birthdate')}</dt>
+                    <dd className={cn('text-navy-700 flex items-center gap-1 flex-wrap', corrClass('birthdate'))}>
+                      {val('birthdate')}
+                      {calcAge(val('birthdate', selected.birthdate)) !== null && (
+                        <span className="text-navy-400 text-xs">
+                          （{calcAge(val('birthdate', selected.birthdate))}{t('dashboard.modal.fields.ageUnit')}）
+                        </span>
+                      )}
+                      {corrBadge('birthdate')}
+                    </dd>
+
+                    <dt className="text-navy-400 shrink-0 pt-0.5 text-xs">{t('dashboard.modal.fields.gender')}</dt>
+                    <dd className={cn('text-navy-700 flex items-center gap-1 flex-wrap', corrClass('gender'))}>
+                      {val('gender') || t('dashboard.modal.fields.genderUnset')}{corrBadge('gender')}
+                    </dd>
+
+                    <dt className="text-navy-400 shrink-0 pt-0.5 text-xs">{t('dashboard.modal.fields.zip')}</dt>
+                    <dd className={cn('text-navy-700 flex items-center gap-1 flex-wrap font-mono text-xs', corrClass('zip'))}>
+                      {val('zip', '-')}{corrBadge('zip')}
+                    </dd>
+
+                    <dt className="text-navy-400 shrink-0 pt-0.5 text-xs">{t('dashboard.modal.fields.address')}</dt>
+                    <dd className={cn('text-navy-700 flex items-center gap-1 flex-wrap break-all', corrClass('address'))}>
+                      {val('address')}{corrBadge('address')}
+                    </dd>
+
+                    <dt className="text-navy-400 shrink-0 pt-0.5 text-xs">{t('dashboard.modal.fields.phone')}</dt>
+                    <dd className={cn('text-navy-700 flex items-center gap-1 flex-wrap font-mono text-xs', corrClass('phone'))}>
+                      {val('phone')}{corrBadge('phone')}
+                    </dd>
+
+                    <dt className="text-navy-400 shrink-0 pt-0.5 text-xs">{t('dashboard.modal.fields.email')}</dt>
+                    <dd className={cn('text-navy-700 flex items-center gap-1 flex-wrap break-all text-xs', corrClass('email'))}>
+                      {val('email', '-')}{corrBadge('email')}
+                    </dd>
+                  </dl>
+                </section>
+
+                {/* ── 診察情報 ──────────────────────────── */}
+                <section className="space-y-2">
+                  <h4 className="text-[10px] font-body tracking-[0.2em] uppercase text-navy-400 pb-1.5 border-b border-cream-200">
+                    診察情報
+                  </h4>
+                  <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2.5 text-sm">
+                    <dt className="text-navy-400 shrink-0 pt-0.5 text-xs">{t('dashboard.modal.fields.visitType')}</dt>
+                    <dd className="text-navy-700">
+                      <Badge className={selected.visitType === '初診' ? 'bg-sky-100 text-sky-700' : 'bg-cream-100 text-navy-500'}>
+                        {selected.visitType || '-'}
+                      </Badge>
+                    </dd>
+
+                    <dt className="text-navy-400 shrink-0 pt-0.5 text-xs">{t('dashboard.modal.fields.insurance')}</dt>
+                    <dd className={cn('text-navy-700 flex items-center gap-1 flex-wrap', corrClass('insurance'))}>
+                      {val('insurance', '-')}{corrBadge('insurance')}
+                    </dd>
+
+                    <dt className="text-navy-400 shrink-0 pt-0.5 text-xs">{t('dashboard.modal.fields.symptoms')}</dt>
+                    <dd className="text-navy-700 whitespace-pre-wrap break-all">{selected.symptoms || '-'}</dd>
+
+                    <dt className="text-navy-400 shrink-0 pt-0.5 text-xs">{t('dashboard.modal.fields.notes')}</dt>
+                    <dd className="text-navy-700 whitespace-pre-wrap break-all">
+                      {selected.notes || t('dashboard.modal.fields.noNotes')}
+                    </dd>
+
+                    <dt className="text-navy-400 shrink-0 pt-0.5 text-xs">{t('dashboard.modal.fields.contactMethod')}</dt>
+                    <dd className="text-navy-700">{selected.contactMethod || '-'}</dd>
+
+                    {latestAddendum && (
+                      <>
+                        <dt className="text-navy-400 shrink-0 pt-0.5 text-xs">{t('history.correction.addendum')}</dt>
+                        <dd className="text-amber-700 bg-amber-50 rounded px-2 py-1 text-xs break-all">{latestAddendum}</dd>
+                      </>
                     )}
+                  </dl>
+                </section>
+
+                {/* ── 来院記録 ──────────────────────────── */}
+                <section className="space-y-2">
+                  <h4 className="text-[10px] font-body tracking-[0.2em] uppercase text-navy-400 pb-1.5 border-b border-cream-200">
+                    来院記録
+                  </h4>
+                  <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2.5 text-sm">
+                    <dt className="text-navy-400 shrink-0 pt-0.5 text-xs">{t('dashboard.modal.fields.reservationId')}</dt>
+                    <dd className="text-navy-700 font-mono text-xs">{selected.reservationId}</dd>
+
+                    <dt className="text-navy-400 shrink-0 pt-0.5 text-xs">{t('dashboard.modal.fields.reservationStatus')}</dt>
+                    <dd className="text-navy-700">{t(`dashboard.status.${selected.reservationStatus}`)}</dd>
+
+                    {selected.cancelledBy && (
+                      <>
+                        <dt className="text-navy-400 shrink-0 pt-0.5 text-xs">{t('dashboard.modal.fields.cancelledBy')}</dt>
+                        <dd className="text-navy-700">
+                          {selected.cancelledBy === 'admin'
+                            ? t('dashboard.status.cancelledByAdmin')
+                            : t('dashboard.status.cancelledByPatient')}
+                        </dd>
+                        <dt className="text-navy-400 shrink-0 pt-0.5 text-xs">{t('dashboard.modal.fields.cancelReason')}</dt>
+                        <dd className="text-navy-700 break-all">{selected.cancelReason || '-'}</dd>
+                        <dt className="text-navy-400 shrink-0 pt-0.5 text-xs">{t('dashboard.modal.fields.cancelledAt')}</dt>
+                        <dd className="text-navy-700 font-mono text-xs">
+                          {selected.cancelledAt ? new Date(selected.cancelledAt).toLocaleString('ja-JP') : '-'}
+                        </dd>
+                      </>
+                    )}
+
+                    <dt className="text-navy-400 shrink-0 pt-0.5 text-xs">{t('dashboard.modal.fields.createdAt')}</dt>
+                    <dd className="text-navy-700 font-mono text-xs">
+                      {selected.reservationCreatedAt ? new Date(selected.reservationCreatedAt).toLocaleString('ja-JP') : '-'}
+                    </dd>
+
+                    <dt className="text-navy-400 shrink-0 pt-0.5 text-xs">{t('history.modal.fields.completedAt')}</dt>
+                    <dd className="text-navy-700 font-mono text-xs">
+                      {selected.completedAt ? new Date(selected.completedAt).toLocaleString('ja-JP') : '-'}
+                    </dd>
+
+                    <dt className="text-navy-400 shrink-0 pt-0.5 text-xs">{t('history.modal.fields.completedBy')}</dt>
+                    <dd className="text-navy-700 text-xs">{selected.completedByEmail || '-'}</dd>
+                  </dl>
+                </section>
+
+                {/* ── 訂正履歴タイムライン ───────────────── */}
+                {corrections.length > 0 && (
+                  <div>
+                    <h4 className="text-[10px] tracking-[0.2em] uppercase text-navy-400 pb-2 border-b border-cream-200 mb-4">
+                      {t('history.correction.historyToggle', { count: corrections.length })}
+                    </h4>
+                    <div className="space-y-4 relative">
+                      {/* タイムライン縦線 */}
+                      <div className="absolute left-[7px] top-2 bottom-2 w-px bg-cream-200" />
+                      {corrections.map((c) => (
+                        <div key={c.id} className="flex gap-3 relative">
+                          {/* タイムラインドット */}
+                          <div className="w-3.5 h-3.5 rounded-full bg-navy-200 border-2 border-white ring-1 ring-navy-300 shrink-0 mt-1 z-10" />
+                          <div className="flex-1 bg-cream-100/60 rounded-lg border border-cream-200 p-3 text-xs space-y-2">
+                            {/* ヘッダー */}
+                            <div className="flex justify-between items-center text-navy-400">
+                              <span className="font-mono">
+                                {new Intl.DateTimeFormat(i18n.language, { dateStyle: 'short', timeStyle: 'short' }).format(new Date(c.correctedAt))}
+                              </span>
+                              <span className="truncate ml-2 max-w-[12rem]">{c.correctedByEmail}</span>
+                            </div>
+                            {/* 変更フィールド */}
+                            {c.fields && Object.keys(c.fields).length > 0 && (
+                              <div className="space-y-1.5">
+                                {Object.entries(c.fields).map(([field, newVal]) => {
+                                  const original = (selected as unknown as Record<string, string>)[field] ?? '';
+                                  return (
+                                    <div key={field} className="flex items-center gap-1.5 flex-wrap">
+                                      <span className="font-medium text-navy-500 w-14 shrink-0 text-[11px]">
+                                        {t(FIELD_LABEL_KEYS[field] || field)}
+                                      </span>
+                                      <span className="text-navy-300 line-through text-[11px]">{original || '-'}</span>
+                                      <svg className="w-3 h-3 text-navy-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                      </svg>
+                                      <span className="text-navy-700 font-medium">{newVal || '-'}</span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                            {/* 訂正理由 */}
+                            {c.reason && (
+                              <p className="text-navy-500">
+                                <span className="font-medium text-navy-600">{t('history.correction.reason')}:</span>{' '}
+                                {c.reason}
+                              </p>
+                            )}
+                            {/* 追記 */}
+                            {c.addendum && (
+                              <p className="text-amber-700 bg-amber-50 rounded px-2 py-1">
+                                <span className="font-medium">{t('history.correction.addendum')}:</span>{' '}
+                                {c.addendum}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
-              </>
+              </div>
             )}
           </div>
+
+          {/* フッター */}
           <div className="flex gap-2 justify-end pt-4 border-t border-cream-200/60 mt-4">
             <Button variant="secondary" size="sm" onClick={openCorrectForm}>
               {t('history.action.correct')}
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => { setSelected(null); setHistoryOpen(false); }}>
+            <Button variant="ghost" size="sm" onClick={() => setSelected(null)}>
               {t('history.modal.close')}
             </Button>
           </div>
         </Modal>
       )}
 
-      {/* 訂正フォームモーダル */}
+      {/* ─── 訂正フォームモーダル ──────────────────── */}
       {correctFormOpen && selected && (
         <Modal
           open={correctFormOpen}
@@ -529,43 +876,70 @@ export default function VisitHistory() {
           className="max-w-lg"
         >
           <div className="overflow-y-auto -mx-5 px-5 space-y-5" style={{ maxHeight: 'calc(85vh - 10rem)' }}>
-            {/* フィールド選択セクション */}
+            {/* フィールド選択グリッド */}
             <div>
-              <p className="text-xs tracking-wider uppercase text-navy-400 font-body mb-2">
+              <p className="text-xs tracking-wider uppercase text-navy-400 font-body mb-3">
                 {t('history.correction.selectFields')}
               </p>
-              <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
                 {CORRECTABLE_FIELDS.map(field => {
                   const isChecked = selectedFields.has(field);
                   const currentVal = mergedData[field] ?? (selected as unknown as Record<string, string>)[field] ?? '';
                   return (
-                    <div key={field} className="space-y-1">
-                      <label className="flex items-center gap-2 cursor-pointer text-sm text-navy-700">
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => toggleField(field)}
-                          className="rounded border-cream-300 text-navy-700 focus:ring-gold/30"
-                        />
-                        {t(FIELD_LABEL_KEYS[field] || field)}
-                      </label>
-                      {isChecked && (
-                        <div className="ml-6 grid grid-cols-2 gap-2">
-                          <div>
-                            <p className="text-[11px] text-navy-400 mb-1">{t('history.correction.currentValue')}</p>
-                            <p className="text-sm text-navy-500 bg-cream-100 rounded px-2 py-1.5 break-all">{currentVal || '-'}</p>
-                          </div>
-                          <Input
-                            label={t('history.correction.newValue')}
-                            value={fieldValues[field] ?? ''}
-                            onChange={e => updateFieldValue(field, e.target.value)}
-                          />
-                        </div>
+                    <button
+                      key={field}
+                      type="button"
+                      onClick={() => toggleField(field)}
+                      className={cn(
+                        'text-left rounded-lg border px-3 py-2 text-sm transition-all',
+                        isChecked
+                          ? 'border-gold bg-gold/5 text-navy-700 shadow-sm'
+                          : 'border-cream-200 bg-white text-navy-500 hover:border-navy-300',
                       )}
-                    </div>
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className={cn(
+                          'w-4 h-4 rounded border flex items-center justify-center transition-all shrink-0',
+                          isChecked ? 'bg-navy-700 border-navy-700' : 'border-cream-300',
+                        )}>
+                          {isChecked && (
+                            <svg className="w-2.5 h-2.5 text-cream-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                            </svg>
+                          )}
+                        </div>
+                        <span className="font-medium text-xs">{t(FIELD_LABEL_KEYS[field])}</span>
+                      </div>
+                      <p className="text-[11px] text-navy-400 mt-0.5 ml-6 truncate">
+                        {currentVal || '-'}
+                      </p>
+                    </button>
                   );
                 })}
               </div>
+
+              {/* 選択フィールドの入力エリア */}
+              {selectedFields.size > 0 && (
+                <div className="space-y-3 mt-3 bg-cream-100/50 rounded-lg p-3 border border-cream-200">
+                  <p className="text-[11px] text-navy-400 font-medium tracking-wide">訂正後の値を入力</p>
+                  {Array.from(selectedFields).map(field => (
+                    <div key={field}>
+                      <p className="text-xs text-navy-400 mb-1.5">
+                        {t(FIELD_LABEL_KEYS[field])} — 訂正後の値
+                      </p>
+                      {renderCorrectionInput(field, fieldValues[field] ?? '', fieldErrors[field])}
+                      {field === 'zip' && corrZipMsg && (
+                        <p className={cn(
+                          'text-[11px] mt-0.5',
+                          corrZipMsg.includes('自動入力') ? 'text-green-600' : 'text-navy-400',
+                        )}>
+                          {corrZipMsg}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* 追記セクション */}
@@ -609,7 +983,11 @@ export default function VisitHistory() {
             <Button
               variant="primary"
               size="sm"
-              disabled={!correctReason.trim() || (selectedFields.size === 0 && !correctAddendum.trim())}
+              disabled={
+                !correctReason.trim() ||
+                (selectedFields.size === 0 && !correctAddendum.trim()) ||
+                Array.from(selectedFields).some(f => !!fieldErrors[f])
+              }
               onClick={() => setConfirmOpen(true)}
             >
               {t('history.correction.submit')}
@@ -618,7 +996,7 @@ export default function VisitHistory() {
         </Modal>
       )}
 
-      {/* 確認ダイアログ */}
+      {/* ─── 確認ダイアログ ───────────────────────── */}
       {confirmOpen && (
         <Modal open={confirmOpen} onClose={() => setConfirmOpen(false)} className="max-w-sm">
           <p className="text-sm text-navy-700 mb-4">{t('history.correction.confirm')}</p>

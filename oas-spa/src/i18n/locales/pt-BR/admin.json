@@ -184,7 +184,8 @@
       "notificationSent": "E-mail de notificação enviado ao paciente",
       "notificationSkipped": "Endereço de e-mail não cadastrado. Por favor, notifique o paciente manualmente",
       "noCorrection": "Sem correções",
-      "notCorrectable": "Este campo contém o julgamento profissional do terapeuta e não pode ser corrigido"
+      "notCorrectable": "Este campo contém o julgamento profissional do terapeuta e não pode ser corrigido",
+      "failed": "Falha na correção"
     }
   },
   "settings": {

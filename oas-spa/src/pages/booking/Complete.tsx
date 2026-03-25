@@ -18,7 +18,7 @@ const DEFAULT_RIGHTS_TEXT =
   '個人情報の開示・訂正・利用停止をご希望の場合は、当院窓口までお問い合わせください。本人確認の上、法令に基づき対応いたします。';
 
 export function Complete({ bookingId, form, onNewReservation, isAdminProxy }: Props) {
-  const { t } = useTranslation('booking');
+  const { t, i18n } = useTranslation('booking');
   const { clinic } = useClinic();
   const [copied, setCopied] = useState(false);
   const rightsText = clinic?.patientRightsContact?.trim() || DEFAULT_RIGHTS_TEXT;
@@ -88,7 +88,7 @@ export function Complete({ bookingId, form, onNewReservation, isAdminProxy }: Pr
             {t('complete.accepted')}
           </h2>
           <p className="relative text-sm text-cream/60 font-display">
-            {formatDateShort(form.date)} {form.time}〜 / {form.name}様
+            {formatDateShort(form.date, i18n.language)} {form.time}〜 / {form.name}様
           </p>
         </div>
       </div>

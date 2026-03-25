@@ -184,7 +184,8 @@
       "notificationSent": "Notification email sent to patient",
       "notificationSkipped": "No email address registered. Please notify the patient manually",
       "noCorrection": "No corrections",
-      "notCorrectable": "This field contains practitioner's professional judgment and cannot be corrected"
+      "notCorrectable": "This field contains practitioner's professional judgment and cannot be corrected",
+      "failed": "Correction failed"
     }
   },
   "settings": {

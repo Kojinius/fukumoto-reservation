@@ -18,7 +18,7 @@ interface Props {
 }
 
 export function DateTimeSelect({ date, time, onDateChange, onTimeChange, onNext }: Props) {
-  const { t } = useTranslation('booking');
+  const { t, i18n } = useTranslation('booking');
   const { clinic } = useClinic();
   const [bookedSlots, setBookedSlots] = useState<string[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
@@ -114,7 +114,7 @@ export function DateTimeSelect({ date, time, onDateChange, onTimeChange, onNext 
               </span>
               <div>
                 <p className="text-lg font-display font-light tracking-wide">
-                  {formatDateShort(date)}
+                  {formatDateShort(date, i18n.language)}
                 </p>
                 <p className="text-sm font-mono text-cream/70">
                   {time}〜

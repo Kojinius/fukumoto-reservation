@@ -184,7 +184,8 @@
       "notificationSent": "已向患者发送通知邮件",
       "notificationSkipped": "未注册邮箱地址，无法发送通知。请手动通知患者",
       "noCorrection": "无更正记录",
-      "notCorrectable": "此字段为治疗师的专业判断记录，不可更正"
+      "notCorrectable": "此字段为治疗师的专业判断记录，不可更正",
+      "failed": "更正失败"
     }
   },
   "settings": {

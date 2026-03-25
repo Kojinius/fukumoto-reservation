@@ -184,7 +184,8 @@
       "notificationSent": "患者への通知メールを送信しました",
       "notificationSkipped": "メールアドレス未登録のため通知を送信できませんでした。別途手動で通知してください",
       "noCorrection": "訂正なし",
-      "notCorrectable": "このフィールドは施術者の判断に基づく記録のため訂正対象外です"
+      "notCorrectable": "このフィールドは施術者の判断に基づく記録のため訂正対象外です",
+      "failed": "訂正に失敗しました"
     }
   },
   "settings": {

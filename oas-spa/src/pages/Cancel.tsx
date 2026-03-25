@@ -17,7 +17,7 @@ import type { ReservationRecord } from '@/types/reservation';
 type Phase = 'search' | 'detail' | 'done';
 
 export default function Cancel() {
-  const { t } = useTranslation('booking');
+  const { t, i18n } = useTranslation('booking');
   const { clinic } = useClinic();
   const { showToast } = useToast();
   const location = useLocation();
@@ -174,7 +174,7 @@ export default function Cancel() {
           <CardBody>
             <dl className="space-y-2 text-sm">
               {[
-                [t('cancel.labelDateTime'), `${formatDateShort(booking.date)} ${booking.time}〜`],
+                [t('cancel.labelDateTime'), `${formatDateShort(booking.date, i18n.language)} ${booking.time}〜`],
                 [t('cancel.labelReservationId'), booking.id],
                 [t('cancel.labelName'), booking.name],
                 [t('cancel.labelPhone'), booking.phone],

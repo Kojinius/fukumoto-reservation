@@ -184,7 +184,8 @@
       "notificationSent": "Đã gửi email thông báo cho bệnh nhân",
       "notificationSkipped": "Chưa đăng ký email. Vui lòng thông báo thủ công cho bệnh nhân",
       "noCorrection": "Không có sửa đổi",
-      "notCorrectable": "Trường này chứa đánh giá chuyên môn của người điều trị và không thể sửa đổi"
+      "notCorrectable": "Trường này chứa đánh giá chuyên môn của người điều trị và không thể sửa đổi",
+      "failed": "Sửa đổi thất bại"
     }
   },
   "settings": {

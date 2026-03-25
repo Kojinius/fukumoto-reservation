@@ -294,6 +294,12 @@ export default function Dashboard() {
           {/* 2段目: 検索フィールド */}
           <div className="grid grid-cols-5 gap-2">
             <Input
+              label={t('dashboard.search.scheduledDate')}
+              type="date"
+              value={dateFilter}
+              onChange={e => { setDateFilter(e.target.value); setKpiFilter(null); }}
+            />
+            <Input
               label={t('dashboard.search.name')}
               placeholder={t('dashboard.search.namePlaceholder')}
               value={search}
@@ -316,12 +322,6 @@ export default function Dashboard() {
               type="date"
               value={createdAtFilter}
               onChange={e => { setCreatedAtFilter(e.target.value); setKpiFilter(null); }}
-            />
-            <Input
-              label={t('dashboard.search.scheduledDate')}
-              type="date"
-              value={dateFilter}
-              onChange={e => { setDateFilter(e.target.value); setKpiFilter(null); }}
             />
           </div>
           {hasFilter && (

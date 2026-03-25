@@ -184,7 +184,8 @@
       "notificationSent": "Naipadala ang notification email sa pasyente",
       "notificationSkipped": "Walang nakarehistrong email address. Mangyaring manu-manong ipaalam sa pasyente",
       "noCorrection": "Walang pagwawasto",
-      "notCorrectable": "Ang field na ito ay propesyonal na paghatol ng therapist at hindi maaaring iwasto"
+      "notCorrectable": "Ang field na ito ay propesyonal na paghatol ng therapist at hindi maaaring iwasto",
+      "failed": "Nabigo ang pagwawasto"
     }
   },
   "settings": {

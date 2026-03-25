@@ -1104,6 +1104,7 @@ exports.correctVisitHistory = onRequest(
     // [SEC-11] レート制限
     const clientIp = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.ip;
     if (isRateLimited(clientIp)) {
+      auditLog("rate_limit.exceeded", { endpoint: "correctVisitHistory", ip: clientIp });
       res.status(429).json({ error: "リクエストが多すぎます。しばらくお待ちください。" }); return;
     }
 
@@ -1153,8 +1154,8 @@ exports.correctVisitHistory = onRequest(
         if (!ALLOWED_FIELDS.includes(key)) {
           res.status(400).json({ error: `許可されていないフィールド: ${key}` }); return;
         }
-        if (typeof fields[key] !== "string" || fields[key].length > 200) {
-          res.status(400).json({ error: `フィールド "${key}" は200文字以内の文字列で入力してください` }); return;
+        if (typeof fields[key] !== "string" || fields[key].trim().length === 0 || fields[key].length > 200) {
+          res.status(400).json({ error: `フィールド "${key}" は1〜200文字の文字列で入力してください` }); return;
         }
       }
       validatedFields = {};
@@ -1227,9 +1228,15 @@ exports.correctVisitHistory = onRequest(
           });
 
           // 送信成功 → notifiedAt を更新
-          const corrRef = db.collection("visit_histories").doc(historyId)
-                            .collection("corrections").doc(result.correctionId);
-          await corrRef.update({ notifiedAt: new Date().toISOString() });
+          // ※ メール送信はトランザクション外（Firestore tx はDB操作のみ対応）
+          // ※ 送信〜更新間のクラッシュは監査ログ（notified フラグ）で検出可能
+          try {
+            const corrRef = db.collection("visit_histories").doc(historyId)
+                              .collection("corrections").doc(result.correctionId);
+            await corrRef.update({ notifiedAt: new Date().toISOString() });
+          } catch (updateErr) {
+            console.error("correctVisitHistory: notifiedAt 更新失敗（メールは送信済み）:", updateErr);
+          }
           notified = true;
         } catch (mailErr) {
           // メール送信失敗は訂正処理自体を失敗にしない

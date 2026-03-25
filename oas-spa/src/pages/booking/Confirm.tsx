@@ -20,7 +20,7 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 export function Confirm({ form, loading, onSubmit, onBack }: Props) {
-  const { t } = useTranslation('booking');
+  const { t, i18n } = useTranslation('booking');
   const address = form.addressSub
     ? `${form.addressMain}　${form.addressSub}`
     : form.addressMain;
@@ -36,7 +36,7 @@ export function Confirm({ form, loading, onSubmit, onBack }: Props) {
             {t('confirm.appointmentDateTime')}
           </p>
           <p className="text-3xl font-display font-light text-cream tracking-wide">
-            {formatDateShort(form.date)}
+            {formatDateShort(form.date, i18n.language)}
           </p>
           <p className="text-lg font-mono font-medium text-cream/80 mt-1">
             {form.time}〜
