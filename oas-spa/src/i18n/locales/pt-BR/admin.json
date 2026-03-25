@@ -185,7 +185,10 @@
       "notificationSkipped": "Endereço de e-mail não cadastrado. Por favor, notifique o paciente manualmente",
       "noCorrection": "Sem correções",
       "notCorrectable": "Este campo contém o julgamento profissional do terapeuta e não pode ser corrigido",
-      "failed": "Falha na correção"
+      "failed": "Falha na correção",
+      "requestNotice": "As correções devem ser realizadas somente mediante solicitação do próprio paciente (APPI Art. 34)",
+      "fieldRequired": "Por favor, insira o valor corrigido",
+      "fieldInvalid": "Valor inválido"
     }
   },
   "settings": {

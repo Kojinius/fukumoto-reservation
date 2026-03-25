@@ -66,7 +66,7 @@ const FIELD_CONFIG: Record<string, FieldConfig> = {
   zip:       { type: 'zip', validate: isValidZip, maxLength: 8 },
   address:   { type: 'text', maxLength: 200 },
   phone:     { type: 'tel', validate: isValidPhone, maxLength: 20 },
-  email:     { type: 'email', validate: (v) => !v || isValidEmail(v), maxLength: 200 },
+  email:     { type: 'email', validate: isValidEmail, maxLength: 200 },
   gender: {
     type: 'select',
     options: [
@@ -317,15 +317,19 @@ export default function VisitHistory() {
   const updateFieldValue = useCallback((field: string, value: string) => {
     setFieldValues(prev => ({ ...prev, [field]: value }));
     const config = FIELD_CONFIG[field];
-    if (config?.validate && value.trim()) {
+    // select型は空値も有効な選択肢（gender: 未設定）
+    if (config?.type === 'select') return;
+    if (!value.trim()) {
+      setFieldErrors(prev => ({ ...prev, [field]: t('history.correction.fieldRequired') }));
+    } else if (config?.validate) {
       setFieldErrors(prev => ({
         ...prev,
-        [field]: config.validate!(value) ? '' : '入力値が不正です',
+        [field]: config.validate!(value) ? '' : t('history.correction.fieldInvalid'),
       }));
     } else {
       setFieldErrors(prev => ({ ...prev, [field]: '' }));
     }
-  }, []);
+  }, [t]);
 
   // refを最新の updateFieldValue に同期
   updateFieldValueRef.current = updateFieldValue;
@@ -645,6 +649,13 @@ export default function VisitHistory() {
                     <span className="text-sm font-medium text-amber-800">{t('adminProxy.banner')}</span>
                   </div>
                 )}
+                {/* ── 訂正権注意バナー ─────────────────── */}
+                <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-2.5 flex items-start gap-2">
+                  <svg className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                  </svg>
+                  <span className="text-sm text-amber-800">{t('history.correction.requestNotice')}</span>
+                </div>
                 {/* ── Patient hero ─────────────────────── */}
                 <div className="flex items-start gap-4">
                   {/* イニシャルアバター */}
@@ -905,6 +916,13 @@ export default function VisitHistory() {
           className="max-w-lg"
         >
           <div className="overflow-y-auto -mx-5 px-5 space-y-5" style={{ maxHeight: 'calc(85vh - 10rem)' }}>
+            {/* 訂正権注意バナー */}
+            <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-2.5 flex items-start gap-2">
+              <svg className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+              </svg>
+              <span className="text-sm text-amber-800">{t('history.correction.requestNotice')}</span>
+            </div>
             {/* フィールド選択グリッド */}
             <div>
               <p className="text-xs tracking-wider uppercase text-navy-400 font-body mb-3">
@@ -1015,7 +1033,11 @@ export default function VisitHistory() {
               disabled={
                 !correctReason.trim() ||
                 (selectedFields.size === 0 && !correctAddendum.trim()) ||
-                Array.from(selectedFields).some(f => !!fieldErrors[f])
+                Array.from(selectedFields).some(f => !!fieldErrors[f]) ||
+                // 非select型フィールドが空値のまま選択されている場合もブロック
+                Array.from(selectedFields).some(f =>
+                  FIELD_CONFIG[f]?.type !== 'select' && !(fieldValues[f] ?? '').trim()
+                )
               }
               onClick={() => setConfirmOpen(true)}
             >

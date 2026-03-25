@@ -185,7 +185,10 @@
       "notificationSkipped": "メールアドレス未登録のため通知を送信できませんでした。別途手動で通知してください",
       "noCorrection": "訂正なし",
       "notCorrectable": "このフィールドは施術者の判断に基づく記録のため訂正対象外です",
-      "failed": "訂正に失敗しました"
+      "failed": "訂正に失敗しました",
+      "requestNotice": "訂正は患者本人から訂正の請求があった場合にのみ実施してください（個人情報保護法 第34条）",
+      "fieldRequired": "訂正後の値を入力してください",
+      "fieldInvalid": "入力値が不正です"
     }
   },
   "settings": {

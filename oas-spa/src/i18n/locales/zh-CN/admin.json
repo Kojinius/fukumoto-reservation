@@ -185,7 +185,10 @@
       "notificationSkipped": "未注册邮箱地址，无法发送通知。请手动通知患者",
       "noCorrection": "无更正记录",
       "notCorrectable": "此字段为治疗师的专业判断记录，不可更正",
-      "failed": "更正失败"
+      "failed": "更正失败",
+      "requestNotice": "仅在患者本人提出更正请求时方可进行更正（个人信息保护法 第34条）",
+      "fieldRequired": "请输入更正后的值",
+      "fieldInvalid": "输入值无效"
     }
   },
   "settings": {

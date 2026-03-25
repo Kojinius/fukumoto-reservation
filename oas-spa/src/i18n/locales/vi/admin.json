@@ -185,7 +185,10 @@
       "notificationSkipped": "Chưa đăng ký email. Vui lòng thông báo thủ công cho bệnh nhân",
       "noCorrection": "Không có sửa đổi",
       "notCorrectable": "Trường này chứa đánh giá chuyên môn của người điều trị và không thể sửa đổi",
-      "failed": "Sửa đổi thất bại"
+      "failed": "Sửa đổi thất bại",
+      "requestNotice": "Chỉ thực hiện chỉnh sửa khi có yêu cầu từ chính bệnh nhân (APPI Điều 34)",
+      "fieldRequired": "Vui lòng nhập giá trị đã sửa",
+      "fieldInvalid": "Giá trị không hợp lệ"
     }
   },
   "settings": {

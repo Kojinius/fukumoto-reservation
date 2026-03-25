@@ -185,7 +185,10 @@
       "notificationSkipped": "Walang nakarehistrong email address. Mangyaring manu-manong ipaalam sa pasyente",
       "noCorrection": "Walang pagwawasto",
       "notCorrectable": "Ang field na ito ay propesyonal na paghatol ng therapist at hindi maaaring iwasto",
-      "failed": "Nabigo ang pagwawasto"
+      "failed": "Nabigo ang pagwawasto",
+      "requestNotice": "Ang pagwawasto ay dapat lamang isagawa kapag hiniling ng mismong pasyente (APPI Art. 34)",
+      "fieldRequired": "Mangyaring ipasok ang tamang halaga",
+      "fieldInvalid": "Invalid na input"
     }
   },
   "settings": {

@@ -185,7 +185,10 @@
       "notificationSkipped": "No email address registered. Please notify the patient manually",
       "noCorrection": "No corrections",
       "notCorrectable": "This field contains practitioner's professional judgment and cannot be corrected",
-      "failed": "Correction failed"
+      "failed": "Correction failed",
+      "requestNotice": "Corrections should only be performed when requested by the patient (APPI Art. 34)",
+      "fieldRequired": "Please enter the corrected value",
+      "fieldInvalid": "Invalid input"
     }
   },
   "settings": {

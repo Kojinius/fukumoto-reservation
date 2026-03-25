@@ -185,7 +185,10 @@
       "notificationSkipped": "이메일 주소가 등록되지 않아 통지를 발송할 수 없었습니다. 별도로 수동 통지해 주세요",
       "noCorrection": "정정 없음",
       "notCorrectable": "이 항목은 시술자의 전문적 판단에 의한 기록이므로 정정 대상이 아닙니다",
-      "failed": "수정에 실패했습니다"
+      "failed": "수정에 실패했습니다",
+      "requestNotice": "정정은 환자 본인의 정정 청구가 있는 경우에만 실시하십시오（개인정보 보호법 제34조）",
+      "fieldRequired": "정정 후 값을 입력해 주세요",
+      "fieldInvalid": "입력값이 올바르지 않습니다"
     }
   },
   "settings": {
