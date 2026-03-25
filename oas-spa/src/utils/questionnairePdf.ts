@@ -2,14 +2,13 @@
  * 問診票 PDF 生成（pdf-lib + fontkit）
  * 日本語フォント: Noto Sans JP（Google Fonts CDN から動的ロード）
  */
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import { PDFDocument, rgb } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import type { QuestionnaireRecord } from '@/types/questionnaire';
 import { calcAge } from '@/utils/date';
 
-/** Google Fonts CDN の Noto Sans JP Regular TTF URL */
-const NOTO_SANS_JP_URL =
-  'https://cdn.jsdelivr.net/gh/notofonts/noto-cjk@main/Sans/OTF/Japanese/NotoSansCJKjp-Regular.otf';
+/** ローカル Noto Sans JP Regular TTF（public/fonts/ に配置） */
+const NOTO_SANS_JP_URL = '/fonts/NotoSansJP-Regular.ttf';
 
 const PAGE_W = 595.28; // A4
 const PAGE_H = 841.89;
@@ -57,14 +56,11 @@ export async function generateQuestionnairePdf(
   const pdfDoc = await PDFDocument.create();
   pdfDoc.registerFontkit(fontkit);
 
-  // 日本語フォントを読み込む（フォールバック: Helvetica）
-  let font;
-  try {
-    const fontBytes = await fetch(NOTO_SANS_JP_URL).then(r => r.arrayBuffer());
-    font = await pdfDoc.embedFont(fontBytes);
-  } catch {
-    font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-  }
+  // 日本語フォントを読み込む（ローカル TTF — フォールバック不可、日本語必須）
+  const fontRes = await fetch(NOTO_SANS_JP_URL);
+  if (!fontRes.ok) throw new Error(`フォント読み込み失敗: ${fontRes.status}`);
+  const fontBytes = await fontRes.arrayBuffer();
+  const font = await pdfDoc.embedFont(fontBytes);
 
   let page = pdfDoc.addPage([PAGE_W, PAGE_H]);
   let y = PAGE_H - MARGIN;

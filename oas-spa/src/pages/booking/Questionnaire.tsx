@@ -60,24 +60,27 @@ export default function Questionnaire() {
   const [bookingGender, setBookingGender] = useState('');
 
   // 予約情報を読み込み、既存の問診票があればプリフィル
+  // reservations は isAdmin() 必須のため未認証患者は読めない → Promise.allSettled で個別処理
   useEffect(() => {
     if (!bookingId) { setLoading(false); return; }
     (async () => {
       try {
-        const [resSnap, qSnap] = await Promise.all([
+        const [resResult, qResult] = await Promise.allSettled([
           getDoc(doc(db, 'reservations', bookingId)),
           getDoc(doc(db, 'questionnaires', bookingId)),
         ]);
-        if (resSnap.exists()) {
+        const resSnap = resResult.status === 'fulfilled' ? resResult.value : null;
+        const qSnap = qResult.status === 'fulfilled' ? qResult.value : null;
+        if (resSnap?.exists()) {
           const d = resSnap.data();
           setPatientName(d.name || '');
           setBookingGender(d.gender || '');
           // 症状をプリフィル
-          if (d.symptoms && !qSnap.exists()) {
+          if (d.symptoms && !qSnap?.exists()) {
             setForm(prev => ({ ...prev, chiefComplaint: d.symptoms }));
           }
         }
-        if (qSnap.exists()) {
+        if (qSnap?.exists()) {
           setSubmitted(true);
         }
       } catch {
@@ -118,7 +121,8 @@ export default function Questionnaire() {
       });
       setSubmitted(true);
       showToast(t('submitSuccess'), 'success');
-    } catch {
+    } catch (e) {
+      console.error('[Questionnaire] 送信エラー:', e);
       showToast(t('submitError'), 'error');
     } finally {
       setSubmitting(false);

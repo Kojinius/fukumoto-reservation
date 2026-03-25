@@ -26,12 +26,12 @@
 | ✅ | LEGAL-H2 | リマインダーメール配信同意 | P2 |
 | ✅ | LEGAL-H3 | 患者権利行使機能（開示・訂正・利用停止） | P2 |
 | ✅ | LEGAL-M1 | 利用規約タブ（Settings画面）— C2で実装済 | P3 |
-| ⬜ | LEGAL-M2 | PPデフォルトテンプレート | P3 |
+| ✅ | LEGAL-M2 | PPデフォルトテンプレート | P3 |
 | ✅ | OAS-UX-T02 | キャンセルフロー改修（管理者強制理由入力+患者通知、患者任意理由+管理者通知） | P1 |
 | ✅ | OAS-UX-T03 | 予約一覧ソート（SortableHeader、AMS移植） | P2 |
 | ✅ | OAS-UX-T04 | UI/UX改善（ペンディングバッジ、モーダルスクロール、最終ログイン表示、アナウンスバナー改行） | P2 |
 | ✅ | OAS-UX-T05 | ポリシー再生成機能（確認ダイアログ付き） | P2 |
-| ⬜ | OAS-UX-T01 | 管理ヘッダーにTOS確認アイコン（低優先） | P3 |
+| ✅ | OAS-UX-T01 | 管理ヘッダーにTOS確認アイコン（低優先） | P3 |
 | ✅ | OAS-FUTURE-T01 | 多国語対応（i18n）— 7か国語、AMS同等 | P2 |
 | ✅ | OAS-HIST-T01 | 患者別診察履歴管理（completeVisit CF + /admin/history画面 + Dashboard連携） | P1 |
 | ⬜ | OAS-FUTURE-T02 | 顧客管理システム（新規プロジェクト候補） | P3 |
@@ -50,13 +50,13 @@
 
 | Status | Source | Finding | Priority |
 |--------|--------|---------|----------|
-| ⬜ | CR-PR7 | リマインダーメール opt-out 機構（特定電子メール法対応） | P2 |
-| ⬜ | CR-PR7 | メール削除時の reminderEmailConsent リセット | P2 |
-| ⬜ | CR-PR7 | 新規Textareaフィールドの max-length 統一 | P3 |
+| ✅ | CR-PR7 | リマインダーメール opt-out 機構（特定電子メール法対応） | P2 |
+| ✅ | CR-PR7 | メール削除時の reminderEmailConsent リセット | P2 |
+| ✅ | CR-PR7 | 新規Textareaフィールドの max-length 統一 | P3 |
 | ⬜ | CR-PR7 | iframe sandbox 属性追加（PR #7で部分対応、Google Maps embed fix済み） | P3 |
 | ⬜ | CR-PR7 | 時刻フォーマットのゼロパディング互換性確認 | P3 |
-| ⬜ | CR-PR15 | visit_histories フルスキャン → ページネーション/クエリ上限対応（大規模データ対策） | P2 |
-| ⬜ | CR-PR15 | completeVisit CF: スロットステータス確認追加（二重完了防止強化） | P2 |
+| ✅ | CR-PR15 | visit_histories フルスキャン → ページネーション/クエリ上限対応（大規模データ対策） | P2 |
+| ✅ | CR-PR15 | completeVisit CF: スロットステータス確認追加（二重完了防止強化） | P2 |
 | ⬜ | CR-PR15 | Dashboard KPI: `completed` ステータスを件数カウントに含める | P3 |
 | ⬜ | CR-PR15 | toLocaleString ロケールハードコード → i18n対応の日付フォーマット | P3 |
 
@@ -64,8 +64,8 @@
 
 | Status | ID | Task | Priority |
 |--------|-----|------|----------|
-| ⬜ | AUDIT-01 | APPI第34条 訂正権対応 — visit_histories 論理削除+新規作成の運用フロー設計 | P1 |
-| ⬜ | AUDIT-02 | 予約フォーム同意注記追加 — 「診察履歴として保管されます」文言（7言語） | P2 |
-| ⬜ | AUDIT-03 | 参照ログ（アクセストレーサビリティ）— 詳細モーダル閲覧ログ | P3 |
+| ✅ | AUDIT-01 | APPI第34条 訂正権対応 — visit_histories 論理削除+新規作成の運用フロー設計 | P1 |
+| ✅ | AUDIT-02 | 予約フォーム同意注記追加 — 「診察履歴として保管されます」文言（7言語） | P2 |
+| ✅ | AUDIT-03 | 参照ログ（アクセストレーサビリティ）— 詳細モーダル閲覧ログ | P3 |
 
-**Completed: 31 / Remaining: 18**
+**Completed: 39 / Remaining: 10**

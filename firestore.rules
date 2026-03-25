@@ -113,7 +113,8 @@ service cloud.firestore {
         && request.resource.data.reservationId is string
         && request.resource.data.chiefComplaint is string
         && request.resource.data.chiefComplaint.size() <= 1000;
-      // 読み取りは管理者のみ（患者情報保護）
+      // 読み取り: 未認証患者が重複送信チェック（qSnap.exists()）に使用するため公開
+      // TODO: Cloud Function 経由に移行し isAdmin() に変更（患者情報保護強化）
       allow read: if true;
       allow update, delete: if isAdmin();
     }

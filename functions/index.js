@@ -1046,6 +1046,12 @@ exports.optOutReminder = onRequest(
     if (req.method === "OPTIONS") { res.status(204).send(""); return; }
     if (req.method !== "GET") { res.status(405).send("Method Not Allowed"); return; }
 
+    // [SEC-11] レート制限（配信停止エンドポイントの乱用防止）
+    const clientIp = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.ip;
+    if (isRateLimited(clientIp)) {
+      res.status(429).send("リクエストが多すぎます。しばらくお待ちください。"); return;
+    }
+
     const { id, token } = req.query;
     if (!id || !token || typeof id !== "string" || typeof token !== "string") {
       res.status(400).send("パラメータが不正です"); return;
