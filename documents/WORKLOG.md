@@ -479,3 +479,20 @@ Major enhancement batch covering 8 task items in a single sprint on branch `feat
 
 #### Code Review (PR #19)
 - Running (Sonnet 4.6 / 5 parallel agents)
+
+#### Code Review Results (PR #19 — feature/oas-enhancement-batch)
+
+- 5 parallel agents ran; all issues scored below 80 threshold → no public comment posted
+- Key finding (score 75): `reminderEmailConsent` not reset when email cleared → **fixed in same session**
+- Confirmed: all 7 locale `reminderEmailNeedsEmail` keys present and correctly namespaced
+
+#### Post-Review Fixes (same session)
+
+| Fix | Details |
+|-----|---------|
+| reminderEmailConsent reset | PatientForm.tsx: email onChange now resets reminderEmailConsent to false when email cleared |
+| Clinic initial icon | Header.tsx: replaced clinicLogo conditional with clinic name initial (serif gold on navy gradient); logo upload deferred as future feature |
+| reminderEmailNeedsEmail i18n | Added to all 7 locales (en, ko, zh-CN, vi, pt-BR, tl) — shown as hint when email is empty |
+
+**Commits pushed**: `3181a1f`, `033ce98` → `feature/oas-enhancement-batch`
+**Deployed**: `hosting:oas` — https://oas-kojinius.web.app
