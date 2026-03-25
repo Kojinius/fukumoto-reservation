@@ -1195,8 +1195,10 @@ exports.correctVisitHistory = onRequest(
         if (!ALLOWED_FIELDS.includes(key)) {
           res.status(400).json({ error: `許可されていないフィールド: ${key}` }); return;
         }
-        if (typeof fields[key] !== "string" || fields[key].trim().length === 0 || fields[key].length > 200) {
-          res.status(400).json({ error: `フィールド "${key}" は1〜200文字の文字列で入力してください` }); return;
+        // gender は「未設定」を表す空文字列が有効値のため、空値チェックから除外する
+        const isSelectField = key === "gender";
+        if (typeof fields[key] !== "string" || (!isSelectField && fields[key].trim().length === 0) || fields[key].length > 200) {
+          res.status(400).json({ error: `フィールド "${key}" は${isSelectField ? "0〜" : "1〜"}200文字の文字列で入力してください` }); return;
         }
         if (key === "email" && validateEmail(fields[key]) !== null) {
           res.status(400).json({ error: "メールアドレスの形式が不正です" }); return;
