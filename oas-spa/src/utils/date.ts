@@ -24,12 +24,13 @@ export function formatDateTimeJa(dateStr: string, time: string): string {
   return `${m}/${d}（${wd}） ${time}`;
 }
 
-/** "YYYY-MM-DD" → "M月D日（曜）" */
-export function formatDateShort(dateStr: string): string {
+/** "YYYY-MM-DD" → locale-aware short date with weekday (例: "3月26日 (木)", "Mar 26 (Thu)") */
+export function formatDateShort(dateStr: string, locale = 'ja'): string {
   const [y, m, d] = dateStr.split('-').map(Number);
   const date = new Date(y, m - 1, d);
-  const wd = WEEKDAYS[date.getDay()];
-  return `${m}月${d}日（${wd}）`;
+  const monthDay = new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric' }).format(date);
+  const weekday = new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(date);
+  return `${monthDay} (${weekday})`;
 }
 
 /** 今日の日付を "YYYY-MM-DD" で返す */

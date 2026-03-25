@@ -148,7 +148,8 @@
       "clearSort": "Clear Sort"
     },
     "action": {
-      "detail": "View"
+      "detail": "View",
+      "correct": "Correct"
     },
     "emptyState": "No visit history found",
     "modal": {
@@ -163,6 +164,31 @@
       "date": "Visit Date",
       "time": "Visit Time",
       "filename": "visit-history_"
+    },
+    "correction": {
+      "title": "Correct Visit History",
+      "reason": "Reason for Correction (Required)",
+      "reasonPlaceholder": "Enter the reason for this correction",
+      "selectFields": "Select fields to correct",
+      "currentValue": "Current Value",
+      "newValue": "Corrected Value",
+      "confirm": "This correction cannot be undone. Proceed?",
+      "submit": "Submit Correction",
+      "badge": "Corrected",
+      "historyToggle": "Correction History ({{count}})",
+      "changedFrom": "Before",
+      "changedTo": "After",
+      "addendum": "Addendum",
+      "addendumPlaceholder": "Enter a supplementary note for factual errors",
+      "addendumHint": "Factual errors in symptoms or notes cannot be directly corrected, but you can add a supplementary note",
+      "notificationSent": "Notification email sent to patient",
+      "notificationSkipped": "No email address registered. Please notify the patient manually",
+      "noCorrection": "No corrections",
+      "notCorrectable": "This field contains practitioner's professional judgment and cannot be corrected",
+      "failed": "Correction failed",
+      "requestNotice": "Corrections should only be performed when requested by the patient (APPI Art. 34)",
+      "fieldRequired": "Please enter the corrected value",
+      "fieldInvalid": "Invalid input"
     }
   },
   "settings": {
@@ -322,6 +348,10 @@
       "amSession": "morning",
       "pmSession": "afternoon"
     }
+  },
+  "adminProxy": {
+    "banner": "Admin Proxy Booking",
+    "badge": "Proxy"
   },
   "changePassword": {
     "title": "Change Password",

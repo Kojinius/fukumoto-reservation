@@ -42,6 +42,8 @@ export interface ReservationRecord {
   cancelledBy?: 'admin' | 'patient';
   cancelReason?: string;
   cancelledAt?: string;
+  /** 管理者代行入力フラグ */
+  bookedBy?: 'admin';
   /** メタデータ */
   createdAt: string;
 }
@@ -99,11 +101,27 @@ export interface VisitHistoryRecord {
   cancelledBy?: 'admin' | 'patient';
   cancelReason?: string;
   cancelledAt?: string;
+  /** 管理者代行入力フラグ */
+  bookedBy?: 'admin';
   /** 診察完了メタデータ */
   completedAt: string;
   completedBy: string;
   completedByEmail: string;
   createdAt: string;
+}
+
+/** 訂正履歴レコード（visit_histories/{id}/corrections サブコレクション） */
+export interface CorrectionRecord {
+  id: string;
+  correctedBy: string;
+  correctedByEmail: string;
+  correctedAt: string;
+  reason: string;
+  fields: Partial<Record<string, string>>;
+  /** 訂正前の値（イベントソーシング: 監査証跡用） */
+  beforeValues?: Partial<Record<string, string>> | null;
+  addendum?: string | null;
+  notifiedAt?: string | null;
 }
 
 /** 時間スロット（slots コレクション） */

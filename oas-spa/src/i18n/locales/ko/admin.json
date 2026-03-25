@@ -148,7 +148,8 @@
       "clearSort": "정렬 초기화"
     },
     "action": {
-      "detail": "상세"
+      "detail": "상세",
+      "correct": "정정"
     },
     "emptyState": "진찰 이력이 없습니다",
     "modal": {
@@ -163,6 +164,31 @@
       "date": "진찰일",
       "time": "진찰 시간",
       "filename": "진찰이력_"
+    },
+    "correction": {
+      "title": "진료 기록 정정",
+      "reason": "정정 사유 (필수)",
+      "reasonPlaceholder": "정정 사유를 입력해 주세요",
+      "selectFields": "정정할 항목을 선택하세요",
+      "currentValue": "현재 값",
+      "newValue": "정정 후 값",
+      "confirm": "이 정정은 취소할 수 없습니다. 실행하시겠습니까?",
+      "submit": "정정 실행",
+      "badge": "정정됨",
+      "historyToggle": "정정 이력 ({{count}}건)",
+      "changedFrom": "변경 전",
+      "changedTo": "변경 후",
+      "addendum": "추가 기록",
+      "addendumPlaceholder": "사실 오류에 대한 보충 설명을 입력해 주세요",
+      "addendumHint": "증상 및 특기사항의 사실 오류는 직접 정정할 수 없지만 추가 기록으로 보충할 수 있습니다",
+      "notificationSent": "환자에게 통지 이메일을 발송했습니다",
+      "notificationSkipped": "이메일 주소가 등록되지 않아 통지를 발송할 수 없었습니다. 별도로 수동 통지해 주세요",
+      "noCorrection": "정정 없음",
+      "notCorrectable": "이 항목은 시술자의 전문적 판단에 의한 기록이므로 정정 대상이 아닙니다",
+      "failed": "수정에 실패했습니다",
+      "requestNotice": "정정은 환자 본인의 정정 청구가 있는 경우에만 실시하십시오（개인정보 보호법 제34조）",
+      "fieldRequired": "정정 후 값을 입력해 주세요",
+      "fieldInvalid": "입력값이 올바르지 않습니다"
     }
   },
   "settings": {
@@ -322,6 +348,10 @@
       "amSession": "오전",
       "pmSession": "오후"
     }
+  },
+  "adminProxy": {
+    "banner": "관리자 대행 입력",
+    "badge": "대행"
   },
   "changePassword": {
     "title": "비밀번호 변경",

@@ -148,7 +148,8 @@
       "clearSort": "Xóa sắp xếp"
     },
     "action": {
-      "detail": "Chi tiết"
+      "detail": "Chi tiết",
+      "correct": "Sửa đổi"
     },
     "emptyState": "Không có lịch sử khám",
     "modal": {
@@ -163,6 +164,31 @@
       "date": "Ngày khám",
       "time": "Giờ khám",
       "filename": "lich-su-kham_"
+    },
+    "correction": {
+      "title": "Sửa đổi hồ sơ khám",
+      "reason": "Lý do sửa đổi (Bắt buộc)",
+      "reasonPlaceholder": "Nhập lý do sửa đổi",
+      "selectFields": "Chọn các trường cần sửa đổi",
+      "currentValue": "Giá trị hiện tại",
+      "newValue": "Giá trị sau sửa đổi",
+      "confirm": "Thao tác sửa đổi này không thể hoàn tác. Bạn có muốn tiếp tục?",
+      "submit": "Thực hiện sửa đổi",
+      "badge": "Đã sửa",
+      "historyToggle": "Lịch sử sửa đổi ({{count}} mục)",
+      "changedFrom": "Trước khi sửa",
+      "changedTo": "Sau khi sửa",
+      "addendum": "Ghi chú bổ sung",
+      "addendumPlaceholder": "Nhập giải thích bổ sung cho lỗi thực tế",
+      "addendumHint": "Lỗi thực tế trong triệu chứng hoặc ghi chú không thể sửa trực tiếp, nhưng có thể bổ sung ghi chú",
+      "notificationSent": "Đã gửi email thông báo cho bệnh nhân",
+      "notificationSkipped": "Chưa đăng ký email. Vui lòng thông báo thủ công cho bệnh nhân",
+      "noCorrection": "Không có sửa đổi",
+      "notCorrectable": "Trường này chứa đánh giá chuyên môn của người điều trị và không thể sửa đổi",
+      "failed": "Sửa đổi thất bại",
+      "requestNotice": "Chỉ thực hiện chỉnh sửa khi có yêu cầu từ chính bệnh nhân (APPI Điều 34)",
+      "fieldRequired": "Vui lòng nhập giá trị đã sửa",
+      "fieldInvalid": "Giá trị không hợp lệ"
     }
   },
   "settings": {
@@ -322,6 +348,10 @@
       "amSession": "buổi sáng",
       "pmSession": "buổi chiều"
     }
+  },
+  "adminProxy": {
+    "banner": "Nhập liệu thay quản trị",
+    "badge": "Thay"
   },
   "changePassword": {
     "title": "Đổi Mật Khẩu",
