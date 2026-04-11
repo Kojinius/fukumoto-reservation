@@ -9,6 +9,24 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    name: 'KALENEX — ワークマネジメントSaaS',
+    description:
+      'カレンダー・シフト・タスク・日報・メモを一元管理するワークマネジメントプラットフォーム。WorkHubキャンバスでプロジェクト全体を俯瞰し、AIアシスタントがスケジュール調整から文章生成まで支援。Chatwork・Notion連携、申請承認フロー、Stripeサブスクリプション課金を搭載。',
+    emoji: '📅',
+    url: 'https://kalenex.kojinius.jp',
+    stack: ['Next.js 15', 'TypeScript', 'Tailwind CSS', 'Firebase', 'React Flow', 'dnd-kit', 'TipTap', 'Stripe', 'Claude AI'],
+    external: true,
+  },
+  {
+    name: 'Hiraké — デザイナー系ポートフォリオサイト',
+    description:
+      'デザイナー系スタッフの作品を一元管理・公開するポートフォリオプラットフォーム。エディトリアルダーク×アンバーのデザインシステム、FLIP アニメーション、スクロールリビール、PWA 対応。招待リンクによるゲスト認証とロールベースの作品審査フローを備える。',
+    emoji: '🎨',
+    url: 'https://hirake.kojinius.jp',
+    stack: ['React 19', 'Vite 6', 'TypeScript', 'Tailwind CSS', 'Firebase Auth', 'Cloud Functions Gen2', 'PWA'],
+    external: true,
+  },
+  {
     name: '医療業界特化型オンライン予約システム',
     description:
       '患者が 24 時間予約できる Web アプリ。スタッフ向け管理ダッシュボード・メール通知・PDF出力などを実装。',
