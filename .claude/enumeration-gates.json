@@ -1,0 +1,9 @@
+{
+  "_readme": [
+    "2026-07-27 20:13:53 claude-opus-5[1m] セッションターン数：5 — 列挙ゲートの登録簿（Stop フックが読む）。",
+    "gates が空の場合は _why_empty が必須。理由の無い空登録はブロックされる（＝判断と放置を区別するため）。",
+    "再発クラスが観測されたら harness を作って gates へ足す（audit-closure §2b 原則0）。"
+  ],
+  "gates": [],
+  "_why_empty": "実測 2026-07-27: 最終コミット 2026-04-11（107 日前）／src=無・scripts=無・package.json=無・firebase.json=有・firestore.rules=有。本 PJ は firebase.json と firestore.rules を持つため、shiori で実在が確認された再発クラス（Vercel/ホスティングの自動デプロイはアプリだけで rules は firebase deploy が別に要る＝マージ＝本番反映と取り違えて本番が壊れる）が構造上そのまま当てはまる。ただし現時点では開発が止まっており、rules を触る変更が発生していないため、走らせても常に同じ結果しか出ない錠になる。よって今は空登録とし、判断を記録する。★再開して rules/indexes を触るときは shiori の scripts/check-rules-deploy.mjs と documents/deployed-rules.json を移植して gates へ登録すること。"
+}
